@@ -1,33 +1,29 @@
 from typing import Dict
 
 from envs.mechanics.card import Card
-from envs.mechanics.enums import *
 from envs.mechanics.noble import Noble
 from envs.data.game_settings import *
 
-import envs.mechanics.Utils.utils_functions as utils
-from functools import reduce
-
 
 class PlayersHand:
-    """A class that describes possesions of one player."""
+    """A class that describes possessions of one player."""
     def __init__(self) -> None:
-        self.coins_possesed = {color : 0 for color in GemColor}
-        self.cards_possesed = set()
+        self.gems_possessed = {color : 0 for color in GemColor}
+        self.cards_possessed = set()
         self.reserved_cards = set()
-        self.nobles_possesed = set()
+        self.nobles_possessed = set()
 
     def add_card_to_my_possesions(self,
                  card: Card) -> None:
-        self.cards_possesed.add(card)
+        self.cards_possessed.add(card)
 
     def add_noble_to_my_possesions(self,
                   noble_card: Noble) -> None:
-        self.nobles_possesed.add(noble_card)
+        self.nobles_possessed.add(noble_card)
 
-    def earn_coins(self,
-                   coins: Dict[GemColor, int]) -> None:
-        self.coins = utils.add_wallets(self.coins, coins)
+    def add_gems_to_my_possessions(self,
+                   gems_to_add: Dict[GemColor, int]) -> None:
+        self.gems_possessed = utils.add_wallets(self.gems_possessed, coins)
 
     def pay_coins(self,
                   coins: Dict[GemColor, int]) -> None:

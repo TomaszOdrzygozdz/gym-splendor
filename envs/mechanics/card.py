@@ -17,7 +17,7 @@ class Card(PreCard):
         name: Name of the card (string).
         id: Identificator of the card (integer). Useful for one-hot encoding of the card.
         row: Row to which this card belong (Cheap, Medium or Expensive).
-        price: Dictionary with keys being gem color and values being integers. This dictionary describes the price of
+        price: Dictionary with keys being gem colors and values being integers. This dictionary describes the price of
         card.
         profit: Discount that this card gives when buying next cards.
         vistory_points: Victory points given by this card."""
