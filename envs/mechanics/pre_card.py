@@ -1,6 +1,7 @@
+from typing import Dict
+
 from abc import ABCMeta, abstractmethod
 from envs.mechanics.enums import GemColor
-from typing import Dict
 
 class PreCard(metaclass=ABCMeta):
     '''This is an abstract class that shares features of both game card and noble card. Classes: Card and Noble inherits

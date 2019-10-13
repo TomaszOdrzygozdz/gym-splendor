@@ -1,5 +1,6 @@
-from envs.mechanics.enums import Row, GemColor
 from typing import Dict
+
+from envs.mechanics.enums import Row, GemColor
 from envs.mechanics.pre_card import PreCard
 
 
@@ -23,5 +24,3 @@ class Card(PreCard):
         super().__init__(name, id, price, victory_points)
         self.row = row
         self.discount_profit = discount_profit
-
-
