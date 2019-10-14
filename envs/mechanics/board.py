@@ -7,14 +7,14 @@ from envs.data.game_settings import NOBLES_ON_BOARD_INITIAL, MAX_CARDS_IN_A_ROW_
 from envs.mechanics.noble import Noble
 from envs.mechanics.card import Card
 from envs.mechanics.deck import Deck
-from envs.mechanics.gems_collection import GemsCollecion
+from envs.mechanics.gems_collection import GemsCollection
 
 class Board:
 
     def __init__(self,
                  all_cards: List[Card],
                  all_nobles: List[Noble],
-                 gems_on_board: GemsCollecion = None) -> None:
+                 gems_on_board: GemsCollection = None) -> None:
         """Creates a board and prepares the game. This method: creates the deck of cards and the deck od nobles. We do
         not shuffle deck and do not put cards and nobles on the board here.
         Parameters:
@@ -24,7 +24,7 @@ class Board:
         gems_on_board: A collection of gems that will be placed on the board at the beginning of the game."""
         self.deck = Deck(all_cards, all_nobles)
         if gems_on_board is None:
-            self.gems_on_board = GemsCollecion()
+            self.gems_on_board = GemsCollection()
         else:
             self.gems_on_board = gems_on_board
         self.cards_on_table = set()

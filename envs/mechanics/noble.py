@@ -2,13 +2,14 @@ from typing import Dict
 
 from envs.mechanics.pre_card import PreCard
 from envs.mechanics.enums import GemColor
+from envs.mechanics.gems_collection import GemsCollection
 
 
 class Noble(PreCard):
     def __init__(self,
                  name: str,
                  id : int,
-                 minimum_possesions: Dict[GemColor, int],
+                 minimum_possesions: GemsCollection,
                  victory_points: int) -> None:
         """Parameters:
                 _ _ _ _ _ _

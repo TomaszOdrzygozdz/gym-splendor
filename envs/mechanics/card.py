@@ -1,6 +1,7 @@
 from typing import Dict
 
 from envs.mechanics.enums import Row, GemColor
+from envs.mechanics.gems_collection import GemsCollection
 from envs.mechanics.pre_card import PreCard
 
 
@@ -9,7 +10,7 @@ class Card(PreCard):
                  name: str,
                  id: int,
                  row: Row,
-                 price: Dict[GemColor, int],
+                 price: GemsCollection,
                  discount_profit: GemColor,
                  victory_points: int) -> None:
         """Parameters:

@@ -2,7 +2,7 @@ from typing import Dict
 from functools import reduce
 from envs.mechanics.enums import GemColor
 
-class GemsCollecion():
+class GemsCollection():
     '''This class is used to desribed a collection of gemes. It can be treated both as a wallet of games or as a price
      of a single card.'''
 
@@ -30,7 +30,7 @@ class GemsCollecion():
         _ _ _ _ _ _
         An object of class GemsCollection with a dictionary of color values, which is a key-wise sum.
         """
-        return GemsCollecion({gem_color : self.gems_dict[gem_color] + other.gems_dict[gem_color] for gem_color in GemColor})
+        return GemsCollection({gem_color : self.gems_dict[gem_color] + other.gems_dict[gem_color] for gem_color in GemColor})
 
     def __sub__(self, other):
         """Subtracts other gems colletion from this one.
@@ -43,7 +43,7 @@ class GemsCollecion():
         _ _ _ _ _ _
         An object of class GemsCollection with a dictionary of color values, which is a key-wise sum.
         """
-        return GemsCollecion({gem_color : self.gems_dict[gem_color] - other.gems_dict[gem_color] for gem_color in GemColor})
+        return GemsCollection({gem_color : self.gems_dict[gem_color] - other.gems_dict[gem_color] for gem_color in GemColor})
 
     def __le__(self, other):
         """Checks if this instance is smaller or equal to the other (gem-wise check).

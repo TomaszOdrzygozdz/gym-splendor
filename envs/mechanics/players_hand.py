@@ -2,7 +2,7 @@ from typing import Dict
 
 from envs.mechanics.card import Card
 from envs.mechanics.noble import Noble
-from envs.mechanics.gems_collection import GemsCollecion
+from envs.mechanics.gems_collection import GemsCollection
 from envs.data.game_settings import *
 
 
@@ -10,11 +10,11 @@ class PlayersHand:
     """A class that describes possessions of one player."""
     def __init__(self) -> None:
         #Creates a hand with empty gems collections, empty set of cards, nobles and reserved cards.
-        self.gems_possessed = GemsCollecion()
+        self.gems_possessed = GemsCollection()
         self.cards_possessed = set()
         self.reserved_cards = set()
         self.nobles_possessed = set()
-        self.discount = GemsCollecion()
+        self.discount = GemsCollection()
 
     def add_card_to_my_possesions(self,
                  card: Card) -> None:

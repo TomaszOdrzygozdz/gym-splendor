@@ -2,6 +2,8 @@ from typing import Dict
 
 from abc import ABCMeta, abstractmethod
 from envs.mechanics.enums import GemColor
+from envs.mechanics.gems_collection import GemsCollection
+
 
 class PreCard(metaclass=ABCMeta):
     '''This is an abstract class that shares features of both game card and noble card. Classes: Card and Noble inherits
@@ -10,7 +12,7 @@ class PreCard(metaclass=ABCMeta):
     def __init__(self,
                  name: str,
                  id: int,
-                 price: Dict[GemColor, int],
+                 price: GemsCollection,
                  victory_points: int) -> None:
         self.name = name
         self.id = id
