@@ -18,5 +18,3 @@ NOBLES_ON_BOARD_INITIAL = 3
 MAX_NOBLES_IN_HAND = 3
 
 INITIAL_GEMS_ON_BOARD_DICT = {gem_color : 4 if  gem_color != GemColor.GOLD else 5 for gem_color in GemColor}
-
-print(INITIAL_GEMS_ON_BOARD_DICT)

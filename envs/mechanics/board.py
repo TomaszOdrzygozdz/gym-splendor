@@ -12,9 +12,9 @@ from envs.mechanics.gems_collection import GemsCollection
 class Board:
 
     def __init__(self,
-                 all_cards: List[Card],
-                 all_nobles: List[Noble],
-                 gems_on_board: GemsCollection = None) -> None:
+                 all_cards: Set[Card],
+                 all_nobles: Set[Noble],
+                 gems_on_board: GemsCollection) -> None:
         """Creates a board and prepares the game. This method: creates the deck of cards and the deck od nobles. We do
         not shuffle deck and do not put cards and nobles on the board here.
         Parameters:
@@ -23,12 +23,9 @@ class Board:
         all_nobles: A list of nobles that will be added to the deck.
         gems_on_board: A collection of gems that will be placed on the board at the beginning of the game."""
         self.deck = Deck(all_cards, all_nobles)
-        if gems_on_board is None:
-            self.gems_on_board = GemsCollection()
-        else:
-            self.gems_on_board = gems_on_board
-        self.cards_on_table = set()
-        self.nobles = all_nobles
+        self.gems_on_board = gems_on_board
+        self.cards_on_board = set()
+        self.nobles = list(all_nobles)
         self.nobles_on_board = set()
 
     def shuffle(self) -> None:
@@ -36,10 +33,10 @@ class Board:
         self.deck.shuffle()
         random.shuffle(self.nobles)
 
-    def lay_cards_on_table(self) -> None:
+    def lay_cards_on_board(self) -> None:
         """Puts appropriate number of cards on the board. """
-        drawn_cards = map(lambda x: self.deck.pop_many(x, MAX_CARDS_IN_A_ROW_ON_BOARD), self.deck.decks_dict.keys())
-        self.cards_on_table = set(reduce(lambda x, y: x + y, drawn_cards))
+        drawn_cards = map(lambda x: self.deck.pop_many_from_one_row(x, MAX_CARDS_IN_A_ROW_ON_BOARD), self.deck.decks_dict.keys())
+        self.cards_on_board = set(reduce(lambda x, y: x + y, drawn_cards))
 
     def lay_nobles_on_board(self) -> None:
         """This method puts three nobles on the board."""

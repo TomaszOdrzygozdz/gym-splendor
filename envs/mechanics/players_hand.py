@@ -8,8 +8,13 @@ from envs.data.game_settings import *
 
 class PlayersHand:
     """A class that describes possessions of one player."""
-    def __init__(self) -> None:
-        #Creates a hand with empty gems collections, empty set of cards, nobles and reserved cards.
+    def __init__(self,
+                 name : str = "Player") -> None:
+        """Creates a hand with empty gems collections, empty set of cards, nobles and reserved cards.
+        Parameters:
+        _ _ _ _ _ _
+        name: The name of player who has this hand (optional)."""
+        self.name = name
         self.gems_possessed = GemsCollection()
         self.cards_possessed = set()
         self.reserved_cards = set()
