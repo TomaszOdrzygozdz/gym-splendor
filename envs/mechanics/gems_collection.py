@@ -1,4 +1,5 @@
 from typing import Dict
+from functools import reduce
 from envs.mechanics.enums import GemColor
 
 class GemsCollecion():
@@ -43,3 +44,38 @@ class GemsCollecion():
         An object of class GemsCollection with a dictionary of color values, which is a key-wise sum.
         """
         return GemsCollecion({gem_color : self.gems_dict[gem_color] - other.gems_dict[gem_color] for gem_color in GemColor})
+
+    def __le__(self, other):
+        """Checks if this instance is smaller or equal to the other (gem-wise check).
+
+        Parameters:
+        _ _ _ _ _ _
+        other: An object of class GemsCollection to be compared.
+
+        Returns:
+        _ _ _ _ _ _
+        Boolean value, that is True if for each gem color the value of this on this color is <= than the value of other
+        on this color.
+        """
+        return reduce(lambda x, y: x and y, [self.gems_dict[gem_color] <= other.gems_dict[gem_color] for gem_color in
+                                             GemColor])
+
+    def __ge__(self, other):
+        """Checks if this instance is greater or equal to the other (gem-wise check).
+
+        Parameters:
+        _ _ _ _ _ _
+        other: An object of class GemsCollection to be compared.
+
+        Returns:
+        _ _ _ _ _ _
+        Boolean value, that is True if for each gem color the value of this on this color is >= than the value of other
+        on this color.
+        """
+        return reduce(lambda x, y: x and y, [self.gems_dict[gem_color] >= other.gems_dict[gem_color] for gem_color in
+                                             GemColor])
+
+
+# w1 = GemsCollecion({GemColor.GOLD: 1, GemColor.RED: 2, GemColor.GREEN: 5, GemColor.BLUE: 3, GemColor.WHITE: 4, GemColor.BLACK: 5})
+# w2 = GemsCollecion({GemColor.GOLD: 2, GemColor.RED: 1, GemColor.GREEN: 6, GemColor.BLUE: 3, GemColor.WHITE: 7, GemColor.BLACK: 5})
+# print(w1 <= w2)
