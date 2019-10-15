@@ -13,3 +13,6 @@ CARD_FONT_VICTORY_POINTS_COLOR = 'darkblue'
 CARD_FONT_VICTORY_POINTS = 'Times 18 italic bold'
 CARD_FONT_PRICE_COLOR = 'black'
 CARD_FONT_PRICE = 'Times 14 italic bold'
+
+#time settings
+WINDOW_REFRESH_INTERVAL = 0.01
