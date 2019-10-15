@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Set
 from functools import reduce
 from envs.mechanics.enums import GemColor
 
@@ -18,6 +18,10 @@ class GemsCollection():
             self.gems_dict = {gem_color : 0 for gem_color in GemColor}
         else:
             self.gems_dict = gems_values_dict
+
+    def value(self, gem_color):
+        """Returns value of gem_color form this gems collection."""
+        return self.gems_dict[gem_color]
 
     def __add__(self, other):
         """Adds other gems colletion to this one.
@@ -74,3 +78,6 @@ class GemsCollection():
         """
         return reduce(lambda x, y: x and y, [self.gems_dict[gem_color] >= other.gems_dict[gem_color] for gem_color in
                                              GemColor])
+
+    def non_empty_stacks(gems_collection: Dict[GemColor, int]) -> Set[GemColor]:
+        return {color for color in GemColor if gems_collection.gems_dict[color] > 0}

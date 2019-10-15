@@ -35,6 +35,3 @@ class State():
 
 
 stanek = State()
-
-print(len(stanek.board.cards_on_board))
-print(len(stanek.board.nobles_on_board))
