@@ -17,7 +17,7 @@ class PlayersHand:
         self.name = name
         self.gems_possessed = GemsCollection()
         self.cards_possessed = set()
-        self.reserved_cards = set()
+        self.cards_reserved = set()
         self.nobles_possessed = set()
         self.discount = GemsCollection()
 
@@ -30,11 +30,11 @@ class PlayersHand:
 
     def add_card_to_reserved(self,
                         card: Card) -> None:
-        self.reserved_cards.add(card)
+        self.cards_reserved.add(card)
 
     def remove_reserved_card(self,
                            card: Card) -> Card:
-        self.reserved_cards.remove(card)
+        self.cards_reserved.remove(card)
 
     def find_discount(self) -> Dict[GemColor, int]:
         return {color: sum([card.profit == color for card in self.cards]) for color in GemColor}
