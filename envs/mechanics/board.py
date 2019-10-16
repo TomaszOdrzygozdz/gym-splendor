@@ -41,3 +41,8 @@ class Board:
     def lay_nobles_on_board(self) -> None:
         """This method puts three nobles on the board."""
         self.nobles_on_board = set(self.nobles[0:NOBLES_ON_BOARD_INITIAL])
+
+    def remove_card_from_board_and_refill(self, card: Card) -> None:
+        """This method removes a card from board and puts a new one (if there is non-empty deck to take from"""
+        self.cards_on_board.remove(card)
+        self.deck.pop_card(card.row)

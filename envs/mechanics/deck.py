@@ -22,7 +22,7 @@ class Deck:
     def pop_card(self,
             row: Row) -> Card:
         """Pops a card from a given row. Returns this card and removes it from the deck."""
-        if self.decks_dict[row]:
+        if len(self.decks_dict[row]) > 0:
             return self.decks_dict[row].pop(0)
 
     def pop_many_from_one_row(self,

@@ -1,6 +1,7 @@
 from abc import abstractmethod
 
 from envs.mechanics.card import Card
+from envs.mechanics.enums import GemColor
 from envs.mechanics.gems_collection import GemsCollection
 from envs.mechanics.state import State
 
@@ -47,8 +48,45 @@ class ActionBuyCard(Action):
         #First we need to find the price players has to pay for a card after considering his discount
         price_after_discount = self.card.price % state.active_players_hand().discount()
         state.active_players_hand().cards_possessed.add(self.card)
+        state.board.remove_card_from_board_and_refill(self.card)
         state.active_players_hand().gems_possessed -= price_after_discount
         state.board.gems_on_board += price_after_discount
+        self.give_nobles(state)
+        self.change_active_player(state)
+
+
+class ActionReserveCard(Action):
+    """Action of reserving a card."""
+    action_type = 'reserve'
+
+    def __init__(self,
+                 card: Card,
+                 take_golden_gem: bool,
+                 return_gem_color: GemColor = None):
+        """Parameters:
+        _ _ _ _ _ _ _ _
+        card: Card to reserve.
+        take_golden_gem: Determines if a golden gem will be given to the players hand (it may be not given
+        if the player has already maximum number of gems).
+        return_gem: If player has maximum number of gems, may take one more golden gem but has to return one of other
+        gems to the board.
+        """
+        self.card = card
+        self.take_golden_gem = take_golden_gem
+        self.return_gem_color = return_gem_color
+
+    def execute(self,
+                state: State) -> None:
+        state.board.remove_card_from_board_and_refill(self.card)
+        state.active_players_hand().cards_reserved.add(self.card)
+        if self.take_golden_gem:
+            state.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD] += 1
+            state.board.gems_on_board.gems_dict[GemColor.GOLD] -= 1
+            if self.return_gem_color is not None:
+                state.active_players_hand().gems_possessed[self.return_gem_color] -= 1
+                state.board.gems_on_board.gems_dict[self.return_gem_color] += 1
+        self.change_active_player(state)
+
 
 class ActionTradeGems(Action):
     """Action of trading gems with board."""
@@ -66,24 +104,7 @@ class ActionTradeGems(Action):
                 state: State) -> None:
         state.board.gems_on_board -= self.gems_from_board_to_player
         state.active_players_hand().gems_possessed += self.gems_from_board_to_player
-
-
-class ActionReserveCard(Action):
-    """Action of reserving a card."""
-    action_type = 'reserve'
-
-    def __init__(self, card: Card):
-        """Parameters:
-        _ _ _ _ _ _ _ _
-        card: Card to reserve.
-        """
-        self.card = card
-
-    def execute(self,
-                state: State) -> None:
-
-        state.board.cards_on_board.remove(self.card)
-        state.active_players_hand().cards_r
+        self.change_active_player(state)
 
 
 
