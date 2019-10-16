@@ -25,3 +25,9 @@ class Card(PreCard):
         super().__init__(name, id, price, victory_points)
         self.row = row
         self.discount_profit = discount_profit
+
+    def __repr__(self):
+        return 'Card(name: {}, id: {}, row: {}, price: {}, profit: {}, victory_points: {})'.format(self.name, self.id,
+                                                                                                   self.row, self.price,
+                                                                                                   self.discount_profit,
+                                                                                                   self.victory_points)

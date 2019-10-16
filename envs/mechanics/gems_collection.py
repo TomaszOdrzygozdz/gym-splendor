@@ -99,8 +99,8 @@ class GemsCollection():
     def __isub__(self, other):
         self = self.__sub__(other)
 
-
-
+    def __repr__(self):
+        return self.gems_dict.__repr__()
 
     def non_empty_stacks(gems_collection: Dict[GemColor, int]) -> Set[GemColor]:
         return {gem_color for gem_color in GemColor if gems_collection.gems_dict[gem_color] > 0}

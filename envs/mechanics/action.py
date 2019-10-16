@@ -32,6 +32,7 @@ class Action():
         """Changes active player to the next one."""
         state.active_player_id = (state.active_player_id + 1)%len(state.list_of_players_hands)
 
+
 class ActionBuyCard(Action):
     """Action of buying a card."""
     action_type = 'buy'
@@ -53,6 +54,9 @@ class ActionBuyCard(Action):
         state.board.gems_on_board += price_after_discount
         self.give_nobles(state)
         self.change_active_player(state)
+
+    def __repr__(self):
+        return 'Buy ' + self.card.__repr__()
 
 
 class ActionReserveCard(Action):
@@ -87,6 +91,9 @@ class ActionReserveCard(Action):
                 state.board.gems_on_board.gems_dict[self.return_gem_color] += 1
         self.change_active_player(state)
 
+    def __repr__(self):
+        return 'Reserve ' + self.card.__repr__()
+
 
 class ActionTradeGems(Action):
     """Action of trading gems with board."""
@@ -106,10 +113,6 @@ class ActionTradeGems(Action):
         state.active_players_hand().gems_possessed += self.gems_from_board_to_player
         self.change_active_player(state)
 
-
-
-
-
-
-
+    def __repr__(self):
+        return 'Trade gems ' + self.gems_from_board_to_player.__repr__()
 
