@@ -21,13 +21,12 @@ class PlayersHand:
         self.nobles_possessed = set()
         self.discount = GemsCollection()
 
-    def add_card_to_my_possesions(self,
-                 card: Card) -> None:
-        self.cards_possessed.add(card)
-
-    def add_noble_to_my_possesions(self,
-                  noble_card: Noble) -> None:
-        self.nobles_possessed.add(noble_card)
+    def discount(self):
+        """Returns gems collection that contains the sum of profits of card possessed by the players_hand."""
+        discount_dict = {gem_color : 0 for gem_color in GemColor}
+        for card in self.cards_possessed:
+            discount_dict[card.profit] += 1
+        return GemsCollection(discount_dict)
 
     def add_card_to_reserved(self,
                         card: Card) -> None:

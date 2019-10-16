@@ -93,5 +93,14 @@ class GemsCollection():
         return GemsCollection({gem_color : max(0, self.gems_dict[gem_color] - other.gems_dict[gem_color]) for
                                gem_color in GemColor})
 
+    def __iadd__(self, other):
+        self = self.__add__(other)
+
+    def __isub__(self, other):
+        self = self.__sub__(other)
+
+
+
+
     def non_empty_stacks(gems_collection: Dict[GemColor, int]) -> Set[GemColor]:
-        return {color for color in GemColor if gems_collection.gems_dict[color] > 0}
+        return {gem_color for gem_color in GemColor if gems_collection.gems_dict[gem_color] > 0}

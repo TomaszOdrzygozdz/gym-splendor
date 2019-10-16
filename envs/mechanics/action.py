@@ -19,11 +19,13 @@ class Action():
         """Executes action on the given state."""
         pass
 
-    @abstractmethod
-    def is_legal(self,
-                 state: State):
-        pass
-
+    def give_nobles(self, state: State) -> None:
+        """Checks if the active player deserves to obtain noble card (or cards)."""
+        for noble in state.board.nobles_on_board:
+            if noble.price <= state.active_players_hand().discount():
+                state.active_players_hand().nobles_possessed.add(noble)
+                state.board.nobles_on_board.remove(noble)
+        
 class ActionBuyCard(Action):
     """Action of buying a card."""
     action_type = 'Buy'
@@ -35,7 +37,13 @@ class ActionBuyCard(Action):
                 state: State) -> None:
 
         #First we need to find the price players has to pay for a card after considering his discount
-        price_after_discount = self.card.price % state.player
+        price_after_discount = self.card.price % state.active_players_hand().discount()
+        state.active_players_hand().cards_possessed.add(self.card)
+        state.active_players_hand().gems_possessed -= price_after_discount
+        state.board.gems_on_board += price_after_discount
+
+
+
 
 
 
