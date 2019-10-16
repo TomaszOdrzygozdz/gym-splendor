@@ -79,5 +79,19 @@ class GemsCollection():
         return reduce(lambda x, y: x and y, [self.gems_dict[gem_color] >= other.gems_dict[gem_color] for gem_color in
                                              GemColor])
 
+    def __mod__(self, other):
+        """Subtracts other gems collection form self and then sets all negative values to zero.
+
+        Parameters:
+        _ _ _ _ _ _
+        other: An object of class GemsCollection to be subtracted and later made non-negative.
+
+        Returns:
+        _ _ _ _ _ _
+        Gems collection that is the result of this operation."""
+
+        return GemsCollection({gem_color : max(0, self.gems_dict[gem_color] - other.gems_dict[gem_color]) for
+                               gem_color in GemColor})
+
     def non_empty_stacks(gems_collection: Dict[GemColor, int]) -> Set[GemColor]:
         return {color for color in GemColor if gems_collection.gems_dict[color] > 0}

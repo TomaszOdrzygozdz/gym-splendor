@@ -11,7 +11,7 @@ from envs.data.data_loader import load_all_nobles
 
 
 class State():
-    """This class keeps all informations about the state of the game."""
+    """This class keeps all information about the state of the game."""
 
     def __init__(self,
                  list_of_players_hands: List = None,
@@ -28,10 +28,14 @@ class State():
         if list_of_players_hands is None:
             list_of_players_hands = [PlayersHand("Player A"), PlayersHand("Player B")]
 
+        self.list_of_players_hands = list_of_players_hands
         self.board = Board(all_cards, all_nobles, gems_on_board)
+
+        self.active_player_id = 0 #index
 
         self.board.lay_cards_on_board()
         self.board.lay_nobles_on_board()
 
-
-stanek = State()
+    def active_players_hand(self):
+        """Returns the hand of active player"""
+        return self.list_of_players_hands[self.active_player_id]

@@ -7,6 +7,5 @@ from envs.mechanics.state import State
 s = State()
 f = SplendorGUI()
 
-card = s.board.cards_on_board.pop()
-f.draw_card(card, 10, 20)
+f.draw_board(s.board, 200, 10)
 f.keep_window_open()
