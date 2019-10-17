@@ -19,7 +19,6 @@ class PlayersHand:
         self.cards_possessed = set()
         self.cards_reserved = set()
         self.nobles_possessed = set()
-        self.discount = GemsCollection()
 
     def discount(self):
         """Returns gems collection that contains the sum of profits of card possessed by the players_hand."""
@@ -28,24 +27,14 @@ class PlayersHand:
             discount_dict[card.profit] += 1
         return GemsCollection(discount_dict)
 
-    def add_card_to_reserved(self,
-                        card: Card) -> None:
-        self.cards_reserved.add(card)
-
-    def remove_reserved_card(self,
-                           card: Card) -> Card:
-        self.cards_reserved.remove(card)
-
-    def find_discount(self) -> Dict[GemColor, int]:
-        return {color: sum([card.profit == color for card in self.cards]) for color in GemColor}
+    def can_afford_card(self,
+                        card: Card) -> bool:
+        """Returns true if players_hand can afford card"""
+        price_after_discount = card.price % self.discount()
+        missing_gems = price_after_discount % self.gems_possessed
+        return self.gems_possessed.gems_dict[GemColor.GOLD] >= missing_gems.sum()
 
     def number_of_my_points(self) -> int:
-        return sum([card.win_points for card in self.cards]) + sum([noble.win_points for noble in self.nobles])
+        return sum([card.win_points for card in self.cards_possessed]) + \
+               sum([noble.win_points for noble in self.nobles_possessed])
 
-    def number_of_my_gems(self) -> int:
-        """Returns number of gems possesed by this hand."""
-        return sum(self.coins.values())
-
-    def number_of_my_cards(self) -> int:
-        """Returns number of cards possesed by this hand."""
-        return len(self.cards)

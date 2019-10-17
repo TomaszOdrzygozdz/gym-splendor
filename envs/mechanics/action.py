@@ -37,17 +37,32 @@ class ActionBuyCard(Action):
     """Action of buying a card."""
     action_type = 'buy'
 
-    def __init__(self, card: Card):
+    def __init__(self,
+                 card: Card,
+                 n_gold_gems_to_use: int=0,
+                 use_gold_as: GemsCollection = GemsCollection()):
         """Parameters:
         _ _ _ _ _ _ _ _
-        card: Card to buy."""
+        card: Card to buy.
+        gold_gems_to_use: Integer determining how many golden gems will be used to pay for the card.
+        use_gold_as: Gems collection that reduces the price (its sum must equal n_gold_gems_to_use)."""
         self.card = card
+        assert n_gold_gems_to_use == use_gold_as.sum(), 'n_gold_gems_to_use must be equal the sum of gems in use_gold_as'
+        self.n_gold_gems_to_use = n_gold_gems_to_use
+        self.use_gold_as = use_gold_as
+
 
     def execute(self,
                 state: State) -> None:
 
         #First we need to find the price players has to pay for a card after considering his discount
         price_after_discount = self.card.price % state.active_players_hand().discount()
+        if self.n_gold_gems_to_use > 0:
+            #take golden gems from player:
+            state.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD] -= self.n_gold_gems_to_use
+            #reduce the price of card:
+            price_after_discount -= self.n_gold_gems_to_use
+
         state.active_players_hand().cards_possessed.add(self.card)
         state.board.remove_card_from_board_and_refill(self.card)
         state.active_players_hand().gems_possessed -= price_after_discount

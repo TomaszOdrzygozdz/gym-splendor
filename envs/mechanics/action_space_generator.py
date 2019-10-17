@@ -2,18 +2,17 @@ from typing import List
 from itertools import combinations, combinations_with_replacement
 
 from envs.data.game_settings import *
-from envs.mechanics.action import Action, ActionTradeGems
+from envs.mechanics.action import Action, ActionTradeGems, ActionBuyCard
 from envs.mechanics.enums import GemColor
 from envs.mechanics.gems_collection import GemsCollection
 from envs.mechanics.players_hand import PlayersHand
 from envs.mechanics.state import State
 
 
-def give_all_legal_moves(state: State) -> List[Action]:
-    """Returns the list of all possible actions in a given state"""
+def generate_all_legal_gem_trades(state: State) -> List[Action]:
+    """Returns the list of all possible actions of trade in a given state"""
 
     list_of_actions_trade = []
-
     #We find moves of type trade gems:
     #_________________________________________________________________________________________________________________
     n_non_empty_stacks = len(state.board.gems_on_board.non_empty_stacks_except_gold())
@@ -55,13 +54,26 @@ def give_all_legal_moves(state: State) -> List[Action]:
 
     return list_of_actions_trade
 
+def generate_all_legal_buys(state: State) -> List[ActionBuyCard]:
+    """Returns the list of all possible actions of buys in a given state"""
+    all_cards_can_afford = [card for card in state.board.cards_on_board if
+                        state.active_players_hand().can_afford_card(card)] + \
+                       [reserved_card for reserved_card in state.active_players_hand().cards_reserved if
+                        state.active_players_hand().can_afford_card(reserved_card)]
+
+    for card in all_cards_can_afford:
+        for n_gold_gems_to_use in range(state.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD]):
+            #
+
 
 #testing
 pla = PlayersHand()
-pla.gems_possessed.gems_dict[GemColor.BLUE] = 9
+pla.gems_possessed.gems_dict[GemColor.BLUE] = 4
+pla.gems_possessed.gems_dict[GemColor.GREEN] = 4
+pla.gems_possessed.gems_dict[GemColor.RED] = 2
 d = State()
 d.list_of_players_hands = [pla, PlayersHand()]
-f = give_all_legal_moves(d)
+f = generate_all_legal_gem_trades(d)
 print(len(f))
 for du  in f:
     print(du)
