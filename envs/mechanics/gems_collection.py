@@ -23,6 +23,9 @@ class GemsCollection():
         """Returns value of gem_color form this gems collection."""
         return self.gems_dict[gem_color]
 
+    def sum(self):
+        return sum(self.gems_dict.values())
+
     def __add__(self, other):
         """Adds other gems colletion to this one.
 
@@ -99,8 +102,21 @@ class GemsCollection():
     def __isub__(self, other):
         self = self.__sub__(other)
 
+    def __neg__(self):
+        """Returns gems collection with -values for each gem color."""
+        return GemsCollection({gem_color: -self.gems_dict[gem_color] for gem_color in GemColor})
+
     def __repr__(self):
         return self.gems_dict.__repr__()
 
-    def non_empty_stacks(gems_collection: Dict[GemColor, int]) -> Set[GemColor]:
+    def non_empty_stacks(self, gems_collection: Dict[GemColor, int]) -> Set[GemColor]:
         return {gem_color for gem_color in GemColor if gems_collection.gems_dict[gem_color] > 0}
+
+    def non_empty_stacks_except_gold(self, gems_collection: Dict[GemColor, int]) -> Set[GemColor]:
+        return {gem_color for gem_color in GemColor if gems_collection.gems_dict[gem_color] > 0
+                and gem_color != GemColor.GOLD}
+
+
+f = GemsCollection()
+f.gems_dict[GemColor.BLUE] = 2
+print(-f)
