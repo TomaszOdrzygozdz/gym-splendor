@@ -8,11 +8,6 @@ class Row(Enum):
     MEDIUM = 1
     EXPENSIVE = 2
 
-class PlayerId(Enum):
-    """In games are two players with id's: PLAYER_A and PLAYER_B"""
-    PLAYER_A = auto()
-    PLAYER_B = auto()
-
 
 class GemColor(Enum):
     """

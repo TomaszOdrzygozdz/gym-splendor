@@ -2,30 +2,32 @@ from typing import List
 from itertools import combinations, combinations_with_replacement
 
 from envs.data.game_settings import *
-from envs.mechanics.action import Action
+from envs.mechanics.action import Action, ActionTradeGems
 from envs.mechanics.enums import GemColor
 from envs.mechanics.gems_collection import GemsCollection
+from envs.mechanics.players_hand import PlayersHand
 from envs.mechanics.state import State
 
 
 def give_all_legal_moves(state: State) -> List[Action]:
     """Returns the list of all possible actions in a given state"""
 
-    list_of_actions = []
+    list_of_actions_trade = []
 
     #We find moves of type trade gems:
     #_________________________________________________________________________________________________________________
-    n_non_empty_stacks = len(state.board.gems_on_board.non_empty_stacks())
+    n_non_empty_stacks = len(state.board.gems_on_board.non_empty_stacks_except_gold())
     n_gems_to_get_netto =  min(MAX_GEMS_ON_HAND - state.active_players_hand().gems_possessed.sum(),
                                MAX_GEMS_IN_ONE_MOVE,
                                n_non_empty_stacks)
 
     max_gems_to_take = min(MAX_GEMS_IN_ONE_MOVE, n_non_empty_stacks)
 
-    for n_gems_to_get in range(n_gems_to_get_netto, max_gems_to_take):
+    for n_gems_to_get in range(n_gems_to_get_netto, max_gems_to_take+1):
         n_gems_to_return = n_gems_to_get - n_gems_to_get_netto
+
         #choose gems to get:
-        options_of_taking = list(combinations(state.board.gems_on_board.non_empty_stacks(), n_gems_to_get))
+        options_of_taking = list(combinations(state.board.gems_on_board.non_empty_stacks_except_gold(), n_gems_to_get))
         for option_of_taking in options_of_taking:
             #now we have chosen which gems to take, so we need to decide which to return
             gem_colors_not_taken = {gem_color for gem_color in GemColor if gem_color not in option_of_taking}
@@ -44,12 +46,22 @@ def give_all_legal_moves(state: State) -> List[Action]:
                 gems_collection_to_trade = GemsCollection(gems_to_take_dict) - GemsCollection(gems_to_return_dict)
 
                 #check if there is enough gems on the board to take:
-                c1 = state.board.gems_on_board >= gems_collection_to_trade
+                condition_1 = state.board.gems_on_board >= gems_collection_to_trade
                 #check if the player has enough gems to return:
-                c1 = state.active_players_hand().gems_possessed
+                condition_2 = state.active_players_hand().gems_possessed >= -gems_collection_to_trade
+
+                if condition_1 and condition_2:
+                    list_of_actions_trade.append(ActionTradeGems(gems_collection_to_trade))
+
+    return list_of_actions_trade
 
 
-    return list_of_actions
-
+#testing
+pla = PlayersHand()
+pla.gems_possessed.gems_dict[GemColor.BLUE] = 9
 d = State()
+d.list_of_players_hands = [pla, PlayersHand()]
 f = give_all_legal_moves(d)
+print(len(f))
+for du  in f:
+    print(du)

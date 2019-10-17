@@ -107,16 +107,12 @@ class GemsCollection():
         return GemsCollection({gem_color: -self.gems_dict[gem_color] for gem_color in GemColor})
 
     def __repr__(self):
-        return self.gems_dict.__repr__()
+        return self.gems_dict.__repr__().replace('GemColor.','')
 
-    def non_empty_stacks(self, gems_collection: Dict[GemColor, int]) -> Set[GemColor]:
-        return {gem_color for gem_color in GemColor if gems_collection.gems_dict[gem_color] > 0}
+    def non_empty_stacks(self) -> Set[GemColor]:
+        return {gem_color for gem_color in GemColor if self.gems_dict[gem_color] > 0}
 
-    def non_empty_stacks_except_gold(self, gems_collection: Dict[GemColor, int]) -> Set[GemColor]:
-        return {gem_color for gem_color in GemColor if gems_collection.gems_dict[gem_color] > 0
+    def non_empty_stacks_except_gold(self) -> Set[GemColor]:
+        return {gem_color for gem_color in GemColor if self.gems_dict[gem_color] > 0
                 and gem_color != GemColor.GOLD}
 
-
-f = GemsCollection()
-f.gems_dict[GemColor.BLUE] = 2
-print(-f)
