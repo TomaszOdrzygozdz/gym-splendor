@@ -16,6 +16,14 @@ class Action():
         pass
 
     @abstractmethod
+    def __eq__(self, other):
+        pass
+
+    @abstractmethod
+    def __repr__(self):
+        pass
+
+    @abstractmethod
     def execute(self,
                 state: State) -> None:
         """Executes action on the given state."""
@@ -70,6 +78,17 @@ class ActionBuyCard(Action):
         self.give_nobles(state)
         self.change_active_player(state)
 
+    def __eq__(self, other):
+        condition_1 = self.action_type == other.action_type
+        if condition_1:
+            condition_2 = self.card == other.card
+            condition_3 = self.n_gold_gems_to_use == other.n_gold_gems_to_use
+            condition_4 = self.use_gold_as == other.use_gold_as
+            return condition_2 and condition_3 and condition_4
+        else:
+            return False
+
+
     def __repr__(self):
         return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
                                                                                                      self.use_gold_as.__repr__())
@@ -107,6 +126,16 @@ class ActionReserveCard(Action):
                 state.board.gems_on_board.gems_dict[self.return_gem_color] += 1
         self.change_active_player(state)
 
+    def __eq__(self, other):
+        condition_1 = self.action_type == other.action_type
+        if condition_1:
+            condition_2 = self.card == other.card
+            condition_3 = self.take_golden_gem == other.take_golden_gem
+            condition_4 = self.return_gem_color == other.return_gem_color
+            return condition_2 and condition_3 and condition_4
+        else:
+            return False
+
     def __repr__(self):
         return 'Reserve ' + self.card.__repr__() + '\n take golden gem: {}, return_gem_color {}'.format(self.take_golden_gem,
                                                                                                       self.return_gem_color)
@@ -133,3 +162,7 @@ class ActionTradeGems(Action):
     def __repr__(self):
         return 'Trade gems ' + self.gems_from_board_to_player.__repr__()
 
+card = State().board.cards_on_board.pop()
+f = ActionReserveCard(card, True, None)
+g = ActionReserveCard(card, True, None)
+print(f == g)

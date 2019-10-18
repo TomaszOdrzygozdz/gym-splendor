@@ -106,6 +106,10 @@ class GemsCollection():
         """Returns gems collection with -values for each gem color."""
         return GemsCollection({gem_color: -self.gems_dict[gem_color] for gem_color in GemColor})
 
+    def __eq__(self, other):
+        list_of_conditions = [self.value(gem_color) == other.value(gem_color) for gem_color in GemColor]
+        return reduce(lambda x, y: x and y, list_of_conditions)
+
     def __repr__(self):
         return self.gems_dict.__repr__().replace('GemColor.','')
 

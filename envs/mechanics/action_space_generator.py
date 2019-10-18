@@ -8,7 +8,6 @@ from envs.mechanics.players_hand import PlayersHand
 from envs.mechanics.state import State
 from envs.utils.utils_functions import tuple_of_gems_to_gems_collection
 
-
 def generate_all_legal_actions(state: State) -> List[Action]:
     """Generates list of all possible actions of an active player in a given state."""
     return generate_all_legal_trades(state) + generate_all_legal_buys(state) + generate_all_legal_reservations(state)
