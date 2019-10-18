@@ -36,7 +36,7 @@ def generate_all_legal_trades(state: State) -> List[ActionTradeGems]:
             options_of_returning = list(combinations_with_replacement(gem_colors_not_taken,n_gems_to_return))
             for option_of_returning in options_of_returning:
                 #now we create gem collection describing transfer and check if it satisfies conditions of legal trade
-                gems_to_return = tuple_of_gems_to_gems_collection(options_of_returning)
+                gems_to_return = tuple_of_gems_to_gems_collection(option_of_returning)
 
                 gems_collection_to_trade = gems_to_take - gems_to_return
                 #check if there is enough gems on the board to take:

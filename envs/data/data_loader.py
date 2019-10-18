@@ -1,6 +1,7 @@
 import csv
 from typing import Set
 
+from envs.data.files_paths import CARDS_DATABASE_FILE, NOBLES_DATABASE_FILE
 from envs.mechanics.card import Card
 from envs.mechanics.enums import Row, GemColor
 from envs.mechanics.gems_collection import GemsCollection
@@ -24,7 +25,7 @@ str_to_color = {'GemColor.RED': GemColor.RED,
                 'GemColor.GOLD': GemColor.GOLD}
 
 
-def load_all_cards(file: str = '../data/cards_database.csv') -> Set[Card]:
+def load_all_cards(file: str = CARDS_DATABASE_FILE) -> Set[Card]:
     """Loads information about cards from file and returns a set of cards."""
     set_of_cards = set()
     cards_database_file = open(file)
@@ -41,7 +42,7 @@ def load_all_cards(file: str = '../data/cards_database.csv') -> Set[Card]:
     return set_of_cards
 
 
-def load_all_nobles(file: str = '../data/nobles_database.csv') -> Set[Noble]:
+def load_all_nobles(file: str = NOBLES_DATABASE_FILE) -> Set[Noble]:
     """Loads information about nobles from file and returns a set of cards."""
     set_of_nobles = set()
     nobles_database_file = open(file)
