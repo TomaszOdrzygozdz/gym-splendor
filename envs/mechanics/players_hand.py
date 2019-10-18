@@ -1,9 +1,6 @@
-from typing import Dict
-
 from envs.mechanics.card import Card
-from envs.mechanics.noble import Noble
 from envs.mechanics.gems_collection import GemsCollection
-from envs.data.game_settings import *
+from envs.mechanics.game_settings import *
 
 
 class PlayersHand:

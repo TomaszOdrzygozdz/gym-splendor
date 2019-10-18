@@ -1,9 +1,8 @@
 import random
 from functools import reduce
-from typing import Set, List
+from typing import Set
 
-from envs.mechanics.enums import *
-from envs.data.game_settings import NOBLES_ON_BOARD_INITIAL, MAX_CARDS_IN_A_ROW_ON_BOARD
+from envs.mechanics.game_settings import NOBLES_ON_BOARD_INITIAL, MAX_CARDS_IN_A_ROW_ON_BOARD
 from envs.mechanics.noble import Noble
 from envs.mechanics.card import Card
 from envs.mechanics.deck import Deck

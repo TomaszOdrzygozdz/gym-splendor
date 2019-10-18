@@ -71,7 +71,8 @@ class ActionBuyCard(Action):
         self.change_active_player(state)
 
     def __repr__(self):
-        return 'Buy ' + self.card.__repr__()
+        return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
+                                                                                                     self.use_gold_as.__repr__())
 
 
 class ActionReserveCard(Action):

@@ -4,7 +4,7 @@ from envs.mechanics.card import Card
 from envs.mechanics.gems_collection import GemsCollection
 from envs.mechanics.noble import Noble
 from envs.mechanics.players_hand import PlayersHand
-from envs.data.game_settings import INITIAL_GEMS_ON_BOARD_DICT
+from envs.mechanics.game_settings import INITIAL_GEMS_ON_BOARD_DICT
 from envs.mechanics.board import Board
 from envs.data.data_loader import load_all_cards
 from envs.data.data_loader import load_all_nobles
