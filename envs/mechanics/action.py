@@ -108,7 +108,8 @@ class ActionReserveCard(Action):
         self.change_active_player(state)
 
     def __repr__(self):
-        return 'Reserve ' + self.card.__repr__()
+        return 'Reserve ' + self.card.__repr__() + '\n take golden gem: {}, return_gem_color {}'.format(self.take_golden_gem,
+                                                                                                      self.return_gem_color)
 
 
 class ActionTradeGems(Action):

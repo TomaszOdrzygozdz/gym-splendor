@@ -9,7 +9,11 @@ from envs.mechanics.state import State
 from envs.utils.utils_functions import tuple_of_gems_to_gems_collection
 
 
-def generate_all_legal_trades(state: State) -> List[Action]:
+def generate_all_legal_actions(state: State) -> List[Action]:
+    """Generates list of all possible actions of an active player in a given state."""
+    return generate_all_legal_trades(state) + generate_all_legal_buys(state) + generate_all_legal_reservations(state)
+
+def generate_all_legal_trades(state: State) -> List[ActionTradeGems]:
     """Returns the list of all possible actions of trade in a given state"""
     list_of_actions_trade = []
     n_non_empty_stacks = len(state.board.gems_on_board.non_empty_stacks_except_gold())
@@ -83,23 +87,15 @@ def generate_all_legal_reservations(state: State) -> List[ActionReserveCard]:
                 #the are no golden gems on board, so reserve without taking golden gem:
                 list_of_actions_reserve.append(ActionReserveCard(card, False))
             if condition_3 and not condition_2:
-                #the are golden 
+                #there are golden gems on board, but the player has reached the limit of gems on hand so can take one,
+                # but must return one other:
+                # 1. First case: do not take golden gem:
+                list_of_actions_reserve.append(ActionReserveCard(card, False))
+                # 2. Second case: take golden gem and return one other gem:
+                for gem_color in state.active_players_hand().gems_possessed.non_empty_stacks_except_gold():
+                    list_of_actions_reserve.append(ActionReserveCard(card, True, gem_color))
 
     return list_of_actions_reserve
 
 
-#testing
-pla = PlayersHand()
-pla.gems_possessed.gems_dict[GemColor.BLUE] = 4
-pla.gems_possessed.gems_dict[GemColor.GREEN] = 4
-pla.gems_possessed.gems_dict[GemColor.RED] = 4
-pla.gems_possessed.gems_dict[GemColor.WHITE] = 4
-pla.gems_possessed.gems_dict[GemColor.BLACK] = 4
-pla.gems_possessed.gems_dict[GemColor.GOLD] = 1
-d = State()
-d.list_of_players_hands = [pla, PlayersHand()]
-print(d.active_players_hand().gems_possessed)
-f = generate_all_legal_buys(d)
-print(len(f))
-for du  in f:
-    print(du)
+
