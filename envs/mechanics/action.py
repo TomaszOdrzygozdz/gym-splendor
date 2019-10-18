@@ -40,6 +40,34 @@ class Action():
         """Changes active player to the next one."""
         state.active_player_id = (state.active_player_id + 1)%len(state.list_of_players_hands)
 
+class ActionTradeGems(Action):
+    """Action of trading gems with board."""
+    action_type = 'trade_gems'
+
+    def __init__(self, gems_from_board_to_player: GemsCollection):
+        """Parameters:
+        _ _ _ _ _ _ _ _
+        gems_from_board: Gems collection describing gems that will be taken from board and added to players hand.
+        Negative value means that gem (or gems) will be returned to the board.
+        """
+        self.gems_from_board_to_player = gems_from_board_to_player
+
+    def execute(self,
+                state: State) -> None:
+        state.board.gems_on_board -= self.gems_from_board_to_player
+        state.active_players_hand().gems_possessed += self.gems_from_board_to_player
+        self.change_active_player(state)
+
+    def __eq__(self, other):
+        condition1 = self.action_type == other.action_type
+        if condition1:
+            condition2 = self.gems_from_board_to_player == other.gems_from_board_to_player
+        else:
+            return False
+
+    def __repr__(self):
+        return 'Trade gems ' + self.gems_from_board_to_player.__repr__()
+
 
 class ActionBuyCard(Action):
     """Action of buying a card."""
@@ -93,7 +121,6 @@ class ActionBuyCard(Action):
         return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
                                                                                                      self.use_gold_as.__repr__())
 
-
 class ActionReserveCard(Action):
     """Action of reserving a card."""
     action_type = 'reserve'
@@ -139,30 +166,3 @@ class ActionReserveCard(Action):
     def __repr__(self):
         return 'Reserve ' + self.card.__repr__() + '\n take golden gem: {}, return_gem_color {}'.format(self.take_golden_gem,
                                                                                                       self.return_gem_color)
-
-
-class ActionTradeGems(Action):
-    """Action of trading gems with board."""
-    action_type = 'trade_gems'
-
-    def __init__(self, gems_from_board_to_player: GemsCollection):
-        """Parameters:
-        _ _ _ _ _ _ _ _
-        gems_from_board: Gems collection describing gems that will be taken from board and added to players hand.
-        Negative value means that gem (or gems) will be returned to the board.
-        """
-        self.gems_from_board_to_player = gems_from_board_to_player
-
-    def execute(self,
-                state: State) -> None:
-        state.board.gems_on_board -= self.gems_from_board_to_player
-        state.active_players_hand().gems_possessed += self.gems_from_board_to_player
-        self.change_active_player(state)
-
-    def __repr__(self):
-        return 'Trade gems ' + self.gems_from_board_to_player.__repr__()
-
-card = State().board.cards_on_board.pop()
-f = ActionReserveCard(card, True, None)
-g = ActionReserveCard(card, True, None)
-print(f == g)
