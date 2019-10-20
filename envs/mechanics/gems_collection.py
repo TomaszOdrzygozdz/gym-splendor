@@ -120,3 +120,6 @@ class GemsCollection():
         return {gem_color for gem_color in GemColor if self.gems_dict[gem_color] > 0
                 and gem_color != GemColor.GOLD}
 
+    def __copy__(self):
+        return GemsCollection({gem_color : self.gems_dict[gem_color] for gem_color in GemColor})
+
