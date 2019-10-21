@@ -1,0 +1,11 @@
+Id,GemColor.BLACK,GemColor.WHITE,GemColor.RED,GemColor.BLUE,GemColor.GREEN,Victory_points
+NOB1,0,0,3,3,3,3
+NOB2,4,4,0,0,0,3
+NOB3,0,4,0,4,0,3
+NOB4,3,3,0,3,0,3
+NOB5,4,0,4,0,0,3
+NOB6,0,0,4,0,4,3
+NOB7,0,3,0,3,3,3
+NOB8,3,3,3,0,0,3
+NOB9,3,0,3,0,3,3
+NOB10,0,0,0,4,4,3
