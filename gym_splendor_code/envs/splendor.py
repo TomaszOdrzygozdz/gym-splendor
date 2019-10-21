@@ -75,7 +75,7 @@ class SplendorEnv(Env):
         if self.gui is None:
             self.gui = SplendorGUI()
 
-        self.gui.draw_board(self.current_state_of_the_game.board, x_coord=100, y_coord=50)
+        self.gui.draw_state(self.current_state_of_the_game)
         self.gui.keep_window_open()
 
 
