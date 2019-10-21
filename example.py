@@ -2,4 +2,4 @@
 
 import gym
 
-env = gym.make('gym_splendor:splendor-v0')
+env = gym.make('gym_splendor_code:splendor-v0')
