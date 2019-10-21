@@ -99,6 +99,7 @@ GEMS_BOARD_Y = 450*SCALING_FACTOR
 GEMS_ENTRY_INITIAL_X = 30*SCALING_FACTOR
 GEMS_ENTRY_INITIAL_Y = 450*SCALING_FACTOR
 GEM_ENTRY_SHIFT = 70*SCALING_FACTOR
+GEM_ENTRY_WIDTH = 20*SCALING_FACTOR
 
 #Players hand visual settings:
 #____________________________________________________________

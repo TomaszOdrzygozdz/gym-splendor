@@ -120,14 +120,14 @@ class SplendorGUI():
                    board: Board,
                    x_coord: int,
                    y_coord: int,
-                   interactive=False,
+                   interactive=True,
                    active_players_hand: PlayersHand = None) -> None:
 
         """Draws the board, that is: cards that lie on the table, nobles that lie on the table and coins.
         Parameters:
         _ _ _ _ _ _
         board: Board to draw.
-        x_coord: Horizontal ccordinate (from left top corner).
+        x_coord: Horizontal coordinate (from left top corner).
         y_coord: Vertical coordinate (from left top corner).
         active_players_hand: The hand of the player that is currently active. This argument is optional and is used to
         determine which cards should be given buy or reserve buttons. If the value is None no buttons are drawn."""
@@ -153,9 +153,10 @@ class SplendorGUI():
 
         if interactive:
             for gem_color in GemColor:
-                gem_entry = Entry()
+                gem_entry = Entry(self.main_window)
                 gem_entry.place(x=x_coord + GEM_ENTRY_SHIFT * gem_color.value - GEMS_ENTRY_INITIAL_X,
-                                y=y_coord + GEMS_ENTRY_INITIAL_Y)
+                                y=y_coord + GEMS_ENTRY_INITIAL_Y, width=GEM_ENTRY_WIDTH)
+                self.entries[gem_color] = gem_entry
                 self.drawn_objects.add(gem_entry)
 
     def draw_gems(self,
@@ -241,7 +242,20 @@ class SplendorGUI():
                        card: Card,
                        state: State):
 
-        if state.active_players_hand().gems_possessed.value(GemColor.GOLD) > 0:
-            self.ask_if_use_gold(card)
-        else:
-            self.actual_move = ActionBuyCard(card)
+        price_after_discount = card.price % state.active_players_hand().discount()
+        min_gold = (price_after_discount % state.active_players_hand().gems_possessed).sum()
+        min_gold_price = GemsCollection({gem_color : min(price_after_discount.value(gem_color),
+                                                         state.active_players_hand().gems_possessed.value(gem_color))
+                                         for gem_color in GemColor})
+        min_gold_price.gems_dict[GemColor.GOLD] = min_gold
+        self.set_entries(min_gold_price)
+
+
+
+    def read_entries(self)->GemsCollection:
+        return GemsCollection({color: self.entries[color].get() for color in GemColor})
+
+    def set_entries(self, gems_collection:GemsCollection)->None:
+        for gem_color in GemColor:
+            self.entries[gem_color].delete(0, END)
+            self.entries[gem_color].insert(0, gems_collection.value(gem_color))
