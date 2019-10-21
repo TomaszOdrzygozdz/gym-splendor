@@ -8,15 +8,17 @@ color_dict_tkiter = {GemColor.RED: 'red', GemColor.GREEN: 'green', GemColor.BLUE
                      GemColor.GOLD: 'gold'}
 
 #scaling_factor:
-SCALING_FACTOR = 1
+SCALING_FACTOR = 0.8
+WINDOW_TITLE = 'Splendor kayoshin bakemono'
+WINDOW_GEOMETRY = '1550x780'
 
 # Card visual settings:
 #____________________________________________________________
 CARD_BACKGROUND = 'white'
 CARD_VICTORY_POINTS_FONT_COLOR = 'darkblue'
-CARD_VICTORY_POINTS_FONT = 'Times 18 italic bold'
+CARD_VICTORY_POINTS_FONT = 'Times {} italic bold'.format(int(18*SCALING_FACTOR))
 CARD_PRICE_FONT_COLOR = 'black'
-CARD_PRICE_FONT = 'Times 14 italic bold'
+CARD_PRICE_FONT = 'Times {} italic bold'.format(int(14*SCALING_FACTOR))
 
 CARD_WIDTH = 100*SCALING_FACTOR
 CARD_HEIGHT = 140*SCALING_FACTOR
@@ -42,7 +44,7 @@ PRICE_VALUE_Y = 48*SCALING_FACTOR
 #____________________________________________________________
 NOBLE_BACKGROUND= 'white'
 NOBLE_PRICE_FONT_COLOR = 'black'
-NOBLE_PRICE_FONT = 'Arial 12 bold'
+NOBLE_PRICE_FONT = 'Arial {} bold'.format(int(12*SCALING_FACTOR))
 
 NOBLE_WIDTH = 70*SCALING_FACTOR
 NOBLE_HEIGHT = 75*SCALING_FACTOR
@@ -58,7 +60,9 @@ NOBLE_PRICE_VALUE_Y = 5*SCALING_FACTOR
 #Board visual settings:
 #____________________________________________________________
 BOARD_TITLE = 'Board'
-BOARD_NAME_FONT = 'Arial 14 bold italic'
+BOARD_TITLE_POSITION_X = 210*SCALING_FACTOR
+BOARD_TITLE_POSITION_Y = -20*SCALING_FACTOR
+BOARD_NAME_FONT = 'Arial {} bold italic'.format(int(14*SCALING_FACTOR))
 BOARD_NAME_FONT_COLOR = 'darkgreen'
 
 #Placing cards on board setting:
@@ -74,6 +78,6 @@ NOBLE_VERTICAL_SHIFT = 550*SCALING_FACTOR #determines where the set of nobles li
 NOBLES_START_X = 20*SCALING_FACTOR
 NOBLES_START_Y = 550*SCALING_FACTOR
 
-#time settings
-#WINDOW_REFRESH_INTERVAL = 0.01
+#Players hand visual settings:
+#____________________________________________________________
 

@@ -13,8 +13,8 @@ class SplendorGUI():
     def __init__(self):
         self.close_window = False
         self.main_window = Tk()
-        self.main_window.title("Splendor kaioshin bakemono")
-        self.main_window.geometry('1550x780')
+        self.main_window.title(WINDOW_TITLE)
+        self.main_window.geometry(WINDOW_GEOMETRY)
         self.main_canvas = Canvas(self.main_window, width=1550, height=780)
         self.main_canvas.place(x=0, y=0)
         self.drawn_objects = set()
@@ -111,8 +111,8 @@ class SplendorGUI():
         determine which cards should be given buy or reserve buttons. If the value is None no buttons are drawn."""
 
         self.drawn_objects.add(
-            self.main_canvas.create_text(x_coord + 210, y_coord - 20, fill=BOARD_NAME_FONT_COLOR, text=BOARD_TITLE,
-                                         font=BOARD_NAME_FONT))
+            self.main_canvas.create_text(x_coord + BOARD_TITLE_POSITION_X, y_coord + BOARD_TITLE_POSITION_Y,
+                                         fill=BOARD_NAME_FONT_COLOR, text=BOARD_TITLE, font=BOARD_NAME_FONT))
 
         #dictionary used to keep track of drawn cards
         cards_already_drawn = {row : set() for row in Row}
@@ -140,6 +140,9 @@ class SplendorGUI():
         x_coord: Horizontal coordinate (from left top corner).
         y_coord: Vertical coordinate (from left top corner).
         draw_reserved_buttons: Determines if draw action buy reserved button on reserved cards."""
+
+        card_position_x_dict = {GemColor.RED: 0, GemColor.GREEN: 1, GemColor.BLUE: 2, GemColor.WHITE: 3, GemColor.BLACK: 4}
+
 
 
 

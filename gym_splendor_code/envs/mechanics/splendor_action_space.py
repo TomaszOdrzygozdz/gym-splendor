@@ -45,7 +45,8 @@ class SplendorActionSpace(Space):
             return random.choice(self.actions_by_type[random_type])
 
     def __repr__(self):
-        return 'Space of Splendor actions currently containing {} actions: ' \
-               '{} trade gems actions, {} buy actions and {} reservation actions.'.format(len(self.list_of_actions), len(self.list_of_actions_gem_trade),
-                                              len(self.list_of_actions_buy), len(self.list_of_actions_reservation))
+        return 'Space of Splendor legal actions, currently containing {} actions: ' \
+               '{} trade gems actions, {} buy actions and {} reservation actions.'\
+            .format(len(self.list_of_actions), len(self.actions_by_type['trade']),
+                    len(self.actions_by_type['buy']), len(self.actions_by_type['reserve']))
 

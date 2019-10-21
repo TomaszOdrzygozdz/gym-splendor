@@ -1,5 +1,6 @@
 from gym import Env
 
+from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.game_settings import *
 from gym_splendor_code.envs.mechanics.splendor_action_space import SplendorActionSpace
@@ -11,6 +12,8 @@ class SplendorEnv(Env):
     """ Description:
         This environment runs the game Splendor."""
 
+    metadata = {'render.modes': ['human']}
+
     def __init__(self, strategies = None):
 
         self.current_state_of_the_game = State()
@@ -19,6 +22,7 @@ class SplendorEnv(Env):
         self.observation_space = SplendorObservationSpace()
         self.is_done = False
         self.end_episode_mode = 'instant_end'
+        self.gui = None
 
         #Create initial state of the game
 
@@ -66,8 +70,13 @@ class SplendorEnv(Env):
                         self.is_done = True
                         break
 
-    def render(self, mode='human'):
-        pass
+    def render(self, mode='human', interactive = False):
+        """Creates window if necessary, then renders the state of the game """
+        if self.gui is None:
+            self.gui = SplendorGUI()
+
+        self.gui.draw_board(self.current_state_of_the_game.board, x_coord=100, y_coord=50)
+        self.gui.keep_window_open()
 
 
 

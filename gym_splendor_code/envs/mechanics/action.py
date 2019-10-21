@@ -62,6 +62,7 @@ class ActionTradeGems(Action):
         condition1 = self.action_type == other.action_type
         if condition1:
             condition2 = self.gems_from_board_to_player == other.gems_from_board_to_player
+            return condition2
         else:
             return False
 
