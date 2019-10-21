@@ -44,6 +44,11 @@ PRICE_COIN_SIZE = 15*SCALING_FACTOR
 PRICE_VALUE_X = 28*SCALING_FACTOR
 PRICE_VALUE_Y = 48*SCALING_FACTOR
 
+BUY_BUTTON_TITLE = '   Buy    '
+BUY_BUTTON_FONT = 'Arial {} bold'.format(int(7*SCALING_FACTOR))
+BUY_BUTTON_X = 43*SCALING_FACTOR
+BUY_BUTTON_Y = 110*SCALING_FACTOR
+
 
 #Noble visual settings:
 #____________________________________________________________
@@ -91,6 +96,10 @@ GEMS_BOARD_FONT = "Arial {} bold".format(int(10*SCALING_FACTOR))
 GEMS_BOARD_X = 15*SCALING_FACTOR
 GEMS_BOARD_Y = 450*SCALING_FACTOR
 
+GEMS_ENTRY_INITIAL_X = 30*SCALING_FACTOR
+GEMS_ENTRY_INITIAL_Y = 450*SCALING_FACTOR
+GEM_ENTRY_SHIFT = 70*SCALING_FACTOR
+
 #Players hand visual settings:
 #____________________________________________________________
 #Placing cards settings:
@@ -118,6 +127,7 @@ RESERVED_RECTANGLE_OUTLINE = 'red'
 PLAYERS_HAND_GEMS_X = 10*SCALING_FACTOR
 PLAYERS_HAND_GEMS_Y = 15*SCALING_FACTOR
 
+
 #State visual settings:
 #____________________________________________________________
 STATE_PLAYER_HORIZONTAL_SHIFT = 985*SCALING_FACTOR
@@ -127,4 +137,6 @@ STATE_PLAYERS_Y = 20*SCALING_FACTOR
 
 STATE_BOARD_X = 550*SCALING_FACTOR
 STATE_BOARD_Y = 100*SCALING_FACTOR
+
+
 

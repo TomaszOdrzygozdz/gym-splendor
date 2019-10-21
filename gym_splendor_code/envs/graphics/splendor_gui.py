@@ -1,6 +1,7 @@
 from tkinter import *
 
 from gym_splendor_code.envs.graphics.graphics_settings import *
+from gym_splendor_code.envs.mechanics.action import ActionBuyCard, Action
 from gym_splendor_code.envs.mechanics.board import Board
 from gym_splendor_code.envs.mechanics.card import Card
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
@@ -20,6 +21,11 @@ class SplendorGUI():
         self.main_canvas = Canvas(self.main_window, width=1550, height=780)
         self.main_canvas.place(x=0, y=0)
         self.drawn_objects = set()
+        self.actual_action = None
+        self.entries = {}
+
+    def set_action(self, action: Action) -> None:
+        self.actual_action = action
 
     def keep_window_open(self):
         mainloop()
@@ -29,7 +35,8 @@ class SplendorGUI():
                   x_coord: int,
                   y_coord: int,
                   draw_buy_button: bool = False,
-                  draw_reserve_button: bool = False) -> None:
+                  draw_reserve_button: bool = False,
+                  state: State = None) -> None:
 
         """Draws a card in the main window.
 
@@ -42,7 +49,8 @@ class SplendorGUI():
         draw_reserve_button: Determines if create a reserve action button associated with this card"""
 
         self.drawn_objects.add(
-            self.main_canvas.create_rectangle(x_coord, y_coord, x_coord + CARD_WIDTH, y_coord + CARD_HEIGHT, fill=CARD_BACKGROUND))
+            self.main_canvas.create_rectangle(x_coord, y_coord, x_coord + CARD_WIDTH, y_coord + CARD_HEIGHT,
+                                              fill=CARD_BACKGROUND))
         self.drawn_objects.add(
             self.main_canvas.create_text(x_coord + VICTORY_POINT_POSITION_X, y_coord + VICTORY_POINT_POSITION_Y,
                                          fill=CARD_VICTORY_POINTS_FONT_COLOR,
@@ -70,8 +78,15 @@ class SplendorGUI():
                                              PRICE_COIN_SHIFT * position_index, font=CARD_PRICE_FONT,
                                              fill=CARD_PRICE_FONT_COLOR, text=str(card.price.value(color))))
 
-        self.drawn_objects.add(self.main_canvas.create_text(x_coord + CARD_NAME_POSITION_X, y_coord+ CARD_NAME_POSITION_Y,
-                                                        text=card.name, fill=CARD_NAME_COLOR, font=CARD_NAME_FONT))
+        self.drawn_objects.add(
+            self.main_canvas.create_text(x_coord + CARD_NAME_POSITION_X, y_coord + CARD_NAME_POSITION_Y,
+                                         text=card.name, fill=CARD_NAME_COLOR, font=CARD_NAME_FONT))
+
+        if draw_buy_button:
+            buy_button = Button(self.main_window, font=BUY_BUTTON_FONT, text=BUY_BUTTON_TITLE,
+                                command=lambda: self.prepare_to_buy(card, state))
+            buy_button.place(x=x_coord + BUY_BUTTON_X, y=y_coord + BUY_BUTTON_Y)
+            self.drawn_objects.add(buy_button)
 
     def draw_noble(self,
                    noble: Noble,
@@ -98,12 +113,14 @@ class SplendorGUI():
                                                                      fill=color_dict_tkiter[color]))
             self.drawn_objects.add(self.main_canvas.create_text(position_x + NOBLE_PRICE_VALUE_X,
                                                                 position_y + NOBLE_PRICE_VALUE_Y, font=NOBLE_PRICE_FONT,
-                                         fill=NOBLE_PRICE_FONT_COLOR, text=str(noble.price.value(color))))
+                                                                fill=NOBLE_PRICE_FONT_COLOR,
+                                                                text=str(noble.price.value(color))))
 
     def draw_board(self,
                    board: Board,
                    x_coord: int,
                    y_coord: int,
+                   interactive=False,
                    active_players_hand: PlayersHand = None) -> None:
 
         """Draws the board, that is: cards that lie on the table, nobles that lie on the table and coins.
@@ -119,8 +136,8 @@ class SplendorGUI():
             self.main_canvas.create_text(x_coord + BOARD_TITLE_POSITION_X, y_coord + BOARD_TITLE_POSITION_Y,
                                          fill=BOARD_NAME_FONT_COLOR, text=BOARD_TITLE, font=BOARD_NAME_FONT))
 
-        #dictionary used to keep track of drawn cards
-        cards_already_drawn = {row : set() for row in Row}
+        # dictionary used to keep track of drawn cards
+        cards_already_drawn = {row: set() for row in Row}
         for card in board.cards_on_board:
             position_x = HORIZONTAL_CARD_DISTANCE * len(cards_already_drawn[card.row])
             cards_already_drawn[card.row].add(card)
@@ -134,29 +151,37 @@ class SplendorGUI():
 
         self.draw_gems(board.gems_on_board, x_coord + GEMS_BOARD_X, y_coord + GEMS_BOARD_Y)
 
+        if interactive:
+            for gem_color in GemColor:
+                gem_entry = Entry()
+                gem_entry.place(x=x_coord + GEM_ENTRY_SHIFT * gem_color.value - GEMS_ENTRY_INITIAL_X,
+                                y=y_coord + GEMS_ENTRY_INITIAL_Y)
+                self.drawn_objects.add(gem_entry)
+
     def draw_gems(self,
-                   gems_collection: GemsCollection,
-                   x_coord: int,
-                   y_coord: int,
-                  interactive=False)->None:
+                  gems_collection: GemsCollection,
+                  x_coord: int,
+                  y_coord: int,
+                  interactive=False) -> None:
 
         for gem_color in GemColor:
             self.drawn_objects.add(self.main_canvas.create_oval(x_coord + GEMS_BOARD_SHIFT * gem_color.value,
-                                         y_coord,
-                                         x_coord + GEMS_BOARD_SHIFT * gem_color.value + GEM_BOARD_OVAL_SIZE,
-                                         y_coord + GEM_BOARD_OVAL_SIZE,
-                                         fill=color_dict_tkiter[gem_color]))
+                                                                y_coord,
+                                                                x_coord + GEMS_BOARD_SHIFT * gem_color.value + GEM_BOARD_OVAL_SIZE,
+                                                                y_coord + GEM_BOARD_OVAL_SIZE,
+                                                                fill=color_dict_tkiter[gem_color]))
 
             self.drawn_objects.add(self.main_canvas.create_text(x_coord + GEMS_BOARD_SHIFT * gem_color.value +
                                                                 GEMS_BOARD_VALUE_SHIFT,
-                                         y_coord + GEMS_BOARD_VALUE_VERTICAL_SHIFT,
-                                         text=str(gems_collection.value(gem_color)), font=GEMS_BOARD_FONT))
+                                                                y_coord + GEMS_BOARD_VALUE_VERTICAL_SHIFT,
+                                                                text=str(gems_collection.value(gem_color)),
+                                                                font=GEMS_BOARD_FONT))
 
     def draw_players_hand(self,
                           players_hand: PlayersHand,
                           x_coord: int,
                           y_coord: int,
-                          active = False,
+                          active=False,
                           draw_buttons: bool = False) -> None:
         """Draws a players hands in a given position.
         Parameters:
@@ -174,16 +199,16 @@ class SplendorGUI():
         self.drawn_objects.add(self.main_canvas.create_text(x_coord + PLAYERS_NAME_X, y_coord + PLAYERS_NAME_Y,
                                                             text=players_hand.name, font=players_name_font))
 
-        card_position_x_dict = {gem_color : gem_color.value*PLAYERS_HAND_HORIZONTAL_SHIFT for gem_color in GemColor if
+        card_position_x_dict = {gem_color: gem_color.value * PLAYERS_HAND_HORIZONTAL_SHIFT for gem_color in GemColor if
                                 gem_color != GemColor.GOLD}
 
         cards_presented = {}
-        #Draw all cards:
+        # Draw all cards:
         for card in players_hand.cards_possessed:
             card_x_coord = card_position_x_dict[card.discount_profit]
-            card_y_coord = len(cards_presented[card.discount_profit])*PLAYERS_HAND_VERTICAL_SHIFT
+            card_y_coord = len(cards_presented[card.discount_profit]) * PLAYERS_HAND_VERTICAL_SHIFT
             self.draw_card(card, x_coord + card_x_coord, y_coord + card_y_coord)
-        #Draw all reserved cards:
+        # Draw all reserved cards:
         self.drawn_objects.add(self.main_canvas.create_text(x_coord + RESERVED_CARDS_TITLE_X,
                                                             y_coord + RESERVED_CARDS_TITLE_Y, text="Reserved cards:",
                                                             font=RESERVED_CARDS_FONT))
@@ -194,23 +219,29 @@ class SplendorGUI():
                                                                  outline=RESERVED_RECTANGLE_OUTLINE))
         reserved_cards_presented = {}
         for card in players_hand.cards_possessed:
-            card_x_coord = RESERVED_CARDS_INITIAL_X + len(reserved_cards_presented)*RESERVED_CARDS_HORIZONTAL_SHIFT
+            card_x_coord = RESERVED_CARDS_INITIAL_X + len(reserved_cards_presented) * RESERVED_CARDS_HORIZONTAL_SHIFT
             card_y_coord = RESERVED_CARDS_INITIAL_Y
             self.draw_card(card, x_coord + card_x_coord, y_coord + card_y_coord)
 
-        #Draw gems possessed by the player:
+        # Draw gems possessed by the player:
         self.draw_gems(players_hand.gems_possessed, x_coord + PLAYERS_HAND_GEMS_X, y_coord + PLAYERS_HAND_GEMS_Y)
-
 
     def draw_state(self, state: State) -> None:
         """Draws the state. """
         for number, player in enumerate(state.list_of_players_hands):
-            x_coord_player = STATE_PLAYERS_X + number%2*STATE_PLAYER_HORIZONTAL_SHIFT
-            y_coord_player = STATE_PLAYERS_Y + (number-number%2)/2*STATE_PLAYER_VERTICAL_SHIFT
-            self.draw_players_hand(player, x_coord_player, y_coord_player, active=number==state.active_player_id)
+            x_coord_player = STATE_PLAYERS_X + number % 2 * STATE_PLAYER_HORIZONTAL_SHIFT
+            y_coord_player = STATE_PLAYERS_Y + (number - number % 2) / 2 * STATE_PLAYER_VERTICAL_SHIFT
+            self.draw_players_hand(player, x_coord_player, y_coord_player, active=number == state.active_player_id)
 
         self.draw_board(state.board, STATE_BOARD_X, STATE_BOARD_Y)
 
 
 
+    def prepare_to_buy(self,
+                       card: Card,
+                       state: State):
 
+        if state.active_players_hand().gems_possessed.value(GemColor.GOLD) > 0:
+            self.ask_if_use_gold(card)
+        else:
+            self.actual_move = ActionBuyCard(card)
