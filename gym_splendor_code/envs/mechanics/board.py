@@ -24,13 +24,11 @@ class Board:
         self.deck = Deck(all_cards, all_nobles)
         self.gems_on_board = gems_on_board
         self.cards_on_board = set()
-        self.nobles = list(all_nobles)
         self.nobles_on_board = set()
 
     def shuffle(self) -> None:
         """Shuffles both: deck of cards and list of nobles."""
         self.deck.shuffle()
-        random.shuffle(self.nobles)
 
     def lay_cards_on_board(self) -> None:
         """Puts appropriate number of cards on the board. """
@@ -39,7 +37,7 @@ class Board:
 
     def lay_nobles_on_board(self) -> None:
         """This method puts three nobles on the board."""
-        self.nobles_on_board = set(self.nobles[0:NOBLES_ON_BOARD_INITIAL])
+        self.nobles_on_board = set(self.deck.deck_of_nobles.pop(NOBLES_ON_BOARD_INITIAL))
 
     def remove_card_from_board_and_refill(self, card: Card) -> None:
         """This method removes a card from board and puts a new one (if there is non-empty deck to take from"""

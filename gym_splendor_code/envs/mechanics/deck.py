@@ -32,6 +32,12 @@ class Deck:
         return [self.pop_card(row) for _ in range(number)]
 
     def pop_many_nobles(self,
+                 number: int = 3) -> List[Noble]:
+        """Pops many cards from a given row."""
+        return [self.deck_of_nobles.pop() for _ in range(number)]
+
+
+    def pop_many_nobles(self,
                         number: int = 3) -> List[Noble]:
         """Pops many nobles from the deck."""
         return self.deck_of_nobles[0:number]
