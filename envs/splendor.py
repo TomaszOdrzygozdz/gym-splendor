@@ -25,10 +25,22 @@ class SplendorEnv(Env):
 
 
     def step(self, action: Action):
+        """
+        Executes action on the environment. Action is performed on the current state of the game. The are two modes for
+        is_done: instant_end - the episode ends instantly when any player reaches the number of points equal POINTS_TO_WIN and
+        let_all_move - when some player reaches POINTS_TO_WIN we allow all players to move (till the end of round) and then
+        we end the episode.
+        Reward: 1 if the action gives POINTS_TO_WIN to the player and episode is not yet ended (taking actions when episode ended
+        is considered as loosing), -1 if episode ended, 0 if episode is not yet ended and the action does not give enough
+        points to the player.
+
+        :param action: action to take
+        :return: observation, reward, is_done, info
+        """
         """Performs one action on the current state of the game. """
         assert self.action_space.contains(action), '{} of type {} is not valid action'.format_map(action, type(action))
         action.execute(self.current_state_of_the_game)
-        #First we find the reward:
+        #We find the reward:
         reward = 0
         if not self.is_done:
             if self.current_state_of_the_game.previous_players_hans().number_of_my_points() >= POINTS_TO_WIN:
@@ -37,7 +49,7 @@ class SplendorEnv(Env):
             reward = -1
 
         self.is_done_update(self.end_episode_mode)
-        return self.current_state_of_the_game, reward, self.is_done, {}
+        return self.observation_space.state_to_observation(self.current_state_of_the_game), reward, self.is_done, {}
 
 
 

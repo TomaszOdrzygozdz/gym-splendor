@@ -17,20 +17,22 @@ class SplendorObservationSpace(Space):
         cards_on_board_names = {card.name for card in state.board.cards_on_board}
         gems_on_board = state.board.gems_on_board.__copy__()
         active_player_id = state.active_player_id
-        players_hands = [{'cards_on_hand': {card.name for card in players_hand.cards_possessed},
-                          'reserved_cards' : {card.name for card in players_hand.cards_reserved},
-                          'gems_possessed' : players_hand.gems_possessed.__copy__()} for players_hand in state.list_of_players_hands]
+        players_hands = [{'cards_possessed_names': {card.name for card in players_hand.cards_possessed},
+                          'cards_reserved_names' : {card.name for card in players_hand.cards_reserved},
+                          'gems_possessed_names' : players_hand.gems_possessed.__copy__()} for players_hand in state.list_of_players_hands]
 
         return {'cards_on_board_names' : cards_on_board_names, 'gems_on_board' : gems_on_board,
                 'active_player_id' : active_player_id, 'players_hands' : players_hands}
 
     def __repr__(self):
         return 'Observation space in Splendor. It contains all information accessible to one player (so for example in \n' \
-               'a default setting in does not contain list of hidden cards. One observation has the following structure: \n' \
-               'it is a dictionary with keys: \n' \
-               '1) cards_on_board_names - it is a list of names of card lying on the board \n' \
-               '2) gems_on_board - it ts'
-
-
-fu = SplendorObservationSpace()
-print(fu)
+               'a default setting in does not contain the list of hidden cards. One observation has the following structure: \n' \
+               'It is a dictionary with keys: \n' \
+               '1) cards_on_board_names - a set of names of card lying on the board \n' \
+               '2) gems_on_board - a collection of gems on board \n ' \
+               '3) active_player_id - a number that indicates which player is active in the current state \n' \
+               '4) players_hands - a list of dictionaries refering to consective players hands. Each dictionary in this \n' \
+               'list contains the following keys:' \
+               'a) cards_possessed_names - set of names of cards possesed by the players hand \n'\
+               'b) cards_reserved_names - set of names of cards reserved by the players hand \n' \
+               'c) gems_possessed - collection of gems possessed by the players hand'
