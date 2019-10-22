@@ -73,6 +73,9 @@ class ActionTradeGems(Action):
     def __repr__(self):
         return 'Trade gems ' + self.gems_from_board_to_player.__repr__()
 
+    def vectorize(self):
+        return {x.vectorize() for x in self.gems_from_board_to_player}
+
 
 class ActionBuyCard(Action):
     """Action of buying a card."""
@@ -129,6 +132,8 @@ class ActionBuyCard(Action):
     def __repr__(self):
         return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
                                                                                                      self.use_gold_as.__repr__())
+    def vectorize(self):
+        return {x.vectorize() for x in self.price}, self.card.vectorize()
 
 class ActionReserveCard(Action):
     """Action of reserving a card."""
@@ -175,3 +180,9 @@ class ActionReserveCard(Action):
     def __repr__(self):
         return 'Reserve ' + self.card.__repr__() + '\n take golden gem: {}, return_gem_color {}'.format(self.take_golden_gem,
                                                                                                       self.return_gem_color)
+
+    def vectorize(self):
+        gems = GemsCollection()
+        gems.gems_dict[GemColor.GOLD] += 1
+        gems[self.return_gem_color] -= 1
+        return gems.vectorize(), self.card.vectorize()
