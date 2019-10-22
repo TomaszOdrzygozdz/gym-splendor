@@ -3,8 +3,6 @@
 import gym
 
 #First we create the environment
-from gym_splendor_code.envs.mechanics.enums import GemColor, Row
-
 env = gym.make('gym_splendor_code:splendor-v0')
 
 #Let's see what is the observation space:
