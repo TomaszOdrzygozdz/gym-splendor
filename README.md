@@ -24,3 +24,26 @@ does not reach the appropriate number of points.
 There is simple GUI that allow to both: draw the state of the game and collect human players reactions:
 
 ![screenshot](https://github.com/TomaszOdrzygozdz/gym-splendor/blob/master/splendor_screenshot.png)
+
+### Human vs human game:
+
+The code below creates teh environment and runs human vs human game.
+
+```python
+import gym
+env = gym.make('gym_splendor_code:splendor-v0')
+env.render()
+is_done = False
+while not is_done:
+    print(env.action_space)
+    action = env.gui.read_action()
+    env.update_actions()
+    if env.action_space.contains(action):
+        print(action)
+        env.step(action)
+        env.render()
+        env.show_last_action(action)
+    else:
+        env.show_warning(action)
+
+```
