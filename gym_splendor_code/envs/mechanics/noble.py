@@ -1,7 +1,6 @@
 from gym_splendor_code.envs.mechanics.pre_card import PreCard
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 
-
 class Noble(PreCard):
     def __init__(self,
                  name: str,
