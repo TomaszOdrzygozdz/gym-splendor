@@ -111,6 +111,7 @@ class ActionBuyCard(Action):
             state.active_players_hand().cards_reserved.remove(self.card)
         state.active_players_hand().gems_possessed = state.active_players_hand().gems_possessed - price_after_discount
         state.board.gems_on_board = state.board.gems_on_board + price_after_discount
+        state.board.gems_on_board.gems_dict[GemColor.GOLD] += self.n_gold_gems_to_use
         self.give_nobles(state)
         self.change_active_player(state)
 
