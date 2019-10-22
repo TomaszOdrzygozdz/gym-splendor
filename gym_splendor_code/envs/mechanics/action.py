@@ -31,8 +31,11 @@ class Action():
 
     def give_nobles(self, state: State) -> None:
         """Checks if the active player deserves to obtain noble card (or cards)."""
+        nobles_to_transfer = set()
         for noble in state.board.nobles_on_board:
             if noble.price <= state.active_players_hand().discount():
+                nobles_to_transfer.add(noble)
+        for noble in nobles_to_transfer:
                 state.active_players_hand().nobles_possessed.add(noble)
                 state.board.nobles_on_board.remove(noble)
 

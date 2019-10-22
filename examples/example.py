@@ -20,14 +20,15 @@ env.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD] = 3
 env.update_actions()
 
 env.render()
-
-while True:
+is_done = False
+while not is_done:
     print(env.action_space)
     action = env.gui.read_action()
     env.update_actions()
     if env.action_space.contains(action):
         print(action)
-        env.step(action)
+        _, r, is_done, _ = env.step(action)
+        print('Reward {}'.format(r))
         env.render()
         env.show_last_action(action)
     else:

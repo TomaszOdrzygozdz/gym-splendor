@@ -94,7 +94,5 @@ class SplendorEnv(Env):
         self.gui.clear_all()
         for card in self.current_state_of_the_game.board.cards_on_board:
             self.gui.draw_state(self.current_state_of_the_game)
-            self.gui.keep_window_open()
-
 
 
