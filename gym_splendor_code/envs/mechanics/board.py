@@ -13,7 +13,7 @@ class Board:
     def __init__(self,
                  all_cards: Set[Card],
                  all_nobles: Set[Noble],
-                 gems_on_board: GemsCollection) -> None:
+                 gems_on_board: GemsCollection = GemsCollection()) -> None:
         """Creates a board and prepares the game. This method: creates the deck of cards and the deck od nobles. We do
         not shuffle deck and do not put cards and nobles on the board here.
         Parameters:
@@ -42,7 +42,7 @@ class Board:
     def remove_card_from_board_and_refill(self, card: Card) -> None:
         """This method removes a card from board and puts a new one (if there is non-empty deck to take from"""
         self.cards_on_board.remove(card)
-        self.deck.pop_card(card.row)
+        self.cards_on_board.add(self.deck.pop_card(card.row))
 
     def vectorize(self):
         return [{'nobles_on_board' : {x.vectorize() for x in self.nobles_on_board},

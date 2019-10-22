@@ -31,8 +31,11 @@ class Action():
 
     def give_nobles(self, state: State) -> None:
         """Checks if the active player deserves to obtain noble card (or cards)."""
+        nobles_to_transfer = set()
         for noble in state.board.nobles_on_board:
             if noble.price <= state.active_players_hand().discount():
+                nobles_to_transfer.add(noble)
+        for noble in nobles_to_transfer:
                 state.active_players_hand().nobles_possessed.add(noble)
                 state.board.nobles_on_board.remove(noble)
 
@@ -54,8 +57,9 @@ class ActionTradeGems(Action):
 
     def execute(self,
                 state: State) -> None:
-        state.board.gems_on_board -= self.gems_from_board_to_player
-        state.active_players_hand().gems_possessed += self.gems_from_board_to_player
+        state.board.gems_on_board = state.board.gems_on_board - self.gems_from_board_to_player
+        state.active_players_hand().gems_possessed = state.active_players_hand().gems_possessed \
+                                                     + self.gems_from_board_to_player
         self.change_active_player(state)
 
     def __eq__(self, other):
@@ -71,6 +75,7 @@ class ActionTradeGems(Action):
 
     def vectorize(self):
         return {x.vectorize() for x in self.gems_from_board_to_player}
+
 
 class ActionBuyCard(Action):
     """Action of buying a card."""
@@ -102,12 +107,16 @@ class ActionBuyCard(Action):
             #take golden gems from player:
             state.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD] -= self.n_gold_gems_to_use
             #reduce the price of card:
-            self.price -= self.n_gold_gems_to_use
+            price_after_discount -= self.use_gold_as
 
         state.active_players_hand().cards_possessed.add(self.card)
-        state.board.remove_card_from_board_and_refill(self.card)
-        state.active_players_hand().gems_possessed -= self.price
-        state.board.gems_on_board += self.price
+        if self.card in state.board.cards_on_board:
+            state.board.remove_card_from_board_and_refill(self.card)
+        if self.card in state.active_players_hand().cards_reserved:
+            state.active_players_hand().cards_reserved.remove(self.card)
+        state.active_players_hand().gems_possessed = state.active_players_hand().gems_possessed - price_after_discount
+        state.board.gems_on_board = state.board.gems_on_board + price_after_discount
+        state.board.gems_on_board.gems_dict[GemColor.GOLD] += self.n_gold_gems_to_use
         self.give_nobles(state)
         self.change_active_player(state)
 
@@ -127,7 +136,6 @@ class ActionBuyCard(Action):
                                                                                                      self.use_gold_as.__repr__())
     def vectorize(self):
         return {x.vectorize() for x in self.price}, self.card.vectorize()
-
 
 class ActionReserveCard(Action):
     """Action of reserving a card."""
@@ -174,6 +182,7 @@ class ActionReserveCard(Action):
     def __repr__(self):
         return 'Reserve ' + self.card.__repr__() + '\n take golden gem: {}, return_gem_color {}'.format(self.take_golden_gem,
                                                                                                       self.return_gem_color)
+
     def vectorize(self):
         gems = GemsCollection()
         gems.gems_dict[GemColor.GOLD] += 1

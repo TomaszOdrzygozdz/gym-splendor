@@ -26,6 +26,8 @@ class SplendorEnv(Env):
 
         #Create initial state of the game
 
+    def active_players_hand(self):
+        return self.current_state_of_the_game.active_players_hand()
 
     def step(self, action: Action):
         """
@@ -41,7 +43,8 @@ class SplendorEnv(Env):
         :return: observation, reward, is_done, info
         """
         """Performs one action on the current state of the game. """
-        assert self.action_space.contains(action), '{} of type {} is not valid action'.format_map(action, type(action))
+        self.action_space.update(self.current_state_of_the_game)
+        assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
         action.execute(self.current_state_of_the_game)
         #We find the reward:
         reward = 0
@@ -52,9 +55,8 @@ class SplendorEnv(Env):
             reward = -1
 
         self.is_done_update(self.end_episode_mode)
+        self.action_space.update(self.current_state_of_the_game)
         return self.observation_space.state_to_observation(self.current_state_of_the_game), reward, self.is_done, {}
-
-
 
     def is_done_update(self, end_episode_mode = 'instant_end'):
         if end_episode_mode == 'instant_end':
@@ -70,13 +72,25 @@ class SplendorEnv(Env):
                         self.is_done = True
                         break
 
+    def update_actions(self):
+        self.action_space.update(self.current_state_of_the_game)
+
+    def show_warning(self, action):
+        if self.gui is not None:
+            self.gui.show_warning(action)
+
+    def show_last_action(self, action):
+        if self.gui is not None:
+            self.gui.show_last_action(action)
+
     def render(self, mode='human', interactive = False):
         """Creates window if necessary, then renders the state of the game """
         if self.gui is None:
             self.gui = SplendorGUI()
 
-        self.gui.draw_state(self.current_state_of_the_game)
-        self.gui.keep_window_open()
-
+        #clear gui:
+        self.gui.clear_all()
+        for card in self.current_state_of_the_game.board.cards_on_board:
+            self.gui.draw_state(self.current_state_of_the_game)
 
 
