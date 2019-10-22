@@ -211,8 +211,8 @@ class SplendorGUI():
                           players_hand: PlayersHand,
                           x_coord: int,
                           y_coord: int,
-                          active=False,
-                          draw_buttons: bool = False) -> None:
+                          active: bool,
+                          state: State) -> None:
         """Draws a players hands in a given position.
         Parameters:
         _ _ _ _ _ _
@@ -232,12 +232,13 @@ class SplendorGUI():
         card_position_x_dict = {gem_color: gem_color.value * PLAYERS_HAND_HORIZONTAL_SHIFT for gem_color in GemColor if
                                 gem_color != GemColor.GOLD}
 
-        cards_presented = {}
+        cards_presented = {gem_color : set() for gem_color in GemColor}
         # Draw all cards:
         for card in players_hand.cards_possessed:
-            card_x_coord = card_position_x_dict[card.discount_profit]
-            card_y_coord = len(cards_presented[card.discount_profit]) * PLAYERS_HAND_VERTICAL_SHIFT
-            self.draw_card(card, x_coord + card_x_coord, y_coord + card_y_coord)
+            card_x_coord = PLAYERS_HAND_INITIAL_X + card_position_x_dict[card.discount_profit]
+            card_y_coord = PLAYERS_HAND_INITIAL_Y + len(cards_presented[card.discount_profit]) * PLAYERS_HAND_VERTICAL_SHIFT
+            self.draw_card(card, x_coord + card_x_coord, y_coord + card_y_coord, False, False, state)
+            cards_presented[card.discount_profit].add(card)
         # Draw all reserved cards:
         self.main_canvas.create_text(x_coord + RESERVED_CARDS_TITLE_X,
                                                             y_coord + RESERVED_CARDS_TITLE_Y, text="Reserved cards:",
@@ -262,7 +263,7 @@ class SplendorGUI():
         for number, player in enumerate(state.list_of_players_hands):
             x_coord_player = STATE_PLAYERS_X + number % 2 * STATE_PLAYER_HORIZONTAL_SHIFT
             y_coord_player = STATE_PLAYERS_Y + (number - number % 2) / 2 * STATE_PLAYER_VERTICAL_SHIFT
-            self.draw_players_hand(player, x_coord_player, y_coord_player, active=number == state.active_player_id)
+            self.draw_players_hand(player, x_coord_player, y_coord_player, number == state.active_player_id, state)
 
         self.draw_board(state.board, STATE_BOARD_X, STATE_BOARD_Y, state)
 
@@ -283,7 +284,8 @@ class SplendorGUI():
         gold_to_use = gems_transfer.value(GemColor.GOLD)
         gems_transfer.gems_dict[GemColor.GOLD] = 0
         confirm_buy_button = Button(text=CONFIRM_BUY_TITLE, font=CONFIRM_BUY_FONT,
-                                      command=lambda: self.set_action(ActionBuyCard(card, gold_to_use, gems_transfer)))
+                                      command=lambda: self.set_action(ActionBuyCard(card, gold_to_use,
+                                                                                    price_after_discount - gems_transfer)))
         confirm_buy_button.place(x=self.board_x_ccord + CONFIRM_BUY_X, y=self.board_y_ccord + CONFIRM_BUY_Y)
         self.drawn_buttons.add(confirm_buy_button)
 

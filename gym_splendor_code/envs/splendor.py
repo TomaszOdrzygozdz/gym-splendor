@@ -26,6 +26,8 @@ class SplendorEnv(Env):
 
         #Create initial state of the game
 
+    def active_players_hand(self):
+        return self.current_state_of_the_game.active_players_hand()
 
     def step(self, action: Action):
         """
@@ -41,6 +43,7 @@ class SplendorEnv(Env):
         :return: observation, reward, is_done, info
         """
         """Performs one action on the current state of the game. """
+        self.action_space.update(self.current_state_of_the_game)
         assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
         action.execute(self.current_state_of_the_game)
         #We find the reward:
@@ -70,6 +73,9 @@ class SplendorEnv(Env):
                         self.is_done = True
                         break
 
+    def update_actions(self):
+        self.action_space.update(self.current_state_of_the_game)
+
     def render(self, mode='human', interactive = False):
         """Creates window if necessary, then renders the state of the game """
         if self.gui is None:
@@ -79,11 +85,8 @@ class SplendorEnv(Env):
         self.gui.clear_all()
         print('Players hands gems')
         for card in self.current_state_of_the_game.board.cards_on_board:
-            print(card.name)
-            print(self.current_state_of_the_game.active_players_hand().can_afford_card(card))
-
-        self.gui.draw_state(self.current_state_of_the_game)
-        self.gui.keep_window_open()
+            self.gui.draw_state(self.current_state_of_the_game)
+            self.gui.keep_window_open()
 
 
 

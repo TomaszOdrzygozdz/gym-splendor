@@ -42,4 +42,4 @@ class Board:
     def remove_card_from_board_and_refill(self, card: Card) -> None:
         """This method removes a card from board and puts a new one (if there is non-empty deck to take from"""
         self.cards_on_board.remove(card)
-        self.deck.pop_card(card.row)
+        self.cards_on_board.add(self.deck.pop_card(card.row))
