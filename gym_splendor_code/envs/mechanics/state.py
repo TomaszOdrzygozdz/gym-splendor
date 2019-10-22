@@ -43,3 +43,22 @@ class State():
     def previous_players_hans(self):
         """Return the hans of the previous player"""
         return self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)]
+
+    def vectorize(self):
+        return [{'active_player_hand' : active_players_hand.vectorize(),
+                'previous_player_hand' : previous_players_hand.vectorize(),
+                'board' : self.board(),
+                'active_player_id' : self.active_player_id }]
+
+    def from_vector_to_state(self, vector):
+        self.active_player_id = vector[0]['active_player_id']
+        self.list_of_players_hands[self.active_player_id].from_vector(vector[0]['active_player_hand'][0])
+        self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)].from_vector(vector[0]['previous_player_hand'][0])
+        self.board.from_vector(vector[0]['board'][0])
+        [self.board.deck.decks_dict.remove(card[x]) for x in vector[0]['active_player_hand'][0]['cards_possessed_ids'] |
+                    vector[0]['active_player_hand'][0]['cards_reserved_ids'] |
+                    vector[0]['previous_player_hand'][0]['cards_possessed_ids'] |
+                    vector[0]['previous_player_hand'][0]['cards_reserved_ids']]
+        [self.board.deck_of_nobles.remove(card[x])
+            for x in vector[0]['active_player_hand'][0]['noble_possessed_ids'] |
+                    vector[0]['previous_player_hand'][0]['noble_possessed_ids']]

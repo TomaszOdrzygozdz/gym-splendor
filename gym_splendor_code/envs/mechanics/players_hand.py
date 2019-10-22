@@ -35,3 +35,19 @@ class PlayersHand:
         return sum([card.win_points for card in self.cards_possessed]) + \
                sum([noble.win_points for noble in self.nobles_possessed])
 
+    def vectorize(self):
+        return [{'noble_possessed_ids' : {x.vectorize() for x in self.nobles_possessed},
+                'cards_possessed_ids' : {x.vectorize() for x in self.cards_possessed},
+                'cards_reserved_ids' : {x.vectorize() for x in self.cards_reserved},
+                'gems_possessed' : self.gems_on_board.vectorize(),
+                'name': self.name }]
+
+    def from_vector(vector):
+        self.name  = vector['name']
+        [self.cards_possessed.pop_card(card[x]) for x in vector['cards_possessed_ids']]
+        [self.cards_reserved.pop_card(card[x]) for x in vector['cards_reserved_ids']]
+        [self.nobles_possessed.pop_card(card[x]) for x in vector['noble_possessed_ids']]
+        gems = vector['gems_possessed']
+        self.gems_possessed =  GemsCollecion({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
+                                    GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
+                                    GemColor.WHITE: gems[4], GemColor.BLACK: [5]})

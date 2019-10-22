@@ -43,3 +43,16 @@ class Board:
         """This method removes a card from board and puts a new one (if there is non-empty deck to take from"""
         self.cards_on_board.remove(card)
         self.deck.pop_card(card.row)
+
+    def vectorize(self):
+        return [{'nobles_on_board' : {x.vectorize() for x in self.nobles_on_board},
+                'cards_on_board' : {x.vectorize() for x in self.cards_on_board},
+                'gems_on_board' : self.gems_on_board.vectorize() }]
+
+    def from_vector(self, vector):
+        [self.cards_on_board.pop_card(card[x]) for x in vector['cards_on_board']]
+        [self.nobles_on_board.pop_card(card[x]) for x in vector['nobles_on_board']]
+        gems = vector['gems_on_board']
+        self.gems_on_board =  GemsCollecion({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
+                                    GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
+                                    GemColor.WHITE: gems[4], GemColor.BLACK: [5]})

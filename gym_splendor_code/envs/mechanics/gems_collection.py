@@ -123,3 +123,5 @@ class GemsCollection():
     def __copy__(self):
         return GemsCollection({gem_color : self.gems_dict[gem_color] for gem_color in GemColor})
 
+    def vectorize(self):
+        return [self.gems_dict[gem_color] for gem_color in GemColor]
