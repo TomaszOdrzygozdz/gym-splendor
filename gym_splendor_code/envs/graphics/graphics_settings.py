@@ -8,9 +8,10 @@ color_dict_tkiter = {GemColor.RED: 'red', GemColor.GREEN: 'green', GemColor.BLUE
                      GemColor.GOLD: 'gold'}
 
 #scaling_factor:
-SCALING_FACTOR = 1.0
+SCALING_FACTOR = 1
 WINDOW_TITLE = 'Splendor kayoshin bakemono'
 WINDOW_GEOMETRY = '1550x780'
+WINDOW_REFRESH_TIME = 0.01 #time in seconds
 
 # Card visual settings:
 #____________________________________________________________
@@ -44,10 +45,15 @@ PRICE_COIN_SIZE = 15*SCALING_FACTOR
 PRICE_VALUE_X = 28*SCALING_FACTOR
 PRICE_VALUE_Y = 48*SCALING_FACTOR
 
-BUY_BUTTON_TITLE = '   Buy    '
+BUY_BUTTON_TITLE = '  Buy   '
 BUY_BUTTON_FONT = 'Arial {} bold'.format(int(7*SCALING_FACTOR))
 BUY_BUTTON_X = 43*SCALING_FACTOR
-BUY_BUTTON_Y = 110*SCALING_FACTOR
+BUY_BUTTON_Y = 100*SCALING_FACTOR
+
+RESERVE_BUTTON_TITLE = ' Reserve '
+RESERVE_BUTTON_FONT = 'Arial {} bold'.format(int(7*SCALING_FACTOR))
+RESERVE_BUTTON_X = 43*SCALING_FACTOR
+RESERVE_BUTTON_Y = 70*SCALING_FACTOR
 
 
 #Noble visual settings:
@@ -96,10 +102,20 @@ GEMS_BOARD_FONT = "Arial {} bold".format(int(10*SCALING_FACTOR))
 GEMS_BOARD_X = 15*SCALING_FACTOR
 GEMS_BOARD_Y = 450*SCALING_FACTOR
 
-GEMS_ENTRY_INITIAL_X = 30*SCALING_FACTOR
+GEMS_ENTRY_INITIAL_X = 40*SCALING_FACTOR
 GEMS_ENTRY_INITIAL_Y = 450*SCALING_FACTOR
 GEM_ENTRY_SHIFT = 70*SCALING_FACTOR
 GEM_ENTRY_WIDTH = 20*SCALING_FACTOR
+
+TRADE_BUTTON_TITLE = 'Trade gems'
+TRADE_BUTTON_FONT = 'Arial {} bold'.format(int(14*SCALING_FACTOR))
+TRADE_BUTTON_X = 40*SCALING_FACTOR
+TRADE_BUTTON_Y = 500*SCALING_FACTOR
+
+CONFIRM_BUY_TITLE = 'Confirm buy'
+CONFIRM_BUY_FONT = 'Arial {} bold'.format(int(14*SCALING_FACTOR))
+CONFIRM_BUY_X = 140*SCALING_FACTOR
+CONFIRM_BUY_Y = 500*SCALING_FACTOR
 
 #Players hand visual settings:
 #____________________________________________________________

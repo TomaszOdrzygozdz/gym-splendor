@@ -12,6 +12,7 @@ class SplendorObservationSpace(Space):
 
     def state_to_observation(self, state):
         cards_on_board_names = {card.name for card in state.board.cards_on_board}
+        print(state.board.gems_on_board)
         gems_on_board = state.board.gems_on_board.__copy__()
         active_player_id = state.active_player_id
         players_hands = [{'cards_possessed_names': {card.name for card in players_hand.cards_possessed},

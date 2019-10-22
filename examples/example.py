@@ -10,3 +10,9 @@ print('Observation space: \n {} \n'.format(env.observation_space))
 print('Action space: \n {} \n'.format(env.action_space))
 
 env.render()
+
+while True:
+    action = env.gui.read_action()
+    print(action)
+    env.step(action)
+    env.render()

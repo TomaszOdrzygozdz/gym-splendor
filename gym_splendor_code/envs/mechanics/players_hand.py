@@ -28,8 +28,18 @@ class PlayersHand:
                         card: Card) -> bool:
         """Returns true if players_hand can afford card"""
         price_after_discount = card.price % self.discount()
-        missing_gems = price_after_discount % self.gems_possessed
-        return self.gems_possessed.gems_dict[GemColor.GOLD] >= missing_gems.sum()
+        print('Price after dicount:')
+        print(price_after_discount)
+        missing_gems = 0
+        for gem_color in GemColor:
+            if gem_color != GemColor.GOLD:
+                missing_gems += max(price_after_discount.value(gem_color) - self.gems_possessed.value(gem_color),0)
+        print('missing gems:')
+        print(missing_gems)
+        return self.gems_possessed.value(GemColor.GOLD) >= missing_gems
+
+    def can_reserve_card(self):
+        return len(self.cards_reserved) < MAX_RESERVED_CARDS
 
     def number_of_my_points(self) -> int:
         return sum([card.win_points for card in self.cards_possessed]) + \

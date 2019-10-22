@@ -13,7 +13,7 @@ class Board:
     def __init__(self,
                  all_cards: Set[Card],
                  all_nobles: Set[Noble],
-                 gems_on_board: GemsCollection) -> None:
+                 gems_on_board: GemsCollection = GemsCollection()) -> None:
         """Creates a board and prepares the game. This method: creates the deck of cards and the deck od nobles. We do
         not shuffle deck and do not put cards and nobles on the board here.
         Parameters:
