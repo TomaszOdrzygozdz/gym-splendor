@@ -85,8 +85,6 @@ class ActionBuyCard(Action):
         gold_gems_to_use: Integer determining how many golden gems will be used to pay for the card.
         use_gold_as: Gems collection that reduces the price (its sum must equal n_gold_gems_to_use)."""
         self.card = card
-        print('n_gold_gems_to_use {}'.format(n_gold_gems_to_use))
-        print('use gold as {}'.format(use_gold_as))
         assert n_gold_gems_to_use == use_gold_as.sum(), 'n_gold_gems_to_use must be equal the sum of gems in use_gold_as'
         self.n_gold_gems_to_use = n_gold_gems_to_use
         self.use_gold_as = use_gold_as
@@ -104,7 +102,10 @@ class ActionBuyCard(Action):
             price_after_discount -= self.use_gold_as
 
         state.active_players_hand().cards_possessed.add(self.card)
-        state.board.remove_card_from_board_and_refill(self.card)
+        if self.card in state.board.cards_on_board:
+            state.board.remove_card_from_board_and_refill(self.card)
+        if self.card in state.active_players_hand().cards_reserved:
+            state.active_players_hand().cards_reserved.remove(self.card)
         state.active_players_hand().gems_possessed = state.active_players_hand().gems_possessed - price_after_discount
         state.board.gems_on_board = state.board.gems_on_board + price_after_discount
         self.give_nobles(state)

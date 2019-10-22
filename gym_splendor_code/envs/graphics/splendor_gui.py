@@ -1,7 +1,8 @@
 from tkinter import *
 
+from gym_splendor_code.envs.mechanics.game_settings import *
 from gym_splendor_code.envs.graphics.graphics_settings import *
-from gym_splendor_code.envs.mechanics.action import ActionBuyCard, Action, ActionTradeGems
+from gym_splendor_code.envs.mechanics.action import ActionBuyCard, Action, ActionTradeGems, ActionReserveCard
 from gym_splendor_code.envs.mechanics.board import Board
 from gym_splendor_code.envs.mechanics.card import Card
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
@@ -194,6 +195,8 @@ class SplendorGUI():
                   x_coord: int,
                   y_coord: int) -> None:
 
+        self.main_canvas.create_text(x_coord + GEMS_SUMMARY_X, y_coord + GEMS_SUMMARY_Y,
+                                     text=GEMS_SUMMARY_TITLE + str(gems_collection.sum()), font=GEMS_SUMMARY_FONT)
         for gem_color in GemColor:
             self.main_canvas.create_oval(x_coord + GEMS_BOARD_SHIFT * gem_color.value,
                                                                 y_coord,
@@ -248,12 +251,13 @@ class SplendorGUI():
                                                                  x_coord + RESERVED_RECTANGLE_RIGHT_BOTTOM_X,
                                                                  y_coord + RESERVED_RECTANGLE_RIGHT_BOTTOM_Y,
                                                                  outline=RESERVED_RECTANGLE_OUTLINE)
-        reserved_cards_presented = {}
+        reserved_cards_presented = set()
         for card in players_hand.cards_reserved:
             card_x_coord = RESERVED_CARDS_INITIAL_X + len(reserved_cards_presented) * RESERVED_CARDS_HORIZONTAL_SHIFT
             card_y_coord = RESERVED_CARDS_INITIAL_Y
             self.draw_card(card, x_coord + card_x_coord, y_coord + card_y_coord, players_hand.can_afford_card(card),
-                           False)
+                           False, state)
+            reserved_cards_presented.add(card)
 
         # Draw gems possessed by the player:
         self.draw_gems(players_hand.gems_possessed, x_coord + PLAYERS_HAND_GEMS_X, y_coord + PLAYERS_HAND_GEMS_Y)
@@ -280,19 +284,25 @@ class SplendorGUI():
         min_gold_price.gems_dict[GemColor.GOLD] = min_gold
         self.set_entries(min_gold_price)
 
-        gems_transfer = self.read_entries()
-        gold_to_use = gems_transfer.value(GemColor.GOLD)
-        gems_transfer.gems_dict[GemColor.GOLD] = 0
         confirm_buy_button = Button(text=CONFIRM_BUY_TITLE, font=CONFIRM_BUY_FONT,
-                                      command=lambda: self.set_action(ActionBuyCard(card, gold_to_use,
-                                                                                    price_after_discount - gems_transfer)))
+                                      command=lambda: self.do_buy(card, state))
         confirm_buy_button.place(x=self.board_x_ccord + CONFIRM_BUY_X, y=self.board_y_ccord + CONFIRM_BUY_Y)
         self.drawn_buttons.add(confirm_buy_button)
 
     def prepare_to_reserve(self,
                            card,
                            state: State):
-        pass
+
+        basic_gems_transfer = GemsCollection()
+        if state.active_players_hand().gems_possessed.sum() < MAX_GEMS_ON_HAND and \
+                state.board.gems_on_board.gems_dict[GemColor.GOLD] > 0:
+            basic_gems_transfer.gems_dict[GemColor.GOLD] = 1
+        self.set_entries(basic_gems_transfer)
+
+        confirm_reserve_button = Button(text=CONFIRM_RESERVE_TITLE, font=CONFIRM_RESERVE_FONT,
+                                        command=lambda: self.do_reserve(card, state))
+        confirm_reserve_button.place(x=self.board_x_ccord + CONFIRM_RESERVE_X, y=self.board_y_ccord + CONFIRM_RESERVE_Y)
+        self.drawn_buttons.add(confirm_reserve_button)
 
     def read_entries(self)->GemsCollection:
         return GemsCollection({gem_color: int(self.entries[gem_color].get()) for gem_color in GemColor})
@@ -307,3 +317,29 @@ class SplendorGUI():
         self.main_canvas.delete('all')
         for drawn_object in self.drawn_buttons:
             drawn_object.destroy()
+
+    def show_warning(self, action):
+        self.main_canvas.create_text(WARNING_X, WARNING_Y, text='{} is illegal.'.format(action),
+                                     font=WARNING_FONT, fill = WARNING_COLOR)
+
+    def show_last_action(self, action):
+        self.main_canvas.create_text(ACTION_X, ACTION_Y, text='Last action: {}.'.format(action),
+                                     font=ACTION_FONT, fill = ACTION_COLOR)
+
+    def do_buy(self, card, state):
+        price_after_discount = card.price % state.active_players_hand().discount()
+        what_I_pay = self.read_entries()
+        gold_to_use = what_I_pay.value(GemColor.GOLD)
+        use_gold_as = price_after_discount - what_I_pay
+        use_gold_as.gems_dict[GemColor.GOLD] = 0
+        self.set_action(ActionBuyCard(card, gold_to_use,use_gold_as))
+
+    def do_reserve(self, card, state):
+        return_gem_color = None
+        gems_transfer = self.read_entries()
+        for gem_color in GemColor:
+            if gems_transfer.gems_dict[gem_color] > 0 and gem_color != GemColor.GOLD:
+                return_gem_color = gem_color
+                break
+
+        self.set_action(ActionReserveCard(card, gems_transfer.gems_dict[GemColor.GOLD] == 1, return_gem_color))

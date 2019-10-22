@@ -55,7 +55,6 @@ def generate_all_legal_buys(state: State) -> List[ActionBuyCard]:
                        [reserved_card for reserved_card in state.active_players_hand().cards_reserved if
                         state.active_players_hand().can_afford_card(reserved_card)]
 
-    print('len afford:  {}'.format(len(all_cards_can_afford)))
     for card in all_cards_can_afford:
         card_price_after_discount = card.price % state.active_players_hand().discount()
         for n_gold_gems_to_use in range(state.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD]+1):

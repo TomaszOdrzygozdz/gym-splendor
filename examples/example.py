@@ -11,10 +11,10 @@ env = gym.make('gym_splendor_code:splendor-v0')
 #Let's see what is the action space:
 #print('Action space: \n {} \n'.format(env.action_space))
 
-env.active_players_hand().gems_possessed.gems_dict[GemColor.RED] = 3
-env.active_players_hand().gems_possessed.gems_dict[GemColor.BLUE] = 3
-env.active_players_hand().gems_possessed.gems_dict[GemColor.GREEN] = 3
-env.active_players_hand().gems_possessed.gems_dict[GemColor.WHITE] = 1
+# env.active_players_hand().gems_possessed.gems_dict[GemColor.RED] = 3
+# env.active_players_hand().gems_possessed.gems_dict[GemColor.BLUE] = 3
+# env.active_players_hand().gems_possessed.gems_dict[GemColor.GREEN] = 3
+env.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD] = 3
 #env.active_players_hand().cards_possessed = env.current_state_of_the_game.board.deck.pop_many_from_one_row(Row.MEDIUM, 10)
 
 env.update_actions()
@@ -29,6 +29,8 @@ while True:
         print(action)
         env.step(action)
         env.render()
+        env.show_last_action(action)
     else:
         print('illegal action:')
+        env.show_warning(action)
         print(action)

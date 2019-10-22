@@ -55,6 +55,7 @@ class SplendorEnv(Env):
             reward = -1
 
         self.is_done_update(self.end_episode_mode)
+        self.action_space.update(self.current_state_of_the_game)
         #return self.observation_space.state_to_observation(self.current_state_of_the_game), reward, self.is_done, {}
         return 0, reward, self.is_done, {}
 
@@ -76,6 +77,14 @@ class SplendorEnv(Env):
     def update_actions(self):
         self.action_space.update(self.current_state_of_the_game)
 
+    def show_warning(self, action):
+        if self.gui is not None:
+            self.gui.show_warning(action)
+
+    def show_last_action(self, action):
+        if self.gui is not None:
+            self.gui.show_last_action(action)
+
     def render(self, mode='human', interactive = False):
         """Creates window if necessary, then renders the state of the game """
         if self.gui is None:
@@ -83,7 +92,6 @@ class SplendorEnv(Env):
 
         #clear gui:
         self.gui.clear_all()
-        print('Players hands gems')
         for card in self.current_state_of_the_game.board.cards_on_board:
             self.gui.draw_state(self.current_state_of_the_game)
             self.gui.keep_window_open()
