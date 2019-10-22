@@ -43,3 +43,8 @@ class Board:
         """This method removes a card from board and puts a new one (if there is non-empty deck to take from"""
         self.cards_on_board.remove(card)
         self.cards_on_board.add(self.deck.pop_card(card.row))
+
+    def vectorize(self):
+        return [{'nobles_on_board': {x.vectorize() for x in self.nobles_on_board},
+                 'cards_on_board': {x.vectorize() for x in self.cards_on_board},
+                 'gems_on_board': self.gems_on_board.vectorize()}]
