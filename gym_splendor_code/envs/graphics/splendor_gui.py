@@ -16,7 +16,7 @@ from time import sleep
 class SplendorGUI():
     """Class that is used to render the game."""
 
-    def __init__(self):
+    def __init__(self, interactive=True):
         self.close_window = False
         self.main_window = Tk()
         self.main_window.title(WINDOW_TITLE)
@@ -25,7 +25,7 @@ class SplendorGUI():
         self.main_canvas.place(x=0, y=0)
         self.drawn_buttons = set()
         self.actual_action = None
-        self.interactive = True
+        self.interactive = interactive
         self.board_x_ccord = None
         self.board_y_ccord = None
         self.entries = {}

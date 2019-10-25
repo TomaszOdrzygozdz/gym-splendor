@@ -17,7 +17,8 @@ class State():
                  list_of_players_hands: List = None,
                  all_cards: Set[Card] = None,
                  all_nobles: Set[Noble] = None,
-                 gems_on_board : GemsCollection = None) -> None:
+                 gems_on_board : GemsCollection = None,
+                 prepare = True) -> None:
 
         if all_cards is None:
             all_cards = load_all_cards()
@@ -33,12 +34,14 @@ class State():
 
         self.active_player_id = 0 #index
 
-        self.board.lay_cards_on_board()
-        self.board.lay_nobles_on_board()
+        if prepare:
+            self.board.lay_cards_on_board()
+            self.board.lay_nobles_on_board()
 
     def active_players_hand(self):
         """Returns the hand of active player"""
         return self.list_of_players_hands[self.active_player_id]
+
 
     def previous_players_hans(self):
         """Return the hans of the previous player"""

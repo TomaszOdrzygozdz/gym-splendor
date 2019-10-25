@@ -22,6 +22,7 @@ while not is_done:
     if env.action_space.contains(action):
         print(action)
         observation, _, is_done, _ = env.step(action)
+
         env.render()
         env.show_last_action(action)
         print(observation)

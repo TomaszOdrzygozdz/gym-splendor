@@ -1,5 +1,6 @@
-from typing import Tuple
+from typing import Tuple, Set
 
+from gym_splendor_code.envs.mechanics.card import Card
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 from gym_splendor_code.envs.mechanics.players_hand import GemColor
 
@@ -15,4 +16,3 @@ def tuple_of_gems_to_gems_collection(tuple_of_gems: Tuple[GemColor]) -> GemsColl
     for element in tuple_of_gems:
         gems_dict[element] += 1
     return GemsCollection(gems_dict)
-
