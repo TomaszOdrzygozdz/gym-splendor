@@ -10,6 +10,8 @@ from gym_splendor_code.envs.mechanics.noble import Noble
 # dictionaries useful to convert vector of state to state:
 id_to_card_dict = {}
 id_to_noble_dict = {}
+name_to_card_dict = {}
+name_to_noble_dict ={}
 
 # string to row dictionary
 str_to_row = {'Row.CHEAP': Row.CHEAP,
@@ -38,6 +40,7 @@ def load_all_cards(file: str = CARDS_DATABASE_FILE) -> Set[Card]:
         card = Card(row[0], card_id, str_to_row[row[1]], price, str_to_color[row[7]], int(row[8]))
         set_of_cards.add(card)
         id_to_card_dict[card_id] = card
+        name_to_card_dict[card.name] = card
         card_id += 1
     return set_of_cards
 
@@ -55,6 +58,7 @@ def load_all_nobles(file: str = NOBLES_DATABASE_FILE) -> Set[Noble]:
         new_noble = Noble(row[0], noble_id, price, int(row[6]))
         set_of_nobles.add(new_noble)
         id_to_noble_dict[noble_id] = new_noble
+        name_to_noble_dict[new_noble.name] = new_noble
         noble_id += 1
     return set_of_nobles
 

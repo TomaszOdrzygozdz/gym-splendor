@@ -91,6 +91,10 @@ class SplendorEnv(Env):
     def update_actions(self):
         self.action_space.update(self.current_state_of_the_game)
 
+    def my_action_space(self):
+        self.action_space.update(self.current_state_of_the_game)
+        return self.action_space
+
     def show_warning(self, action):
         if self.gui is not None:
             self.gui.show_warning(action)
@@ -99,10 +103,15 @@ class SplendorEnv(Env):
         if self.gui is not None:
             self.gui.show_last_action(action)
 
-    def render(self, mode='human', interactive = False):
+    def load_observation(self, observation):
+        self.current_state_of_the_game = self.observation_space.observation_to_state(observation)
+
+    def render(self, mode='human', interactive = True):
         """Creates window if necessary, then renders the state of the game """
         if self.gui is None:
             self.gui = SplendorGUI()
+
+        self.gui.interactive = interactive
 
         #clear gui:
         self.gui.clear_all()

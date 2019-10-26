@@ -17,7 +17,8 @@ class State():
                  list_of_players_hands: List = None,
                  all_cards: Set[Card] = None,
                  all_nobles: Set[Noble] = None,
-                 gems_on_board : GemsCollection = None) -> None:
+                 gems_on_board : GemsCollection = None,
+                 prepare = True) -> None:
 
         if all_cards is None:
             all_cards = load_all_cards()
@@ -74,13 +75,19 @@ class State():
             for i in vector['previous_player_hand']['cards_reserved_ids']:
                 self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)].cards_reserved.add(self.board.deck.pop_card_by_id(i))
 
+
             self.board.deck.shuffle()
+        if prepare:
+            self.board.lay_cards_on_board()
+            self.board.lay_nobles_on_board()
 
     def active_players_hand(self):
         """Returns the hand of active player"""
         return self.list_of_players_hands[self.active_player_id]
 
+      
     def previous_players_hand(self):
+
         """Return the hans of the previous player"""
         return self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)]
 

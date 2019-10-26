@@ -27,7 +27,7 @@ There is simple GUI that allow to both: draw the state of the game and collect h
 
 ### Human vs human game:
 
-The code below creates teh environment and runs human vs human game.
+The code below creates the environment and runs human vs human game.
 
 ```python
 import gym

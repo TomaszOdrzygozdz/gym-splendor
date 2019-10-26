@@ -24,6 +24,15 @@ class Card(PreCard):
         self.row = row
         self.discount_profit = discount_profit
 
+    def __eq__(self, other):
+        condition1 = self.victory_points == other.victory_points
+        condition2 = self.discount_profit == other.discount_profit
+        condition3 = self.price == other.price
+        return condition1 and condition2 and condition3
+
+    def __hash__(self):
+        return self.id
+
     def __repr__(self):
         return 'Card(name: {}, id: {}, row: {}, price: {}, profit: {}, victory_points: {})'.format(self.name, self.id,
                                                                                                    self.row, self.price,

@@ -1,4 +1,9 @@
 from gym.spaces import Space
+from typing import Dict
+
+from gym_splendor_code.envs.data.data_loader import name_to_card_dict, name_to_noble_dict
+from gym_splendor_code.envs.mechanics.players_hand import PlayersHand
+from gym_splendor_code.envs.mechanics.state import State
 
 
 class SplendorObservationSpace(Space):
@@ -10,16 +15,58 @@ class SplendorObservationSpace(Space):
     def __init__(self):
         super().__init__()
 
-    def state_to_observation(self, state):
+    def state_to_observation(self, state:State) -> Dict:
         cards_on_board_names = {card.name for card in state.board.cards_on_board}
+        nobles_on_board_names = {noble.name for noble in state.board.nobles_on_board}
         gems_on_board = state.board.gems_on_board.__copy__()
         active_player_id = state.active_player_id
         players_hands = [{'cards_possessed_names': {card.name for card in players_hand.cards_possessed},
                           'cards_reserved_names' : {card.name for card in players_hand.cards_reserved},
-                          'gems_possessed_names' : players_hand.gems_possessed.__copy__()} for players_hand in state.list_of_players_hands]
+                          'nobles_possessed_names' : {noble.name for noble in players_hand.nobles_possessed},
+                          'gems_possessed' : players_hand.gems_possessed.__copy__()} for players_hand in state.list_of_players_hands]
 
-        return {'cards_on_board_names' : cards_on_board_names, 'gems_on_board' : gems_on_board,
-                'active_player_id' : active_player_id, 'players_hands' : players_hands}
+        return {'cards_on_board_names' : cards_on_board_names, 'nobles_on_board_names': nobles_on_board_names,
+                'gems_on_board' : gems_on_board, 'active_player_id': active_player_id, 'players_hands' : players_hands}
+
+    def observation_to_state(self, observation) -> State:
+        """Loads observation and return a state that agrees with the observation. Warning: this method is ambiguous,
+        that is, many states can have the same observation (they may differ in the order of hidden cards)."""
+        state = State(prepare=False)
+        cards_on_board_names = observation['cards_on_board_names']
+        nobles_on_board_names = observation['nobles_on_board_names']
+        for card_name in cards_on_board_names:
+                card = name_to_card_dict[card_name]
+                state.board.cards_on_board.add(card)
+                state.board.deck.decks_dict[card.row].remove(card)
+
+        for noble_name in nobles_on_board_names:
+            noble = name_to_noble_dict[noble_name]
+            state.board.nobles_on_board.add(noble)
+            state.board.deck.deck_of_nobles.remove(noble)
+
+        state.board.gems_on_board = observation['gems_on_board']
+
+        players_hands = []
+        for player_observation in observation['players_hands']:
+            players_hand = PlayersHand()
+            players_hand.gems_possessed = player_observation['gems_possessed']
+            for card_name in player_observation['cards_possessed_names']:
+                card = name_to_card_dict[card_name]
+                players_hand.cards_possessed.add(card)
+                state.board.deck.decks_dict[card.row].remove(card)
+            for card_name in player_observation['cards_reserved_names']:
+                card = name_to_card_dict[card_name]
+                players_hand.cards_reserved.add(card)
+                state.board.deck.decks_dict[card.row].remove(card)
+            for noble_name in player_observation['nobles_possessed_names']:
+                noble = name_to_noble_dict[noble_name]
+                players_hand.nobles_possessed.add(noble)
+                state.board.deck.deck_of_nobles.remove(noble)
+            players_hands.append(players_hand)
+
+        state.active_player_id = observation['active_player_id']
+        state.list_of_players_hands = players_hands
+        return state
 
     def __repr__(self):
         return 'Observation space in Splendor. It contains all information accessible to one player (so for example in \n' \
