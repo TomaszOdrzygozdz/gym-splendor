@@ -115,4 +115,5 @@ class SplendorEnv(Env):
 
         #clear gui:
         self.gui.clear_all()
+        #draw state
         self.gui.draw_state(self.current_state_of_the_game)
