@@ -1,5 +1,6 @@
 from gym_splendor_code.envs.mechanics.card import Card
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
+from gym_splendor_code.envs.mechanics.enums import GemColor
 from gym_splendor_code.envs.mechanics.game_settings import *
 
 
@@ -42,18 +43,18 @@ class PlayersHand:
                sum([noble.victory_points for noble in self.nobles_possessed])
 
     def vectorize(self):
-        return [{'noble_possessed_ids' : {x.vectorize() for x in self.nobles_possessed},
+        return {'noble_possessed_ids' : {x.vectorize() for x in self.nobles_possessed},
                 'cards_possessed_ids' : {x.vectorize() for x in self.cards_possessed},
                 'cards_reserved_ids' : {x.vectorize() for x in self.cards_reserved},
-                'gems_possessed' : self.gems_on_board.vectorize(),
-                'name': self.name }]
+                'gems_possessed' : self.gems_possessed.vectorize(),
+                'name': self.name}
 
-    def from_vector(vector):
+    def from_vector(self, vector):
         self.name  = vector['name']
-        [self.cards_possessed.pop_card(card[x]) for x in vector['cards_possessed_ids']]
-        [self.cards_reserved.pop_card(card[x]) for x in vector['cards_reserved_ids']]
-        [self.nobles_possessed.pop_card(card[x]) for x in vector['noble_possessed_ids']]
         gems = vector['gems_possessed']
-        self.gems_possessed =  GemsCollecion({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
+        self.gems_possessed = self.gems_possessed +  GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
                                     GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
-                                    GemColor.WHITE: gems[4], GemColor.BLACK: [5]})
+                                    GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
+
+        for i in vector['noble_possessed_ids']:
+            self.nobles_possessed.add(noble[i])

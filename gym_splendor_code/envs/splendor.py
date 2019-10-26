@@ -6,7 +6,7 @@ from gym_splendor_code.envs.mechanics.game_settings import *
 from gym_splendor_code.envs.mechanics.splendor_action_space import SplendorActionSpace
 from gym_splendor_code.envs.mechanics.splendor_observation_space import SplendorObservationSpace
 from gym_splendor_code.envs.mechanics.state import State
-
+import simplejson as json
 
 class SplendorEnv(Env):
     """ Description:
@@ -25,9 +25,25 @@ class SplendorEnv(Env):
         self.gui = None
 
         #Create initial state of the game
+    def setup_state(self, from_state = None):
+        self.current_state_of_the_game.setup_state(from_state)
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
+
+    def vectorize_state(self, output_file = None):
+        state = str(self.current_state_of_the_game.vectorize()).replace("set()", "NULL")
+
+        if output_file is not None:
+            with open(output_file, 'w') as json_file:
+                json.dump(state, json_file)
+
+    def vectorize_action_space(self, output_file = None):
+        state = str(self.action_space.vectorize()).replace("set()", "NULL")
+
+        if output_file is not None:
+            with open(output_file, 'w') as json_file:
+                json.dump(state, json_file)
 
     def step(self, action: Action):
         """
@@ -49,7 +65,7 @@ class SplendorEnv(Env):
         #We find the reward:
         reward = 0
         if not self.is_done:
-            if self.current_state_of_the_game.previous_players_hans().number_of_my_points() >= POINTS_TO_WIN:
+            if self.current_state_of_the_game.previous_players_hand().number_of_my_points() >= POINTS_TO_WIN:
                 reward = 1
         if self.is_done:
             reward = -1
@@ -92,5 +108,3 @@ class SplendorEnv(Env):
         self.gui.clear_all()
         for card in self.current_state_of_the_game.board.cards_on_board:
             self.gui.draw_state(self.current_state_of_the_game)
-
-

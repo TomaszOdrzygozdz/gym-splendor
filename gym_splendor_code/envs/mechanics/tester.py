@@ -9,7 +9,7 @@ from gym_splendor_code.envs.mechanics.state import State
 s = State()
 f = SplendorGUI()
 
-f.draw_board(s.board, 200, 10)
+f.draw_board(s.board, 200, 10, s)
 f.keep_window_open()
 
 #testing action generator
