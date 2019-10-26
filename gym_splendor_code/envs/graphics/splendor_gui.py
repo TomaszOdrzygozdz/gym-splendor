@@ -35,9 +35,9 @@ class SplendorGUI():
 
     def read_action(self) -> Action:
         while self.actual_action is None:
-            self.main_window.after(int(WINDOW_REFRESH_TIME*1000))
             self.main_window.update_idletasks()
             self.main_window.update()
+            self.main_window.after(int(WINDOW_REFRESH_TIME * 1000))
         action_to_return = self.actual_action
         self.reset_action()
         return action_to_return
