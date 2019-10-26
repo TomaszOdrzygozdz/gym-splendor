@@ -52,3 +52,26 @@ class Deck:
     def how_many_cards_left(self, row: Row) -> int:
         """Returns number of unrevealed card in a given row."""
         return len(self.decks_dict[row])
+
+    def pop_card_by_id(self,
+                        id: int):
+        for row in Row:
+            ids = [i for i,x in enumerate([x.vectorize() for x in self.decks_dict[row]]) if x == id]
+            if ids:
+                return self.decks_dict[row].pop(ids[0])
+
+    def pop_cards_from_id_list(self,
+                        list: list,
+                        row: Row):
+        cards = []
+        for id in list:
+            ids = [i for i, x in enumerate([x.vectorize() for x in self.decks_dict[row]]) if x == id]
+            if ids:
+                cards.append(self.decks_dict[row].pop(ids[0]))
+        return cards
+
+    def pop_noble_by_id(self,
+                        id: int):
+        ids = [i for i,x in enumerate([x.vectorize() for x in self.deck_of_nobles]) if x == id]
+        if ids:
+            return self.deck_of_nobles.pop(ids[0])

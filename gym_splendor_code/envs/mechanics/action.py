@@ -1,3 +1,4 @@
+import json
 from abc import abstractmethod
 
 from gym_splendor_code.envs.mechanics.card import Card
@@ -27,6 +28,10 @@ class Action():
     def execute(self,
                 state: State) -> None:
         """Executes action on the given state."""
+        pass
+
+    @abstractmethod
+    def vectorize(self):
         pass
 
     def give_nobles(self, state: State) -> None:
@@ -62,6 +67,7 @@ class ActionTradeGems(Action):
                                                      + self.gems_from_board_to_player
         self.change_active_player(state)
 
+
     def __eq__(self, other):
         condition1 = self.action_type == other.action_type
         if condition1:
@@ -74,7 +80,8 @@ class ActionTradeGems(Action):
         return 'Trade gems ' + self.gems_from_board_to_player.__repr__()
 
     def vectorize(self):
-        return {x.vectorize() for x in self.gems_from_board_to_player}
+        return {"action_type": self.action_type,
+                "gems_flow" : self.gems_from_board_to_player.vectorize()}
 
 
 class ActionBuyCard(Action):
@@ -94,26 +101,28 @@ class ActionBuyCard(Action):
         assert n_gold_gems_to_use == use_gold_as.sum(), 'n_gold_gems_to_use must be equal the sum of gems in use_gold_as'
         self.n_gold_gems_to_use = n_gold_gems_to_use
         self.use_gold_as = use_gold_as
+        self.price = self.card.price
+
 
 
     def execute(self,
                 state: State) -> None:
 
         #First we need to find the price players has to pay for a card after considering his discount
-        price_after_discount = self.card.price % state.active_players_hand().discount()
+        self.price = self.price % state.active_players_hand().discount()
         if self.n_gold_gems_to_use > 0:
             #take golden gems from player:
             state.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD] -= self.n_gold_gems_to_use
             #reduce the price of card:
-            price_after_discount -= self.use_gold_as
+            self.price -= self.use_gold_as
 
         state.active_players_hand().cards_possessed.add(self.card)
         if self.card in state.board.cards_on_board:
             state.board.remove_card_from_board_and_refill(self.card)
         if self.card in state.active_players_hand().cards_reserved:
             state.active_players_hand().cards_reserved.remove(self.card)
-        state.active_players_hand().gems_possessed = state.active_players_hand().gems_possessed - price_after_discount
-        state.board.gems_on_board = state.board.gems_on_board + price_after_discount
+        state.active_players_hand().gems_possessed = state.active_players_hand().gems_possessed - self.price
+        state.board.gems_on_board = state.board.gems_on_board + self.price
         state.board.gems_on_board.gems_dict[GemColor.GOLD] += self.n_gold_gems_to_use
         self.give_nobles(state)
         self.change_active_player(state)
@@ -131,9 +140,11 @@ class ActionBuyCard(Action):
 
     def __repr__(self):
         return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
-                                                                                                     self.use_gold_as.__repr__())
+                                                                self.use_gold_as.__repr__())
     def vectorize(self):
-        return {x.vectorize() for x in self.price}, self.card.vectorize()
+        return {"action_type": self.action_type,
+                'gems_flow': self.price.vectorize(),
+                'card' : self.card.vectorize()}
 
 class ActionReserveCard(Action):
     """Action of reserving a card."""
@@ -184,5 +195,9 @@ class ActionReserveCard(Action):
     def vectorize(self):
         gems = GemsCollection()
         gems.gems_dict[GemColor.GOLD] += 1
-        gems[self.return_gem_color] -= 1
-        return gems.vectorize(), self.card.vectorize()
+        if self.return_gem_color is not None:
+            gems.gems_dict[self.return_gem_color] -= 1
+
+        return {"action_type": self.action_type,
+                'gems_flow': gems.vectorize(),
+                'card' : self.card.vectorize()}

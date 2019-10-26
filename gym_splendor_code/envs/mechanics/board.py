@@ -7,6 +7,7 @@ from gym_splendor_code.envs.mechanics.noble import Noble
 from gym_splendor_code.envs.mechanics.card import Card
 from gym_splendor_code.envs.mechanics.deck import Deck
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
+from gym_splendor_code.envs.mechanics.enums import GemColor
 
 class Board:
 
@@ -45,6 +46,24 @@ class Board:
         self.cards_on_board.add(self.deck.pop_card(card.row))
 
     def vectorize(self):
-        return [{'nobles_on_board': {x.vectorize() for x in self.nobles_on_board},
-                 'cards_on_board': {x.vectorize() for x in self.cards_on_board},
-                 'gems_on_board': self.gems_on_board.vectorize()}]
+        return {'nobles_on_board' : {x.vectorize() for x in self.nobles_on_board},
+                'cards_on_board' : {x.vectorize() for x in self.cards_on_board},
+                'gems_on_board' : self.gems_on_board.vectorize()}
+
+    def from_vector(self, vector):
+        """Take player's gems from the board. """
+
+        gems = vector['active_player_hand']['gems_possessed']
+        self.gems_on_board = self.gems_on_board -  GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
+                                    GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
+                                    GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
+
+        gems = vector['previous_player_hand']['gems_possessed']
+        self.gems_on_board = self.gems_on_board -  GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
+                                    GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
+                                    GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
+
+        """Puts cards on the board according to previous state. """
+        cards = vector['board']['cards_on_board']
+        drawn_cards = map(lambda x: self.deck.pop_cards_from_id_list(cards, x), self.deck.decks_dict.keys())
+        self.cards_on_board = set(reduce(lambda x, y: x + y, drawn_cards))
