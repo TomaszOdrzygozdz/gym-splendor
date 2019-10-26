@@ -33,11 +33,12 @@ class State():
         self.board = Board(all_cards, all_nobles, gems_on_board)
         self.active_player_id = 0
 
-    def setup_state(self, from_state = None):
+    def setup_state(self, from_state = None, ordered_deck = False):
 
         if from_state is None:
             self.active_player_id = 0 #index
 
+            self.board.deck.shuffle()
             self.board.lay_cards_on_board()
             self.board.lay_nobles_on_board()
 
@@ -75,17 +76,16 @@ class State():
             for i in vector['previous_player_hand']['cards_reserved_ids']:
                 self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)].cards_reserved.add(self.board.deck.pop_card_by_id(i))
 
-
-            self.board.deck.shuffle()
-        if prepare:
-            self.board.lay_cards_on_board()
-            self.board.lay_nobles_on_board()
+            if ordered_deck:
+                self.board.deck.order_deck(vector)
+            else:
+                self.board.deck.shuffle()
 
     def active_players_hand(self):
         """Returns the hand of active player"""
         return self.list_of_players_hands[self.active_player_id]
 
-      
+
     def previous_players_hand(self):
 
         """Return the hans of the previous player"""

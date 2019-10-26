@@ -25,8 +25,8 @@ class SplendorEnv(Env):
         self.gui = None
 
         #Create initial state of the game
-    def setup_state(self, from_state = None):
-        self.current_state_of_the_game.setup_state(from_state)
+    def setup_state(self, from_state = None, ordered_deck = False):
+        self.current_state_of_the_game.setup_state(from_state, ordered_deck)
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()

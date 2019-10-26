@@ -48,7 +48,8 @@ class Board:
     def vectorize(self):
         return {'nobles_on_board' : {x.vectorize() for x in self.nobles_on_board},
                 'cards_on_board' : {x.vectorize() for x in self.cards_on_board},
-                'gems_on_board' : self.gems_on_board.vectorize()}
+                'gems_on_board' : self.gems_on_board.vectorize(),
+                'deck_order': self.deck.vectorize()}
 
     def from_vector(self, vector):
         """Take player's gems from the board. """
