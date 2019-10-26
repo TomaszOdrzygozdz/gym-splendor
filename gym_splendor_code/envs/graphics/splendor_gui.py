@@ -10,9 +10,6 @@ from gym_splendor_code.envs.mechanics.noble import Noble
 from gym_splendor_code.envs.mechanics.players_hand import PlayersHand
 from gym_splendor_code.envs.mechanics.state import State
 
-from time import sleep
-
-
 class SplendorGUI():
     """Class that is used to render the game."""
 
@@ -38,7 +35,7 @@ class SplendorGUI():
 
     def read_action(self) -> Action:
         while self.actual_action is None:
-            sleep(WINDOW_REFRESH_TIME)
+            self.main_window.after(int(WINDOW_REFRESH_TIME*1000))
             self.main_window.update_idletasks()
             self.main_window.update()
         action_to_return = self.actual_action
