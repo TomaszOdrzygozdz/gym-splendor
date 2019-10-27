@@ -6,7 +6,7 @@ hold only 1 vs 1 games."""
 
 #This package provides ELO rating for players
 #You can get this from: https://github.com/HankSheehan/EloPy
-import elopy
+#import elopy
 
 from typing import List
 
@@ -21,6 +21,7 @@ class Arena:
     def __init__(self, environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
+        self.env.setup_state()
 
     def run_one_game(self,
                      list_of_agents: List[Agent], starting_player_id):
@@ -35,9 +36,12 @@ class Arena:
         active_agent_id = starting_player_id
         #set the initial observation
         observation = self.env.show_observation()
+        self.env.render()
         while not is_done:
+            print(self.env.action_space)
             action = list_of_agents[active_agent_id].choose_action(observation)
             observation, reward, is_done, info = self.env.step(action)
             active_agent_id = (active_agent_id + 1)%len(list_of_agents)
+            self.env.render()
             if is_done:
                 print('The winner is: {}'.format(list_of_agents[active_agent_id].name))
