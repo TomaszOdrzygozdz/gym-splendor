@@ -14,6 +14,7 @@ import gym
 
 from agent import Agent
 from agents.random_agent import RandomAgent
+from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
 
 
 class Arena:
@@ -35,9 +36,11 @@ class Arena:
         active_agent_id = starting_player_id
         #set the initial observation
         observation = self.env.show_observation()
-        while not is_done:
+        number_of_actions = 0
+        while not is_done and number_of_actions < MAX_NUMBER_OF_MOVES:
             action = list_of_agents[active_agent_id].choose_action(observation)
             observation, reward, is_done, info = self.env.step(action)
             active_agent_id = (active_agent_id + 1)%len(list_of_agents)
+            number_of_actions += 1
             if is_done:
                 print('The winner is: {}'.format(list_of_agents[active_agent_id].name))
