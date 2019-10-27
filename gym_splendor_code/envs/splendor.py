@@ -61,10 +61,14 @@ class SplendorEnv(Env):
         :return: observation, reward, is_done, info
         """
         """Performs one action on the current state of the game. """
-        self.action_space.update(self.current_state_of_the_game)
-        assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
-        action.execute(self.current_state_of_the_game)
-        #We find the reward:
+        info = {}
+        if action is not None:
+            self.action_space.update(self.current_state_of_the_game)
+            assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
+            action.execute(self.current_state_of_the_game)
+        else:
+            info = {'Warning' : 'There was no action.'}
+        # We find the reward:
         reward = 0
         if not self.is_done:
             if self.current_state_of_the_game.previous_players_hand().number_of_my_points() >= POINTS_TO_WIN:
@@ -73,7 +77,9 @@ class SplendorEnv(Env):
             reward = -1
 
         self.is_done_update(self.end_episode_mode)
+
         return self.observation_space.state_to_observation(self.current_state_of_the_game), reward, self.is_done, {}
+
 
     def is_done_update(self, end_episode_mode = 'instant_end'):
         if end_episode_mode == 'instant_end':

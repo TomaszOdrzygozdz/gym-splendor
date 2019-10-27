@@ -28,16 +28,19 @@ class RandomAgent(Agent):
         self.env.load_observation(observation)
         self.env.update_actions()
 
-        if self.distribution == 'uniform':
-            return random.choice(self.env.action_space.list_of_actions)
-        if self.distribution == 'uniform_on_types':
-            chosen_action_type = random.choice([action_type for action_type in
-                                                self.env.action_space.actions_by_type.keys() if
-                                                len(self.env.action_space.actions_by_type[action_type]) > 0])
-            return random.choice(self.env.action_space.actions_by_type[chosen_action_type])
-        if self.distribution == 'first_buy':
-            if len(self.env.action_space.actions_by_type['buy']) > 0:
-                return random.choice(self.env.action_space.actions_by_type['buy'])
-            else:
+        if len(self.env.action_space.list_of_actions):
+            if self.distribution == 'uniform':
                 return random.choice(self.env.action_space.list_of_actions)
+            if self.distribution == 'uniform_on_types':
+                chosen_action_type = random.choice([action_type for action_type in
+                                                    self.env.action_space.actions_by_type.keys() if
+                                                    len(self.env.action_space.actions_by_type[action_type]) > 0])
+                return random.choice(self.env.action_space.actions_by_type[chosen_action_type])
+            if self.distribution == 'first_buy':
+                if len(self.env.action_space.actions_by_type['buy']) > 0:
+                    return random.choice(self.env.action_space.actions_by_type['buy'])
+                else:
+                    return random.choice(self.env.action_space.list_of_actions)
 
+        else:
+            return None
