@@ -41,4 +41,3 @@ class Arena:
             active_agent_id = (active_agent_id + 1)%len(list_of_agents)
             if is_done:
                 print('The winner is: {}'.format(list_of_agents[active_agent_id].name))
-
