@@ -71,7 +71,6 @@ class SplendorEnv(Env):
             reward = -1
 
         self.is_done_update(self.end_episode_mode)
-        self.action_space.update(self.current_state_of_the_game)
         return self.observation_space.state_to_observation(self.current_state_of_the_game), reward, self.is_done, {}
 
     def is_done_update(self, end_episode_mode = 'instant_end'):
@@ -91,7 +90,7 @@ class SplendorEnv(Env):
     def update_actions(self):
         self.action_space.update(self.current_state_of_the_game)
 
-    def my_action_space(self):
+    def current_action_space(self):
         self.action_space.update(self.current_state_of_the_game)
         return self.action_space
 
