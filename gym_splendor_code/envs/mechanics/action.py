@@ -174,7 +174,7 @@ class ActionReserveCard(Action):
             state.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD] += 1
             state.board.gems_on_board.gems_dict[GemColor.GOLD] -= 1
             if self.return_gem_color is not None:
-                state.active_players_hand().gems_possessed[self.return_gem_color] -= 1
+                state.active_players_hand().gems_possessed.gems_dict[self.return_gem_color] -= 1
                 state.board.gems_on_board.gems_dict[self.return_gem_color] += 1
         self.change_active_player(state)
 

@@ -1,12 +1,16 @@
 from abc import abstractmethod
 
+import gym
+
 
 class Agent:
     """An abstract class to create agents for playing Splendor."""
-    @property
-    def name(self):
-        """Every agent must have specified name."""
-        raise NotImplementedError
+    """Every agent must have specified name."""
+
+    def __init__(self, environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
+        """Every agent has its private environment to check legal actions, make simulations etc."""
+        self.env = gym.make(environment_id)
+        self.name = 'Abstract agent'
 
     @abstractmethod
     def choose_action(self, observation):

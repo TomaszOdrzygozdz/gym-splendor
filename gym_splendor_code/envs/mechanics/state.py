@@ -10,6 +10,7 @@ from gym_splendor_code.envs.data.data_loader import load_all_cards
 from gym_splendor_code.envs.data.data_loader import load_all_nobles
 import simplejson as json
 
+
 class State():
     """This class keeps all information about the state of the game."""
 
@@ -17,8 +18,8 @@ class State():
                  list_of_players_hands: List = None,
                  all_cards: Set[Card] = None,
                  all_nobles: Set[Noble] = None,
-                 gems_on_board : GemsCollection = None,
-                 prepare = True) -> None:
+                 gems_on_board: GemsCollection = None,
+                 prepare=True) -> None:
 
         if all_cards is None:
             all_cards = load_all_cards()
@@ -36,7 +37,7 @@ class State():
     def setup_state(self, from_state = None, ordered_deck = False):
 
         if from_state is None:
-            self.active_player_id = 0 #index
+            self.active_player_id = 0  # index
 
             self.board.deck.shuffle()
             self.board.lay_cards_on_board()
@@ -46,19 +47,22 @@ class State():
             with open(from_state) as json_data:
                 vector = json.load(json_data)
                 json_data.close()
-                vector = eval(vector.replace("NULL","set()"))
+                vector = eval(vector.replace("NULL", "set()"))
 
             self.active_player_id = vector['active_player_id']
             self.list_of_players_hands[self.active_player_id].from_vector(vector['active_player_hand'])
-            self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)].from_vector(vector['previous_player_hand'])
+            self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)].from_vector(
+                vector['previous_player_hand'])
             self.board.from_vector(vector)
 
             # Adding nobles
             for i in vector['active_player_hand']['noble_possessed_ids']:
-                self.list_of_players_hands[self.active_player_id].nobles_possessed.add(self.board.deck.pop_noble_by_id(i))
+                self.list_of_players_hands[self.active_player_id].nobles_possessed.add(
+                    self.board.deck.pop_noble_by_id(i))
 
             for i in vector['previous_player_hand']['noble_possessed_ids']:
-                self.list_of_players_hands[self.previous_player_id].nobles_possessed.add(self.board.deck.pop_noble_by_id(i))
+                self.list_of_players_hands[self.previous_player_id].nobles_possessed.add(
+                    self.board.deck.pop_noble_by_id(i))
 
             for i in vector['board']['nobles_on_board']:
                 self.board.nobles_on_board.add(self.board.deck.pop_noble_by_id(i))
@@ -71,7 +75,9 @@ class State():
                 self.list_of_players_hands[self.active_player_id].cards_reserved.add(self.board.deck.pop_card_by_id(i))
 
             for i in vector['previous_player_hand']['cards_possessed_ids']:
-                self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)].cards_possessed.add(self.board.deck.pop_card_by_id(i))
+                self.list_of_players_hands[
+                    (self.active_player_id - 1) % len(self.list_of_players_hands)].cards_possessed.add(
+                    self.board.deck.pop_card_by_id(i))
 
             for i in vector['previous_player_hand']['cards_reserved_ids']:
                 self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)].cards_reserved.add(self.board.deck.pop_card_by_id(i))
@@ -89,10 +95,10 @@ class State():
     def previous_players_hand(self):
 
         """Return the hans of the previous player"""
-        return self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)]
+        return self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)]
 
     def vectorize(self):
-            return {'active_player_hand' : self.active_players_hand().vectorize(),
-                    'previous_player_hand' : self.previous_players_hand().vectorize(),
-                    'board' : self.board.vectorize(),
-                    'active_player_id' : self.active_player_id }
+        return {'active_player_hand': self.active_players_hand().vectorize(),
+                'previous_player_hand': self.previous_players_hand().vectorize(),
+                'board': self.board.vectorize(),
+                'active_player_id': self.active_player_id}
