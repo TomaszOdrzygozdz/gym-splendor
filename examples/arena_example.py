@@ -1,12 +1,19 @@
 from agents.random_agent import RandomAgent
+from agents.greedy_agent import GreedyAgent
 from arena import Arena
 import time
 
 fight_pit = Arena()
 
-goku = RandomAgent(distribution='uniform_on_types')
-gohan = RandomAgent(distribution='uniform')
+goku = RandomAgent(distribution='first_buy')
+gohan = RandomAgent(distribution='uniform_on_types')
+#gohan = RandomAgent(distribution='uniform')
+#goku = GreedyAgent(weight = 0.3)
+#gohan = GreedyAgent(weight = 0.1)
 
 time_dupa = time.time()
-fight_pit.run_one_game([goku, gohan], starting_player_id=0)
+for i in range(1, 100):
+    print(i)
+    fight_pit = Arena()
+    fight_pit.run_one_game([goku, gohan], starting_player_id=0)
 print(time.time() - time_dupa)

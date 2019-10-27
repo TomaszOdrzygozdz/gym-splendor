@@ -38,3 +38,5 @@ class Card(PreCard):
                                                                                                    self.row, self.price,
                                                                                                    self.discount_profit,
                                                                                                    self.victory_points)
+    def evaluate(self):
+        return self.discount_profit, self.victory_points
