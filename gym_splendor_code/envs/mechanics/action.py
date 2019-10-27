@@ -34,6 +34,11 @@ class Action():
     def vectorize(self):
         pass
 
+    @abstractmethod
+    def evaluate(self):
+        pass
+
+
     def give_nobles(self, state: State) -> None:
         """Checks if the active player deserves to obtain noble card (or cards)."""
         nobles_to_transfer = set()
@@ -83,6 +88,11 @@ class ActionTradeGems(Action):
         return {"action_type": self.action_type,
                 "gems_flow" : self.gems_from_board_to_player.vectorize()}
 
+    def evaluate(self,
+                state: State) -> None:
+        return {"gems_flow" : self.gems_from_board_to_player.vectorize(),
+                "card" : [0, None, 0],
+                "nobles": 0}
 
 class ActionBuyCard(Action):
     """Action of buying a card."""
@@ -137,7 +147,6 @@ class ActionBuyCard(Action):
         else:
             return False
 
-
     def __repr__(self):
         return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
                                                                 self.use_gold_as.__repr__())
@@ -145,6 +154,24 @@ class ActionBuyCard(Action):
         return {"action_type": self.action_type,
                 'gems_flow': self.price.vectorize(),
                 'card' : self.card.vectorize()}
+
+    def evaluate(self,
+                state: State) -> None:
+        price = self.price % state.active_players_hand().discount()
+        if self.n_gold_gems_to_use > 0:
+            price -= self.use_gold_as
+
+        state.active_players_hand().cards_possessed.add(self.card)
+        nobles_to_transfer = 0
+        for noble in state.board.nobles_on_board:
+            if noble.price <= state.active_players_hand().discount():
+                nobles_to_transfer += 1
+        state.active_players_hand().cards_possessed.remove(self.card)
+        card_properties = self.card.evaluate()
+
+        return {"gems_flow" : price.vectorize_neg(),
+                "card" : [1, card_properties[0], card_properties[1] + 3*nobles_to_transfer],
+                "nobles" : nobles_to_transfer}
 
 class ActionReserveCard(Action):
     """Action of reserving a card."""
@@ -201,3 +228,18 @@ class ActionReserveCard(Action):
         return {"action_type": self.action_type,
                 'gems_flow': gems.vectorize(),
                 'card' : self.card.vectorize()}
+
+
+    def evaluate(self,
+                state: State):
+        gems = GemsCollection()
+        gems.gems_dict[GemColor.GOLD] += 1
+        if self.return_gem_color is not None:
+            gems.gems_dict[self.return_gem_color] -= 1
+
+        card_properties = self.card.evaluate()
+
+        return {"gems_flow" : gems.vectorize(),
+                "card" : [0, None, 0],
+                "card_booked" : [1, card_properties[0], card_properties[1]],
+                "nobles" : 0}

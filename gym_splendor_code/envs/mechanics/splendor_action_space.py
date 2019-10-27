@@ -51,3 +51,6 @@ class SplendorActionSpace(Space):
                     len(self.actions_by_type['buy']), len(self.actions_by_type['reserve']))
     def vectorize(self):
         return [x.vectorize() for x in self.list_of_actions]
+
+    def evaluate(self):
+        return [x.evaluate() for x in self.list_of_actions]

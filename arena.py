@@ -25,7 +25,8 @@ class Arena:
         self.env.setup_state()
 
     def run_one_game(self,
-                     list_of_agents: List[Agent], starting_player_id):
+                     list_of_agents: List[Agent],
+                     starting_player_id):
 
         #prepare the game
         self.env.reset()
@@ -45,3 +46,5 @@ class Arena:
             number_of_actions += 1
             if is_done:
                 print('The winner is: {}'.format(list_of_agents[active_agent_id].name))
+        if  number_of_actions >= MAX_NUMBER_OF_MOVES:
+            print('Game unfinished')
