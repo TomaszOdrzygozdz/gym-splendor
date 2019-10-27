@@ -8,6 +8,8 @@ from gym_splendor_code.envs.mechanics.splendor_observation_space import Splendor
 from gym_splendor_code.envs.mechanics.state import State
 import simplejson as json
 
+from typing import List
+
 class SplendorEnv(Env):
     """ Description:
         This environment runs the game Splendor."""
@@ -105,6 +107,13 @@ class SplendorEnv(Env):
     def load_observation(self, observation):
         self.current_state_of_the_game = self.observation_space.observation_to_state(observation)
 
+    def set_active_player(self, id: int)->None:
+        self.current_state_of_the_game.active_player_id = id
+
+    def set_players_names(self, list_of_names: List[str])->None:
+        for i, name in enumerate(list_of_names):
+            self.current_state_of_the_game.list_of_players_hands[i].name = name
+
     def render(self, mode='human', interactive = True):
         """Creates window if necessary, then renders the state of the game """
         if self.gui is None:
@@ -116,3 +125,11 @@ class SplendorEnv(Env):
         self.gui.clear_all()
         #draw state
         self.gui.draw_state(self.current_state_of_the_game)
+
+    def reset(self):
+        self.current_state_of_the_game = State()
+        self.action_space.update(self.current_state_of_the_game)
+
+    def show_observation(self):
+        return self.observation_space.state_to_observation(self.current_state_of_the_game)
+

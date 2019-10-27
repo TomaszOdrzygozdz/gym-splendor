@@ -10,6 +10,7 @@ class Agent:
     def __init__(self, environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
         """Every agent has its private environment to check legal actions, make simulations etc."""
         self.env = gym.make(environment_id)
+        self.name = 'Abstract agent'
 
     @abstractmethod
     def choose_action(self, observation):
