@@ -19,6 +19,7 @@ class SplendorEnv(Env):
     def __init__(self, strategies = None):
 
         self.current_state_of_the_game = State()
+        self.current_state_of_the_game.setup_state()
         self.action_space = SplendorActionSpace()
         self.action_space.update(self.current_state_of_the_game)
         self.observation_space = SplendorObservationSpace()
@@ -27,8 +28,8 @@ class SplendorEnv(Env):
         self.gui = None
 
         #Create initial state of the game
-    def setup_state(self, from_state = None):
-        self.current_state_of_the_game.setup_state(from_state)
+    def setup_state(self, from_state = None, ordered_deck = False):
+        self.current_state_of_the_game.setup_state(from_state, ordered_deck)
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
@@ -66,6 +67,7 @@ class SplendorEnv(Env):
             self.action_space.update(self.current_state_of_the_game)
             assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
             action.execute(self.current_state_of_the_game)
+
         else:
             info = {'Warning' : 'There was no action.'}
         # We find the reward:
@@ -134,8 +136,8 @@ class SplendorEnv(Env):
 
     def reset(self):
         self.current_state_of_the_game = State()
+        self.current_state_of_the_game.setup_state()
         self.action_space.update(self.current_state_of_the_game)
 
     def show_observation(self):
         return self.observation_space.state_to_observation(self.current_state_of_the_game)
-

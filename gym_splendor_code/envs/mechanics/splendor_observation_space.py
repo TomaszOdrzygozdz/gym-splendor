@@ -16,6 +16,7 @@ class SplendorObservationSpace(Space):
         super().__init__()
 
     def state_to_observation(self, state:State) -> Dict:
+
         cards_on_board_names = {card.name for card in state.board.cards_on_board}
         nobles_on_board_names = {noble.name for noble in state.board.nobles_on_board}
         gems_on_board = state.board.gems_on_board.__copy__()
@@ -31,7 +32,7 @@ class SplendorObservationSpace(Space):
     def observation_to_state(self, observation) -> State:
         """Loads observation and return a state that agrees with the observation. Warning: this method is ambiguous,
         that is, many states can have the same observation (they may differ in the order of hidden cards)."""
-        state = State(prepare=False)
+        state = State()
         cards_on_board_names = observation['cards_on_board_names']
         nobles_on_board_names = observation['nobles_on_board_names']
         for card_name in cards_on_board_names:

@@ -120,3 +120,6 @@ class GemsCollection():
 
     def vectorize(self):
         return [self.gems_dict[gem_color] for gem_color in GemColor]
+
+    def vectorize_neg(self):
+        return [ -self.gems_dict[gem_color] for gem_color in GemColor]

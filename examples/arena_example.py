@@ -1,18 +1,19 @@
 from agents.random_agent import RandomAgent
+from agents.greedy_agent import GreedyAgent
 from arena import Arena
-import cProfile, pstats
+import time
 
 fight_pit = Arena()
 
-goku = RandomAgent(distribution='uniform_on_types')
-gohan = RandomAgent(distribution='uniform')
+goku = RandomAgent(distribution='first_buy')
+gohan = RandomAgent(distribution='uniform_on_types')
+#gohan = RandomAgent(distribution='uniform')
+#goku = GreedyAgent(weight = 0.3)
+#gohan = GreedyAgent(weight = 0.1)
 
-
-fight_pit.run_one_game([goku, gohan], starting_player_id=0)
-
-# pr = cProfile.Profile()
-# pr.run('fight_pit.run_one_game([goku, gohan], starting_player_id=0)')
-# filename = 'profile.prof'  # You can change this if needed
-# pr.dump_stats(filename)
-
-fight_pit.run_many_games([goku, gohan], number_of_games=10)
+time_dupa = time.time()
+for i in range(100):
+    print(i)
+    fight_pit = Arena()
+    fight_pit.run_one_game([goku, gohan], starting_player_id=0)
+print(time.time() - time_dupa)

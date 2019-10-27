@@ -43,12 +43,14 @@ class Board:
     def remove_card_from_board_and_refill(self, card: Card) -> None:
         """This method removes a card from board and puts a new one (if there is non-empty deck to take from"""
         self.cards_on_board.remove(card)
-        self.cards_on_board.add(self.deck.pop_card(card.row))
+        if len(self.deck.decks_dict[card.row]):
+            self.cards_on_board.add(self.deck.pop_card(card.row))
 
     def vectorize(self):
         return {'nobles_on_board' : {x.vectorize() for x in self.nobles_on_board},
                 'cards_on_board' : {x.vectorize() for x in self.cards_on_board},
-                'gems_on_board' : self.gems_on_board.vectorize()}
+                'gems_on_board' : self.gems_on_board.vectorize(),
+                'deck_order': self.deck.vectorize()}
 
     def from_vector(self, vector):
         """Take player's gems from the board. """
