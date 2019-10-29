@@ -257,6 +257,8 @@ class SplendorGUI():
         # Draw gems possessed by the player:
         self.draw_gems(players_hand.gems_possessed, x_coord + PLAYERS_HAND_GEMS_X, y_coord + PLAYERS_HAND_GEMS_Y)
 
+        #Draw nobles possessed by the player
+
     def draw_state(self, state: State) -> None:
         """Draws the state. """
         for number, player in enumerate(state.list_of_players_hands):

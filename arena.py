@@ -26,24 +26,28 @@ class Arena:
 
     def run_one_game(self,
                      list_of_agents: List[Agent],
-                     starting_player_id):
+                     starting_agent_id):
 
         #prepare the game
         self.env.reset()
-        self.env.set_active_player(starting_player_id)
+        self.env.set_active_player(starting_agent_id)
         #set players names:
         self.env.set_players_names([agent.name for agent in list_of_agents])
         is_done = False
         #set the initial agent id
-        active_agent_id = starting_player_id
+        active_agent_id = starting_agent_id
         #set the initial observation
         observation = self.env.show_observation()
         number_of_actions = 0
+
+        results = {agent : None for agent in list_of_agents}
+        round_ended = False
         while not is_done and number_of_actions < MAX_NUMBER_OF_MOVES:
             action = list_of_agents[active_agent_id].choose_action(observation)
             observation, reward, is_done, info = self.env.step(action)
             active_agent_id = (active_agent_id + 1)%len(list_of_agents)
             number_of_actions += 1
+            if active_agent_id == starting_agent_id
             if is_done:
                 print('The winner is: {}'.format(list_of_agents[active_agent_id].name))
         if  number_of_actions >= MAX_NUMBER_OF_MOVES:
