@@ -12,6 +12,7 @@ SCALING_FACTOR = 1
 WINDOW_TITLE = 'Splendor kayoshin bakemono'
 WINDOW_GEOMETRY = '1550x780'
 WINDOW_REFRESH_TIME = 0.01 #time in seconds
+GAME_SPEED = 0.5 #time between consecutive frames of game
 
 # Card visual settings:
 #____________________________________________________________
@@ -142,6 +143,11 @@ PLAYERS_NAME_Y = 0*SCALING_FACTOR
 PLAYERS_NAME_FONT_ACTIVE = 'Arial {} bold italic'.format(int(14*SCALING_FACTOR))
 PLAYERS_NAME_FONT = 'Arial {} italic'.format(int(13*SCALING_FACTOR))
 
+PLAYERS_POINTS_X = 190
+PLAYERS_POINTS_Y = 0
+PLAYERS_POINTS_TITLE = 'Points: '
+PLAYERS_POINTS_FONT = 'Arial {}.format(int(13*SCALING_FACTOR))'
+
 RESERVED_CARDS_HORIZONTAL_SHIFT = 105*SCALING_FACTOR
 RESERVED_CARDS_INITIAL_X = 15*SCALING_FACTOR
 RESERVED_CARDS_INITIAL_Y = 510*SCALING_FACTOR
@@ -158,6 +164,9 @@ RESERVED_RECTANGLE_OUTLINE = 'red'
 PLAYERS_HAND_GEMS_X = 10*SCALING_FACTOR
 PLAYERS_HAND_GEMS_Y = 15*SCALING_FACTOR
 
+PLAYERS_NOBLES_X = 400
+PLAYERS_NOBLES_Y = 500
+PLAYERS_NOBLES_SHIFT = 80
 
 #State visual settings:
 #____________________________________________________________

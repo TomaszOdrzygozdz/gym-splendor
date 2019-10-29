@@ -18,3 +18,7 @@ class Agent:
         access to the original gym-splendor environment - you can create your own environment for example to do
         simulations of game, or have access to environment methods."""
         raise NotImplementedError
+
+
+    def __repr__(self):
+        return self.name

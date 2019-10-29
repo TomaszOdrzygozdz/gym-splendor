@@ -6,14 +6,19 @@ import time
 fight_pit = Arena()
 
 goku = RandomAgent(distribution='first_buy')
-gohan = RandomAgent(distribution='uniform_on_types')
+goku2 = RandomAgent(distribution='uniform')
+#gohan = RandomAgent(distribution='uniform_on_types')
 #gohan = RandomAgent(distribution='uniform')
 #goku = GreedyAgent(weight = 0.3)
-#gohan = GreedyAgent(weight = 0.1)
+gohan = GreedyAgent(weight = 0.1)
 
-time_dupa = time.time()
-for i in range(100):
-    print(i)
-    fight_pit = Arena()
-    fight_pit.run_one_game([goku, gohan], starting_player_id=0)
-print(time.time() - time_dupa)
+
+fight_pit.run_one_game([goku, gohan], starting_agent_id=0, render_game=True)
+
+
+# time_dupa = time.time()
+# for i in range(100):
+#     print(i)
+#     fight_pit = Arena()
+#     fight_pit.run_one_game([goku, gohan], starting_agent_id=0)
+# print(time.time() - time_dupa)

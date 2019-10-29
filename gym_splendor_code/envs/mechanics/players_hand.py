@@ -39,8 +39,7 @@ class PlayersHand:
         return len(self.cards_reserved) < MAX_RESERVED_CARDS
 
     def number_of_my_points(self) -> int:
-        return sum([card.victory_points for card in self.cards_possessed]) + \
-               sum([noble.victory_points for noble in self.nobles_possessed])
+        return sum([card.victory_points for card in self.cards_possessed]) + sum([noble.victory_points for noble in self.nobles_possessed])
 
     def vectorize(self):
         return {'noble_possessed_ids' : {x.vectorize() for x in self.nobles_possessed},

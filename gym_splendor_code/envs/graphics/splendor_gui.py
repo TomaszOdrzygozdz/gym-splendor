@@ -1,5 +1,7 @@
 from tkinter import *
 
+import time
+
 from gym_splendor_code.envs.mechanics.game_settings import *
 from gym_splendor_code.envs.graphics.graphics_settings import *
 from gym_splendor_code.envs.mechanics.action import ActionBuyCard, Action, ActionTradeGems, ActionReserveCard
@@ -9,6 +11,7 @@ from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 from gym_splendor_code.envs.mechanics.noble import Noble
 from gym_splendor_code.envs.mechanics.players_hand import PlayersHand
 from gym_splendor_code.envs.mechanics.state import State
+
 
 class SplendorGUI():
     """Class that is used to render the game."""
@@ -42,8 +45,11 @@ class SplendorGUI():
         self.reset_action()
         return action_to_return
 
-    def keep_window_open(self):
-        mainloop()
+    def keep_window_open(self, time_to_keep):
+            self.main_window.update_idletasks()
+            self.main_window.update()
+            self.main_window.after(int(WINDOW_REFRESH_TIME * 1000))
+            time.sleep(time_to_keep)
 
     def draw_card(self,
                   card: Card,
@@ -226,6 +232,10 @@ class SplendorGUI():
         self.main_canvas.create_text(x_coord + PLAYERS_NAME_X, y_coord + PLAYERS_NAME_Y,
                                      text=players_hand.name, font=players_name_font)
 
+        self.main_canvas.create_text(x_coord + PLAYERS_POINTS_X, y_coord + PLAYERS_POINTS_Y,
+                                     text=PLAYERS_POINTS_TITLE + str(players_hand.number_of_my_points()),
+                                     font=players_name_font)
+
         card_position_x_dict = {gem_color: gem_color.value * PLAYERS_HAND_HORIZONTAL_SHIFT for gem_color in GemColor if
                                 gem_color != GemColor.GOLD}
 
@@ -257,6 +267,11 @@ class SplendorGUI():
         # Draw gems possessed by the player:
         self.draw_gems(players_hand.gems_possessed, x_coord + PLAYERS_HAND_GEMS_X, y_coord + PLAYERS_HAND_GEMS_Y)
 
+        #Draw nobles possessed by the player
+        height_indicator = 0
+        for i, noble_card in enumerate(players_hand.nobles_possessed):
+            self.draw_noble(noble_card, x_coord + PLAYERS_NOBLES_X, y_coord + PLAYERS_NOBLES_Y + i*PLAYERS_NOBLES_SHIFT)
+
     def draw_state(self, state: State) -> None:
         """Draws the state. """
         for number, player in enumerate(state.list_of_players_hands):
@@ -265,6 +280,7 @@ class SplendorGUI():
             self.draw_players_hand(player, x_coord_player, y_coord_player, number == state.active_player_id, state)
 
         self.draw_board(state.board, STATE_BOARD_X, STATE_BOARD_Y, state)
+        self.keep_window_open(GAME_SPEED)
 
     def prepare_to_buy(self,
                        card: Card,
