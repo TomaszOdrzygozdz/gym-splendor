@@ -70,6 +70,7 @@ class SplendorEnv(Env):
 
         else:
             info = {'Warning' : 'There was no action.'}
+
         # We find the reward:
         reward = 0
         if not self.is_done:
@@ -79,11 +80,12 @@ class SplendorEnv(Env):
             reward = -1
 
         self.is_done_update(self.end_episode_mode)
+
         return self.observation_space.state_to_observation(self.current_state_of_the_game), reward, self.is_done, {}
 
     def is_done_update(self, end_episode_mode = 'instant_end'):
         if end_episode_mode == 'instant_end':
-            if self.current_state_of_the_game.active_players_hand().number_of_my_points() >= POINTS_TO_WIN:
+            if self.current_state_of_the_game.previous_players_hand().number_of_my_points() >= POINTS_TO_WIN:
                 self.is_done = True
         if end_episode_mode == 'let_all_move':
             #the episone can end only if some has reached enough points and last player has moved
@@ -119,6 +121,9 @@ class SplendorEnv(Env):
     def set_players_names(self, list_of_names: List[str])->None:
         for i, name in enumerate(list_of_names):
             self.current_state_of_the_game.list_of_players_hands[i].name = name
+
+    def points_of_player_by_id(self, id: int)-> int:
+        return self.current_state_of_the_game.list_of_players_hands[id].number_of_my_points()
 
     def render(self, mode='human', interactive = True):
         """Creates window if necessary, then renders the state of the game """

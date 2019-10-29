@@ -25,7 +25,7 @@ There is simple GUI that allow to both: draw the state of the game and collect h
 
 ![screenshot](https://github.com/TomaszOdrzygozdz/gym-splendor/blob/master/splendor_screenshot.png)
 
-### Human vs human game:
+### Human vs human game example:
 
 The code below creates the environment and runs human vs human game.
 
@@ -50,3 +50,29 @@ while not is_done:
         env.show_warning(action)
 
 ```
+
+## Arena:
+Arena is not a part of the environment itself, but it is a useful tool to compare performance of agents.
+
+### Run one game between two agents:
+
+```python
+from agents.random_agent import RandomAgent
+from agents.greedy_agent import GreedyAgent
+from arena import Arena
+
+arena_for_agents = Arena()
+agent1 = RandomAgent(distribution='first_buy')
+agent2 = GreedyAgent(weight = 0.1)
+
+arena_for_agents.run_one_game([agent1, agent2], starting_agent_id=0)
+
+```
+### Rendering game between agents
+If we want to render the game in a window, just use run_one_game(...) method with arguments render_game equal True:
+```python
+arena_for_agents.run_one_game([agent1, agent2], starting_agent_id=0, render_game=True)
+```
+To adjust the speed of rendered game you can modify the parameter ```GAME_SPEED``` in the file 
+```gym_splendor_code/envs/graphics/graphics_settings.py```. This parameter is the time (in seconds) between two consecutive
+actions in the game.

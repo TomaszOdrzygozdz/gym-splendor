@@ -70,16 +70,20 @@ class GreedyAgent(Agent):
         self.env.update_actions()
         current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
 
-        actions = []
-        potential_reward_max = -20
-        for action in self.env.action_space.list_of_actions:
-            ae = action.evaluate(self.env.current_state_of_the_game)
-            potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN)*100 + 10 * ae["card"][2] + 2 *ae["nobles"] + ae["card"][0] + self.weight * sum(ae["gems_flow"]))
-            if potential_reward > potential_reward_max:
-                potential_reward_max = potential_reward
-                actions = []
-                actions.append(action)
-            elif potential_reward == potential_reward_max:
-                actions.append(action)
+        if len(self.env.action_space.list_of_actions)>0:
+            actions = []
+            potential_reward_max = -20
+            for action in self.env.action_space.list_of_actions:
+                ae = action.evaluate(self.env.current_state_of_the_game)
+                potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN)*100 + 10 * ae["card"][2] + 2 *ae["nobles"] + ae["card"][0] + self.weight * sum(ae["gems_flow"]))
+                if potential_reward > potential_reward_max:
+                    potential_reward_max = potential_reward
+                    actions = []
+                    actions.append(action)
+                elif potential_reward == potential_reward_max:
+                    actions.append(action)
 
-        return random.choice(actions)
+            return random.choice(actions)
+
+        else:
+            return None
