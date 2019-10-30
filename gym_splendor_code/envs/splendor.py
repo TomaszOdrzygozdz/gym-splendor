@@ -147,9 +147,11 @@ class SplendorEnv(Env):
         self.gui.draw_state(self.current_state_of_the_game)
 
     def reset(self):
-        self.current_state_of_the_game = State()
+        self.is_done = False
+        self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
         self.current_state_of_the_game.setup_state()
-        self.action_space.update(self.current_state_of_the_game)
+        self.update_actions()
 
     def show_observation(self):
+        self.update_actions()
         return self.observation_space.state_to_observation(self.current_state_of_the_game)
