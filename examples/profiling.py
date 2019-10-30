@@ -1,3 +1,5 @@
+import cProfile
+
 from agents.random_agent import RandomAgent
 from agents.greedy_agent import GreedyAgent
 from arena import Arena
@@ -13,8 +15,9 @@ goku2 = RandomAgent(distribution='uniform')
 gohan = GreedyAgent(weight = 0.1)
 
 
-fight_pit.run_one_game([goku, gohan], starting_agent_id=0, render_game=False)
-
+time_profile = cProfile.Profile()
+time_profile.run('fight_pit.run_one_game([goku, gohan], starting_agent_id=0, render_game=False)')
+time_profile.dump_stats('optimization6.prof')
 
 # time_dupa = time.time()
 # for i in range(100):

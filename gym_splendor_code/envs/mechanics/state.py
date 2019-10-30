@@ -38,7 +38,6 @@ class State():
 
         if from_state is None:
             self.active_player_id = 0  # index
-
             self.board.deck.shuffle()
             self.board.lay_cards_on_board()
             self.board.lay_nobles_on_board()

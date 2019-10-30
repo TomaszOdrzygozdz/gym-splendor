@@ -13,6 +13,7 @@ WINDOW_TITLE = 'Splendor kayoshin bakemono'
 WINDOW_GEOMETRY = '1550x780'
 WINDOW_REFRESH_TIME = 0.01 #time in seconds
 GAME_SPEED = 0.5 #time between consecutive frames of game
+GAME_INITIAL_DELAY = 10 #time before teh game starts (needed for example to start recording)
 
 # Card visual settings:
 #____________________________________________________________

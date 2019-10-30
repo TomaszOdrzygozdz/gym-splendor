@@ -14,6 +14,7 @@ import gym
 
 from agent import Agent
 from agents.random_agent import RandomAgent
+from gym_splendor_code.envs.graphics.graphics_settings import GAME_INITIAL_DELAY
 from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
 
 import time
@@ -54,6 +55,7 @@ class Arena:
 
         if render_game:
             self.env.render()
+            time.sleep(GAME_INITIAL_DELAY)
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
 
             action = list_of_agents[active_agent_id].choose_action(observation)

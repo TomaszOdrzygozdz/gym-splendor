@@ -12,8 +12,11 @@ class SplendorObservationSpace(Space):
     of cards that are not yet revealed and class SplendorObservationSpace contains only some part of it that is
     accessible by the player. By modifying this class we can change what agent knows about the state of the game."""
 
-    def __init__(self):
+    def __init__(self, all_cards, all_nobles):
         super().__init__()
+        self.all_cards = all_cards
+        self.all_nobles = all_nobles
+
 
     def state_to_observation(self, state:State) -> Dict:
 
@@ -32,7 +35,7 @@ class SplendorObservationSpace(Space):
     def observation_to_state(self, observation) -> State:
         """Loads observation and return a state that agrees with the observation. Warning: this method is ambiguous,
         that is, many states can have the same observation (they may differ in the order of hidden cards)."""
-        state = State()
+        state = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
         cards_on_board_names = observation['cards_on_board_names']
         nobles_on_board_names = observation['nobles_on_board_names']
         for card_name in cards_on_board_names:

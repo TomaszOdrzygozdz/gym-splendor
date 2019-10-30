@@ -1,5 +1,6 @@
 from gym import Env
 
+from gym_splendor_code.envs.data.data_loader import load_all_cards, load_all_nobles
 from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.game_settings import *
@@ -18,11 +19,15 @@ class SplendorEnv(Env):
 
     def __init__(self, strategies = None):
 
-        self.current_state_of_the_game = State()
+        #load all cards and nobles
+        self.all_cards = load_all_cards()
+        self.all_nobles = load_all_nobles()
+
+        self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
         self.current_state_of_the_game.setup_state()
         self.action_space = SplendorActionSpace()
         self.action_space.update(self.current_state_of_the_game)
-        self.observation_space = SplendorObservationSpace()
+        self.observation_space = SplendorObservationSpace(all_cards=self.all_cards, all_nobles=self.all_nobles)
         self.is_done = False
         self.end_episode_mode = 'instant_end'
         self.gui = None

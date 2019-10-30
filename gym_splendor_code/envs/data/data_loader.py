@@ -51,7 +51,7 @@ def load_all_nobles(file: str = NOBLES_DATABASE_FILE) -> Set[Noble]:
     nobles_database_file = open(file)
     reader = csv.reader(nobles_database_file)
     _ = next(reader, None)
-    noble_id = 0
+    noble_id = 100
     for row in reader:
         price = GemsCollection({GemColor.BLACK: int(row[1]), GemColor.WHITE: int(row[2]), GemColor.RED: int(row[3]),
                                 GemColor.BLUE: int(row[4]), GemColor.GREEN: int(row[5]), GemColor.GOLD: 0})
