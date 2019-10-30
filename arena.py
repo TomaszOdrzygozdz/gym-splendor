@@ -70,5 +70,6 @@ class Arena:
             active_agent_id = (active_agent_id + 1) % len(list_of_agents)
             number_of_actions += 1
 
-        print(one_game_results)
-        return one_game_results
+        #print(one_game_results)
+        #return one_game_results
+        return active_agent_id
