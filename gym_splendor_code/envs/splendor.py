@@ -53,24 +53,28 @@ class SplendorEnv(Env):
             with open(output_file, 'w') as json_file:
                 json.dump(state, json_file)
 
-    def step(self, action: Action):
+    def step(self, action: Action, ensure_correctness = False):
         """
-        Executes action on the environment. Action is performed on the current state of the game. The are two modes for
-        is_done: instant_end - the episode ends instantly when any player reaches the number of points equal POINTS_TO_WIN and
-        let_all_move - when some player reaches POINTS_TO_WIN we allow all players to move (till the end of round) and then
-        we end the episode.
-        Reward: 1 if the action gives POINTS_TO_WIN to the player and episode is not yet ended (taking actions when episode ended
-        is considered as loosing), -1 if episode ended, 0 if episode is not yet ended and the action does not give enough
-        points to the player.
+        Executes action on the environment. Action is performed on the current state of the game.
 
-        :param action: action to take
+
+        The are two modes for is_done: instant_end - the episode ends instantly when any player reaches the number of
+        points equal POINTS_TO_WIN and let_all_move - when some player reaches POINTS_TO_WIN we allow all players to move
+        (till the end of round) and then we end the episode. Reward: 1 if the action gives POINTS_TO_WIN to the player
+        and episode is not yet ended (taking actions when episode ended is considered as loosing), -1 if episode ended,
+        0 if episode is not yet ended and the action does not give enough points to the player.
+
+        :param
+        action: action to take
+        ensure_correctness: True if you want the enivornment check if the action is legal, False if you are sure
         :return: observation, reward, is_done, info
         """
         """Performs one action on the current state of the game. """
         info = {}
         if action is not None:
-            self.action_space.update(self.current_state_of_the_game)
-            assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
+            if ensure_correctness:
+                self.action_space.update(self.current_state_of_the_game)
+                assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
             action.execute(self.current_state_of_the_game)
 
         else:
