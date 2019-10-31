@@ -40,20 +40,21 @@ class ArenaMultiThread:
             results = local_arena.run_many_games_single_thread(list_of_agents, games_per_thread)
 
 
+
         #send all results to the main thread:
-        collected_results = comm.gather(results, root=0)
-
-        if rank==0:
-            #sum all results
-            all_threads_results = GameStatistics()
-            all_threads_results.create_from_list_of_agents(list_of_agents)
-            for one_thread_results in collected_results:
-                all_threads_results = all_threads_results + one_thread_results
-
-            return all_threads_results
-
-        if rank > 0:
-            return None
+        # collected_results = comm.gather(results, root=0)
+        #
+        # if rank==0:
+        #     #sum all results
+        #     all_threads_results = GameStatistics()
+        #     all_threads_results.create_from_list_of_agents(list_of_agents)
+        #     for one_thread_results in collected_results:
+        #         all_threads_results = all_threads_results + one_thread_results
+        #
+        #     return all_threads_results
+        #
+        # if rank > 0:
+        #     return None
 
 
 
