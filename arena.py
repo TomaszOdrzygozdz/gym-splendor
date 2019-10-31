@@ -9,11 +9,14 @@ hold only 1 vs 1 games."""
 #import elopy
 
 from typing import List, Dict
+from tqdm import tqdm
+import random
 
 import gym
 
 from agent import Agent
 from agents.random_agent import RandomAgent
+from gym_splendor_code.envs.graphics.graphics_settings import GAME_INITIAL_DELAY
 from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
 
 import time
@@ -32,8 +35,8 @@ class Arena:
                      render_game_spped: float = 0.1)->Dict:
         """Runs one game between two agents.
         :param:
-        list_of_agents: list of agents to play, they will play in the order given by the list
-        starting_agent_id: id of the agent who starts the game.
+        list_of_agents: List of agents to play, they will play in the order given by the list
+        starting_agent_id:  Id of the agent who starts the game.
         show_game: If True, GUI will appear showing the game. """
 
         #prepare the game
@@ -54,6 +57,7 @@ class Arena:
 
         if render_game:
             self.env.render()
+            time.sleep(GAME_INITIAL_DELAY)
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
 
             action = list_of_agents[active_agent_id].choose_action(observation)
@@ -70,6 +74,35 @@ class Arena:
             active_agent_id = (active_agent_id + 1) % len(list_of_agents)
             number_of_actions += 1
 
-        #print(one_game_results)
-        #return one_game_results
-        return active_agent_id
+        return one_game_results
+
+    def run_many_games_single_process(self,
+                                      list_of_agents: List[Agent],
+                                      number_of_games: int,
+                                      shuffle_agents: bool = True,
+                                      starting_agent_id = 0,):
+
+        """Runs many games on a single process.
+        :param
+        list_of_agents: List of agents to play, they will play in the order given by the list.
+        number_of_games: The number of games to play.
+        shuffle_agents: If True list of agents (and thus their order in the game will be shuffled after each game).
+        starting_agent_id: Id of the agent who starts each game.
+        """
+        assert number_of_games > 0, 'Number of games must be positive'
+        cumulative_results = {agent: {'reward': 0, 'points': 0} for agent in list_of_agents}
+        for game_id in tqdm(range(number_of_games)):
+            one_game_results = self.run_one_game(list_of_agents, starting_agent_id)
+            if shuffle_agents:
+                random.shuffle(list_of_agents)
+            #update results:
+            for agent in list_of_agents:
+                for param in cumulative_results[agent].keys():
+                    cumulative_results[agent][param] += one_game_results[agent][param]
+
+        #normalize results:
+        for agent in list_of_agents:
+            for param in cumulative_results[agent]:
+                cumulative_results[agent][param] /= number_of_games
+
+        return cumulative_results

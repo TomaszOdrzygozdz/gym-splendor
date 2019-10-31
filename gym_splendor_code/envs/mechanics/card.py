@@ -25,10 +25,14 @@ class Card(PreCard):
         self.discount_profit = discount_profit
 
     def __eq__(self, other):
-        condition1 = self.victory_points == other.victory_points
-        condition2 = self.discount_profit == other.discount_profit
-        condition3 = self.price == other.price
-        return condition1 and condition2 and condition3
+
+        #safer method of card comparison:
+        # condition1 = self.victory_points == other.victory_points
+        # condition2 = self.discount_profit == other.discount_profit
+        # condition3 = self.price == other.price
+        # return condition1 and condition2 and condition3
+        #way faster method of card comparison:
+        return self.name == other.name
 
     def __hash__(self):
         return self.id

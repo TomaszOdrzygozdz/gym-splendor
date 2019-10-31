@@ -16,3 +16,14 @@ class Noble(PreCard):
                 profit: Discount that this card gives when buying next cards.
                 vistory_points: Victory points given by this card."""
         super().__init__(name, id, minimum_possesions, victory_points)
+
+    def __eq__(self, other):
+        #safer method of noble comparison:
+        # condition1 = self.name == other.name
+        # condition2 = self.price == other.price
+        # return condition1 and condition2 and condition2
+        #way faster comparison:
+        return self.name == other.name
+
+    def __hash__(self):
+        return self.id
