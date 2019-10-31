@@ -69,7 +69,7 @@ arena_for_agents.run_one_game([agent1, agent2], starting_agent_id=0)
 
 ```
 
-###Run many games between agents:
+### Run many games between agents:
 If you want to run many games between agents using single thread use run_many_games_on_single_process method:
 ```python
 arena_for_agents.run_many_games_single_process([agent1, agent2], number_of_games=100)

@@ -79,6 +79,7 @@ class GemsCollection():
         Boolean value, that is True if for each gem color the value of this on this color is >= than the value of other
         on this color.
         """
+
         return reduce(lambda x, y: x and y, [self.gems_dict[gem_color] >= other.gems_dict[gem_color] for gem_color in
                                              GemColor])
 

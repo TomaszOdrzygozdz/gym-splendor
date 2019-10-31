@@ -5,7 +5,6 @@ from gym_splendor_code.envs.mechanics.action import Action
 
 
 class RandomAgent(Agent):
-
     def __init__(self, distribution='uniform_on_types'):
         """:param:
         distribution: argument determining how action is chosen at random. Possible options are:
@@ -16,11 +15,10 @@ class RandomAgent(Agent):
         we choose action at random."""
 
         super().__init__()
-
         self.distribution = distribution
         #we create own gym-splendor enivronemt to have access to its functionality
         #We specify the name of the agent
-        self.name = 'RandomAgent - ' + self.distribution
+        self.name = 'RandomAgent - ' + self.distribution + ' ' + str(Agent.agents_created)
 
     def choose_action(self, observation) -> Action:
 

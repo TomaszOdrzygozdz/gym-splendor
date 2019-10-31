@@ -67,7 +67,7 @@ class GreedyAgentBoost(Agent):
 
         #we create own gym-splendor enivronemt to have access to its functionality
         #We specify the name of the agent
-        self.name = name
+        self.name = name + ' ' + str(weight) + ' ' + str(Agent.agents_created)
         self.weight = weight
         self.normalize_weight()
 

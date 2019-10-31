@@ -1,9 +1,13 @@
+import time
+from copy import deepcopy
+
 from gym import Env
 
 from gym_splendor_code.envs.data.data_loader import load_all_cards, load_all_nobles
 from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.game_settings import *
+from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 from gym_splendor_code.envs.mechanics.splendor_action_space import SplendorActionSpace
 from gym_splendor_code.envs.mechanics.splendor_observation_space import SplendorObservationSpace
 from gym_splendor_code.envs.mechanics.state import State
@@ -17,7 +21,7 @@ class SplendorEnv(Env):
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, strategies = None):
+    def __init__(self, thread_str=''):
 
         #load all cards and nobles
         self.all_cards = load_all_cards()
@@ -75,7 +79,7 @@ class SplendorEnv(Env):
             if ensure_correctness:
                 self.action_space.update(self.current_state_of_the_game)
                 assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
-            action.execute(self.current_state_of_the_game)
+                action.execute(self.current_state_of_the_game)
 
         else:
             info = {'Warning' : 'There was no action.'}
