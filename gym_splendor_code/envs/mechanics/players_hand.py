@@ -35,6 +35,16 @@ class PlayersHand:
                 missing_gems += max(price_after_discount.value(gem_color) - self.gems_possessed.value(gem_color),0)
         return self.gems_possessed.value(GemColor.GOLD) >= missing_gems
 
+    def min_gold_needed_to_buy_card(self,
+                                    card: Card)->int:
+        price_after_discount = card.price % self.discount()
+        missing_gems = 0
+        for gem_color in GemColor:
+            if gem_color != GemColor.GOLD:
+                missing_gems += max(price_after_discount.value(gem_color) - self.gems_possessed.value(gem_color),0)
+        return missing_gems
+
+
     def can_reserve_card(self):
         return len(self.cards_reserved) < MAX_RESERVED_CARDS
 
