@@ -15,7 +15,6 @@ class RandomAgent(Agent):
         we choose action at random."""
 
         super().__init__()
-        Agent.agents_created += 1
         self.distribution = distribution
         #we create own gym-splendor enivronemt to have access to its functionality
         #We specify the name of the agent
