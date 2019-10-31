@@ -13,7 +13,7 @@ gohan = GreedyAgent(weight = 0.1)
 
 
 # time_profile = cProfile.Profile()
-# time_profile.run('fight_pit.run_many_games_single_thread([goku, gohan], number_of_games=100)')
+# time_profile.run('fight_pit.run_many_games([goku, gohan], number_of_games=100)')
 # time_profile.dump_stats('optimization1.prof')
 
 # for i in tqdm(range(100)):
@@ -22,7 +22,7 @@ gohan = GreedyAgent(weight = 0.1)
 # fight_pit.run_one_game([goku, gohan], starting_agent_id=0, render_game=True)
 
 
-print(fight_pit.run_many_games_single_thread([goku, goku2], number_of_games=100, shuffle_agents=False))
+print(fight_pit.run_many_games([goku, goku2], number_of_games=100, shuffle_agents=False))
 
 # time_dupa = time.time()
 # for i in range(100):

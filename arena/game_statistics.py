@@ -24,7 +24,7 @@ class GameStatistics:
         return GameStatistics({agent_name: self.dict[agent_name] / other for agent_name in self.dict.keys()})
 
     def __repr__(self):
-        text_to_return = ''
+        text_to_return = '\n'
         for agent_name in self.dict.keys():
             text_to_return += '[' + agent_name
             text_to_return += self.dict[agent_name].__repr__()

@@ -81,11 +81,11 @@ class Arena:
 
         return one_game_results
 
-    def run_many_games_single_thread(self,
-                                     list_of_agents: List[Agent],
-                                     number_of_games: int,
-                                     rotate_agents: bool = True,
-                                     starting_agent_id = 0):
+    def run_many_games(self,
+                       list_of_agents: List[Agent],
+                       number_of_games: int,
+                       shuffle_agents: bool = True,
+                       starting_agent_id = 0):
 
         """Runs many games on a single process.
         :param
@@ -97,9 +97,9 @@ class Arena:
         assert number_of_games > 0, 'Number of games must be positive'
         cumulative_results = GameStatistics()
         cumulative_results.create_from_list_of_agents(list_of_agents)
-        for game_id in range(number_of_games):
-            if rotate_agents:
-                starting_agent_id = (starting_agent_id+1)%len(list_of_agents)
+        for game_id in tqdm(range(number_of_games)):
+            if shuffle_agents:
+                random.shuffle(list_of_agents)
             one_game_results = self.run_one_game(list_of_agents, starting_agent_id)
             #update results:
             cumulative_results = cumulative_results + one_game_results
