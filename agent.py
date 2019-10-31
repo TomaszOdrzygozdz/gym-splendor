@@ -6,11 +6,12 @@ import gym
 class Agent:
     """An abstract class to create agents for playing Splendor."""
     """Every agent must have specified name."""
-
+    agents_created = 0
     def __init__(self, environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
         """Every agent has its private environment to check legal actions, make simulations etc."""
         self.env = gym.make(environment_id)
-        self.name = 'Abstract agent'
+        Agent.agents_created += 1
+        self.name = 'Abstract agent ' + str(Agent.agents_created)
 
     @abstractmethod
     def choose_action(self, observation):

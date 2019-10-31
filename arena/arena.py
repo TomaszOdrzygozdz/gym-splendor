@@ -29,7 +29,6 @@ class Arena:
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
         self.env.setup_state()
-        self.env.seed(1)
 
     def run_one_game(self,
                      list_of_agents: List[Agent],
@@ -52,7 +51,8 @@ class Arena:
         #set the initial observation
         observation = self.env.show_observation()
         number_of_actions = 0
-        one_game_results = GameStatistics({agent.name : OneAgentStatistics() for agent in list_of_agents})
+        one_game_results = GameStatistics()
+        one_game_results.create_from_list_of_agents(list_of_agents)
         #Id if the player who first reaches number of points to win
         first_winner_id = None
         checked_all_players_after_first_winner = False
@@ -92,7 +92,8 @@ class Arena:
         starting_agent_id: Id of the agent who starts each game.
         """
         assert number_of_games > 0, 'Number of games must be positive'
-        cumulative_results = GameStatistics({agent.name: OneAgentStatistics() for agent in list_of_agents})
+        cumulative_results = GameStatistics()
+        cumulative_results.create_from_list_of_agents(list_of_agents)
         for game_id in range(number_of_games):
             if shuffle_agents:
                 random.shuffle(list_of_agents)

@@ -45,7 +45,8 @@ class ArenaMultiThread:
 
         if rank==0:
             #sum all results
-            all_threads_results = GameStatistics({agent.name : OneAgentStatistics() for agent in list_of_agents})
+            all_threads_results = GameStatistics()
+            all_threads_results.create_from_list_of_agents(list_of_agents)
             for one_thread_results in collected_results:
                 all_threads_results = all_threads_results + one_thread_results
 
