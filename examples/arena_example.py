@@ -1,7 +1,6 @@
 from agents.random_agent import RandomAgent
 from agents.greedy_agent import GreedyAgent
-from arena import Arena
-import time
+from arena.arena import Arena
 
 fight_pit = Arena()
 

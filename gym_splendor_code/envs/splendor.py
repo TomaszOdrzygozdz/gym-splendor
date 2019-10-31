@@ -17,7 +17,7 @@ class SplendorEnv(Env):
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, strategies = None):
+    def __init__(self, thread_str=''):
 
         #load all cards and nobles
         self.all_cards = load_all_cards()
