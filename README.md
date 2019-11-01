@@ -95,7 +95,7 @@ Check docstrings for possible options of this method.
 ### Rendering game between agents
 If we want to render the game in a window, just use run_one_game(...) method with arguments render_game equal True:
 ```python
-arena_for_agents.run_one_game([agent1, agent2], starting_agent_id=0, render_game=True)
+arena_for_agents.run_one_game([..., ...], starting_agent_id=0, render_game=True)
 ```
 To adjust the speed of rendered game you can modify the parameter ```GAME_SPEED``` in the file 
 ```gym_splendor_code/envs/graphics/graphics_settings.py```. This parameter is the time (in seconds) between two consecutive
