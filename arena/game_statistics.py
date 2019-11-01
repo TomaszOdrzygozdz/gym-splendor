@@ -12,7 +12,7 @@ class GameStatistics:
         self.number_of_games = number_of_games
 
     def create_from_list_of_agents(self, list_of_agents):
-        self.dict = {agent.name : OneAgentStatistics() for agent in list_of_agents}
+        self.dict = {agent.my_name_with_id() : OneAgentStatistics() for agent in list_of_agents}
 
     def __add__(self,
                 other):

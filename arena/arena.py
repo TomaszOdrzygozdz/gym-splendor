@@ -67,12 +67,12 @@ class Arena:
 
             action = list_of_agents[active_agent_id].choose_action(observation)
             observation, reward, is_done, info = self.env.step(action)
+
             if render_game:
                 self.env.render()
             if is_done:
-                one_game_results.dict[list_of_agents[active_agent_id].name] = \
+                one_game_results.dict[list_of_agents[active_agent_id].my_name_with_id()] = \
                     OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id), int(reward == 1))
-
                 if first_winner_id is None:
                     first_winner_id = active_agent_id
                 checked_all_players_after_first_winner = active_agent_id == (first_winner_id-1)%len(list_of_agents)

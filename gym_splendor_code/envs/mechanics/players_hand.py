@@ -26,9 +26,12 @@ class PlayersHand:
         return GemsCollection(discount_dict)
 
     def can_afford_card(self,
-                        card: Card) -> bool:
+                        card: Card,
+                        discount: GemsCollection = None) -> bool:
         """Returns true if players_hand can afford card"""
-        price_after_discount = card.price % self.discount()
+        if discount is None:
+            discount = self.discount()
+        price_after_discount = card.price % discount
         trade = [a - b for a, b in zip(price_after_discount.vectorize(), self.gems_possessed.vectorize())]
         return sum([max(a,0) for a in  trade[1:6]]) <= -trade[0]
 

@@ -79,7 +79,7 @@ class SplendorEnv(Env):
             if ensure_correctness:
                 self.action_space.update(self.current_state_of_the_game)
                 assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
-                action.execute(self.current_state_of_the_game)
+            action.execute(self.current_state_of_the_game)
 
         else:
             info = {'Warning' : 'There was no action.'}
