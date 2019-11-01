@@ -1,5 +1,6 @@
 import random
 from copy import deepcopy
+from itertools import combinations
 
 import gym
 from mpi4py import MPI
@@ -88,6 +89,12 @@ class ArenaMultiThread:
 
         if rank > 0:
             return None
+
+
+    def everybody_vs_everybody(self, list_of_agents: List[Agent], players_per_game: int=2):
+
+        #first we create all sets of players:
+        possible = combinations(list_of_agents)
 
 
 
