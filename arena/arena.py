@@ -99,7 +99,7 @@ class Arena:
         cumulative_results.create_from_list_of_agents(list_of_agents)
         for game_id in tqdm(range(number_of_games)):
             if shuffle_agents:
-                random.shuffle(list_of_agents)
+                starting_agent_id = random.choice(range(len(list_of_agents)))
             one_game_results = self.run_one_game(list_of_agents, starting_agent_id)
             #update results:
             cumulative_results = cumulative_results + one_game_results
