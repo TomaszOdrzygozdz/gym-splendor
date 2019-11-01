@@ -1,4 +1,3 @@
-**Status:** Active (under active development, breaking changes may occur)
 
 
 # gym-Splendor
@@ -54,25 +53,42 @@ while not is_done:
 ## Arena:
 Arena is not a part of the environment itself, but it is a useful tool to compare performance of agents.
 
-### Run one game between two agents:
+### Run games between agents:
 
 ```python
+from arena.arena import Arena
+#two example agents:
 from agents.random_agent import RandomAgent
 from agents.greedy_agent import GreedyAgent
-from arena import Arena
+
 
 arena_for_agents = Arena()
 agent1 = RandomAgent(distribution='first_buy')
 agent2 = GreedyAgent(weight = 0.1)
 
+#run one game between two agents:
 arena_for_agents.run_one_game([agent1, agent2], starting_agent_id=0)
 
+#run many games on a single thread:
+arena_for_agents.run_many_games([agent1, agent2], number_of_games=100)
 ```
 
-### Run many games between agents:
-If you want to run many games between agents using single thread use run_many_games_on_single_process method:
+### Run many games multi thread version:
+ArenaMultiThread is a tool to parallelize games between agents. <aside class="warning">
+You must run this code with mpiexec or mpirun. </aside>
 ```python
-arena_for_agents.run_many_games_single_process([agent1, agent2], number_of_games=100)
+from arena.arena_multi_thread import ArenaMultiThread
+#two example agents:
+from agents.random_agent import RandomAgent
+from agents.greedy_agent import GreedyAgent
+
+multi_arena = ArenaMultiThread()
+agent1 = GreedyAgent(weight=0.1)
+agent2 = RandomAgent()
+
+#run many games between two agents:
+multi_arena.run_many_games_multi_thread([agent2, agent2], number_of_games=100)
+
 ```
 Check docstrings for possible options of this method.
 
