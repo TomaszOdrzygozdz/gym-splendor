@@ -17,7 +17,6 @@ class PlayersHand:
         self.cards_possessed = set()
         self.cards_reserved = set()
         self.nobles_possessed = set()
-        self.stored_discount = None
 
     def discount(self):
         """Returns gems collection that contains the sum of profits of card possessed by the players_hand."""

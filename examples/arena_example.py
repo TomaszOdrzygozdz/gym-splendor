@@ -12,10 +12,12 @@ goku2 = RandomAgent(distribution='uniform')
 gohan = GreedyAgent(weight = 0.1)
 
 
-profi = cProfile.Profile()
+# profi = cProfile.Profile()
+#
+# profi.run('(fight_pit.run_many_games([goku, gohan], number_of_games=50))')
+# profi.dump_stats('profi2.prof')
 
-profi.run('(fight_pit.run_many_games([goku, gohan], number_of_games=50))')
-profi.dump_stats('profi2.prof')
+fight_pit.run_one_game([goku, gohan], render_game=True)
 
 # time_dupa = time.time()
 # for i in range(100):
