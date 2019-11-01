@@ -27,7 +27,7 @@ class ArenaMultiThread:
 
     def create_progress_bar(self, lenght):
         if main_thread:
-            self.progress_bar = tqdm(total = lenght)
+            self.progress_bar = tqdm(total = lenght, postfix=None)
 
     def set_progress_bar(self, value):
         if main_thread:
@@ -91,10 +91,12 @@ class ArenaMultiThread:
             return None
 
 
-    def everybody_vs_everybody(self, list_of_agents: List[Agent], players_per_game: int=2):
+    def everybody_vs_everybody(self, list_of_agents: List[Agent], agents_per_game: int=2):
 
         #first we create all sets of players:
-        possible = combinations(list_of_agents)
+        if main_thread:
+            all_sets_of_players = list(combinations(list_of_agents, agents_per_game))
+            print(all_sets_of_players)
 
 
 

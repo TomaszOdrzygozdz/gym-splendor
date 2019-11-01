@@ -11,7 +11,9 @@ class Agent:
         """Every agent has its private environment to check legal actions, make simulations etc."""
         self.env = gym.make(environment_id)
         Agent.agents_created += 1
-        self.name = 'Abstract agent ' + str(Agent.agents_created)
+        self.name = 'Abstract agent '
+        #id is uded to distinguish between two agents of the same type
+        self.id = Agent.agents_created
 
     @abstractmethod
     def choose_action(self, observation):
@@ -23,3 +25,6 @@ class Agent:
 
     def __repr__(self):
         return self.name
+
+    def my_name_with_id(self):
+        return self.name + ' (' + str(self.id) + ')'

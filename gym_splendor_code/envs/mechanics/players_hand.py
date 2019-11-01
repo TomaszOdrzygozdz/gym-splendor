@@ -17,6 +17,7 @@ class PlayersHand:
         self.cards_possessed = set()
         self.cards_reserved = set()
         self.nobles_possessed = set()
+        self.stored_discount = None
 
     def discount(self):
         """Returns gems collection that contains the sum of profits of card possessed by the players_hand."""
@@ -26,9 +27,12 @@ class PlayersHand:
         return GemsCollection(discount_dict)
 
     def can_afford_card(self,
-                        card: Card) -> bool:
+                        card: Card,
+                        discount: GemsCollection = None) -> bool:
         """Returns true if players_hand can afford card"""
-        price_after_discount = card.price % self.discount()
+        if discount is None:
+            discount = self.discount()
+        price_after_discount = card.price % discount
         missing_gems = 0
         for gem_color in GemColor:
             if gem_color != GemColor.GOLD:

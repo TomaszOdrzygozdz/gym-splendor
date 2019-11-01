@@ -18,7 +18,7 @@ class RandomAgent(Agent):
         self.distribution = distribution
         #we create own gym-splendor enivronemt to have access to its functionality
         #We specify the name of the agent
-        self.name = 'RandomAgent - ' + self.distribution + ' ' + str(Agent.agents_created)
+        self.name = 'RandomAgent - ' + self.distribution + ' '
 
     def choose_action(self, observation) -> Action:
 
