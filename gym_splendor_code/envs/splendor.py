@@ -1,6 +1,6 @@
 import time
 from copy import deepcopy
-
+from gym_splendor_code.envs.mechanics.game_settings import USE_TKINTER
 from gym import Env
 
 from gym_splendor_code.envs.data.data_loader import load_all_cards, load_all_nobles
