@@ -20,4 +20,4 @@ class OneAgentStatistics:
         return OneAgentStatistics(self.reward / other, self.victory_points / other, self.wins / other)
 
     def __repr__(self):
-        return ' | reward: {}, victory points: {}, wins = {}'.format(self.reward, self.victory_points, self.wins)
+        return ' reward= {}, victory points= {}, wins = {}'.format(self.reward, self.victory_points, self.wins)

@@ -1,12 +1,7 @@
 """Arena holds games between players, measures their performance and calculates ELO rating. This version
 
-___Single process version___
+___Single thread version___
 hold only 1 vs 1 games."""
-
-
-#This package provides ELO rating for players
-#You can get this from: https://github.com/HankSheehan/EloPy
-#import elopy
 
 from typing import List, Dict
 from tqdm import tqdm
@@ -16,7 +11,8 @@ import gym
 
 from agent import Agent
 from agents.random_agent import RandomAgent
-from arena.game_statistics import GameStatistics
+from arena.game_statistics_duels import GameStatisticsDuels
+from arena.leaderboard import LeaderBoard
 from arena.one_agent_statistics import OneAgentStatistics
 from gym_splendor_code.envs.graphics.graphics_settings import GAME_INITIAL_DELAY
 from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI
@@ -26,15 +22,18 @@ import time
 
 class Arena:
 
-    def __init__(self, environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
+    def __init__(self,
+                 environment_id: str = 'gym_splendor_code:splendor-v0',
+                 leaderboard: LeaderBoard = None) -> None:
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
+        self.env.setup_state()
+        self.leaderboard = leaderboard
 
-
-    def run_one_game(self,
+    def run_one_duel(self,
                      list_of_agents: List[Agent],
                      starting_agent_id: int = 0,
-                     render_game: bool=False)-> GameStatistics:
+                     render_game: bool=False)-> GameStatisticsDuels:
         """Runs one game between two agents.
         :param:
         list_of_agents: List of agents to play, they will play in the order given by the list
@@ -52,8 +51,7 @@ class Arena:
         #set the initial observation
         observation = self.env.show_observation()
         number_of_actions = 0
-        one_game_results = GameStatistics()
-        one_game_results.create_from_list_of_agents(list_of_agents)
+        results_dict = {}
         #Id if the player who first reaches number of points to win
         first_winner_id = None
         checked_all_players_after_first_winner = False
@@ -66,11 +64,11 @@ class Arena:
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
             action = list_of_agents[active_agent_id].choose_action(observation)
             observation, reward, is_done, info = self.env.step(action)
-            
+
             if render_game:
                 self.env.render()
             if is_done:
-                one_game_results.dict[list_of_agents[active_agent_id].my_name_with_id()] = \
+                results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
                     OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id), int(reward == 1))
                 if first_winner_id is None:
                     first_winner_id = active_agent_id
@@ -78,9 +76,12 @@ class Arena:
             active_agent_id = (active_agent_id + 1) % len(list_of_agents)
             number_of_actions += 1
 
-        return one_game_results
+        one_game_statistics = GameStatisticsDuels(list_of_agents)
+        one_game_statistics.register_from_dict(results_dict)
 
-    def run_many_games(self,
+        return one_game_statistics
+
+    def run_many_duels(self,
                        list_of_agents: List[Agent],
                        number_of_games: int,
                        shuffle_agents: bool = True,
@@ -94,14 +95,13 @@ class Arena:
         starting_agent_id: Id of the agent who starts each game.
         """
         assert number_of_games > 0, 'Number of games must be positive'
-        cumulative_results = GameStatistics()
-        cumulative_results.create_from_list_of_agents(list_of_agents)
+        cumulative_results = GameStatisticsDuels(list_of_agents)
         for game_id in tqdm(range(number_of_games)):
             if shuffle_agents:
-                random.shuffle(list_of_agents)
-            one_game_results = self.run_one_game(list_of_agents, starting_agent_id)
+                starting_agent_id = random.choice(range(len(list_of_agents)))
+            one_game_results = self.run_one_duel(list_of_agents, starting_agent_id)
             #update results:
-            cumulative_results = cumulative_results + one_game_results
+            cumulative_results.register(one_game_results)
 
         cumulative_results.number_of_games = number_of_games
         return cumulative_results

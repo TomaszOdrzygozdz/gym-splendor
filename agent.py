@@ -10,10 +10,10 @@ class Agent:
     def __init__(self, environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
         """Every agent has its private environment to check legal actions, make simulations etc."""
         self.env = gym.make(environment_id)
-        Agent.agents_created += 1
         self.name = 'Abstract agent '
         #id is uded to distinguish between two agents of the same type
         self.id = Agent.agents_created
+        Agent.agents_created += 1
 
     @abstractmethod
     def choose_action(self, observation):
@@ -21,7 +21,6 @@ class Agent:
         access to the original gym-splendor environment - you can create your own environment for example to do
         simulations of game, or have access to environment methods."""
         raise NotImplementedError
-
 
     def __repr__(self):
         return self.name
