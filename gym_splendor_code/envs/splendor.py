@@ -45,7 +45,6 @@ class SplendorEnv(Env):
 
     def vectorize_state(self, output_file = None):
         state = str(self.current_state_of_the_game.vectorize()).replace("set()", "NULL")
-
         if output_file is not None:
             with open(output_file, 'w') as json_file:
                 json.dump(state, json_file)
