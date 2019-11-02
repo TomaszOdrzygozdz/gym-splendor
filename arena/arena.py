@@ -29,7 +29,7 @@ class Arena:
     def __init__(self, environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
-        self.env.setup_state()
+
 
     def run_one_game(self,
                      list_of_agents: List[Agent],
@@ -64,10 +64,9 @@ class Arena:
 
         printed = False
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
-
             action = list_of_agents[active_agent_id].choose_action(observation)
             observation, reward, is_done, info = self.env.step(action)
-
+            
             if render_game:
                 self.env.render()
             if is_done:

@@ -60,7 +60,8 @@ class State():
                     self.board.deck.pop_noble_by_id(i))
 
             for i in vector['previous_player_hand']['noble_possessed_ids']:
-                self.list_of_players_hands[self.previous_player_id].nobles_possessed.add(
+                self.list_of_players_hands[
+                    (self.active_player_id - 1) % len(self.list_of_players_hands)].nobles_possessed.add(
                     self.board.deck.pop_noble_by_id(i))
 
             for i in vector['board']['nobles_on_board']:

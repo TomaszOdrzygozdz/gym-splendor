@@ -64,6 +64,3 @@ class PlayersHand:
         self.gems_possessed = self.gems_possessed +  GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
                                     GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
                                     GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
-
-        for i in vector['noble_possessed_ids']:
-            self.nobles_possessed.add(noble[i])
