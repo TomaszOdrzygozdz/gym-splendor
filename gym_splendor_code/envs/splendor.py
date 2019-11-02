@@ -57,7 +57,7 @@ class SplendorEnv(Env):
             with open(output_file, 'w') as json_file:
                 json.dump(state, json_file)
 
-    def step(self, action: Action, ensure_correctness = False):
+    def step(self, action: Action, ensure_correctness = True):
         """
         Executes action on the environment. Action is performed on the current state of the game.
 
@@ -83,7 +83,6 @@ class SplendorEnv(Env):
 
         else:
             info = {'Warning' : 'There was no action.'}
-
         # We find the reward:
         reward = 0
         if not self.is_done:

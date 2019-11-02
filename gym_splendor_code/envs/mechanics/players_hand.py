@@ -32,11 +32,8 @@ class PlayersHand:
         if discount is None:
             discount = self.discount()
         price_after_discount = card.price % discount
-        missing_gems = 0
-        for gem_color in GemColor:
-            if gem_color != GemColor.GOLD:
-                missing_gems += max(price_after_discount.value(gem_color) - self.gems_possessed.value(gem_color),0)
-        return self.gems_possessed.value(GemColor.GOLD) >= missing_gems
+        trade = [a - b for a, b in zip(price_after_discount.vectorize(), self.gems_possessed.vectorize())]
+        return sum([max(a,0) for a in  trade[1:6]]) <= -trade[0]
 
     def min_gold_needed_to_buy_card(self,
                                     card: Card)->int:
@@ -67,6 +64,3 @@ class PlayersHand:
         self.gems_possessed = self.gems_possessed +  GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
                                     GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
                                     GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
-
-        for i in vector['noble_possessed_ids']:
-            self.nobles_possessed.add(noble[i])

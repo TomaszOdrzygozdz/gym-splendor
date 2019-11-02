@@ -1,5 +1,9 @@
 from agents.random_agent import RandomAgent
 from agents.greedy_agent import GreedyAgent
+from agents.minmax_agent import MinMaxAgent
+
+import time
+
 from arena.arena import Arena
 import cProfile
 fight_pit = Arena()
@@ -8,8 +12,9 @@ goku = RandomAgent(distribution='first_buy')
 goku2 = RandomAgent(distribution='uniform')
 #gohan = RandomAgent(distribution='uniform_on_types')
 #gohan = RandomAgent(distribution='uniform')
-#goku = GreedyAgent(weight = 0.3)
+#goku = GreedyAgen/t(weight = 0.3)
 gohan = GreedyAgent(weight = 0.1)
+goku = MinMaxAgent(name = "MinMax", depth = 3)
 
 
 # profi = cProfile.Profile()
