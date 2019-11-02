@@ -56,7 +56,7 @@ class SplendorEnv(Env):
             with open(output_file, 'w') as json_file:
                 json.dump(state, json_file)
 
-    def step(self, action: Action, ensure_correctness = True):
+    def step(self, action: Action, ensure_correctness = False):
         """
         Executes action on the environment. Action is performed on the current state of the game.
 

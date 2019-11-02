@@ -8,7 +8,7 @@ from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.data.data_loader import load_all_cards, load_all_nobles
 
-class MinMaxAgent(Agent):
+class GreedySearchAgent(Agent):
 
     def __init__(self,
                 name: str = "MinMax",
@@ -33,7 +33,7 @@ class MinMaxAgent(Agent):
         self.decay = decay
         self.depth = depth
         self.action_to_avoid = -100
-        self.path = "minmax_state_"
+        self.path = "greedysearch_state_"
 
     def choose_action(self, observation) -> Action:
 
@@ -46,6 +46,7 @@ class MinMaxAgent(Agent):
             actions = []
             potential_reward_max = self.action_to_avoid
             numerator = self.depth - 1
+            potential_reward_max = self.action_to_avoid
 
             self.env.vectorize_state(self.path + str(numerator) + ".json")
             for action in self.env.action_space.list_of_actions:
@@ -54,18 +55,34 @@ class MinMaxAgent(Agent):
                                                  self.weight[1] * ae["card"][2] + self.weight[2] *ae["nobles"] +\
                                                  self.weight[3] * ae["card"][0] + self.weight[4] * sum(ae["gems_flow"]))
 
-                potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1)
-                self.restore_env(numerator)
-
                 if potential_reward > potential_reward_max:
                     potential_reward_max = potential_reward
                     actions = []
                     actions.append(action)
+
                 elif potential_reward == potential_reward_max:
                     actions.append(action)
+            if len(actions) > 1:
+                potential_reward_max = self.action_to_avoid
+                for action in actions:
+                    ae = action.evaluate(self.env.current_state_of_the_game)
+                    potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
+                                                     self.weight[1] * ae["card"][2] + self.weight[2] *ae["nobles"] +\
+                                                     self.weight[3] * ae["card"][0] + self.weight[4] * sum(ae["gems_flow"]))
+                    potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1)
 
-            self.env.reset()
-            self.env.setup_state(self.path + str(numerator) + ".json", ordered_deck = True)
+                    if potential_reward > potential_reward_max:
+                        potential_reward_max = potential_reward
+                        actions = []
+                        actions.append(action)
+
+                    elif potential_reward == potential_reward_max:
+                        actions.append(action)
+
+                    self.restore_env(numerator)
+
+                self.env.reset()
+                self.env.setup_state(self.path + str(numerator) + ".json", ordered_deck = True)
 
             return random.choice(actions)
 
@@ -87,7 +104,21 @@ class MinMaxAgent(Agent):
                     potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
                                                      self.weight[1] * ae["card"][2] + self.weight[2] *ae["nobles"] +\
                                                      self.weight[3] * ae["card"][0] + self.weight[4] * sum(ae["gems_flow"]))
-                    potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1) * pow(-1, self.depth - numerator + 1)
+
+                    if potential_reward > self.action_to_avoid:
+                        potential_reward_max = potential_reward
+                        actions = []
+                        actions.append(action)
+
+                    elif potential_reward == potential_reward_max:
+                        actions.append(action)
+
+                for action in actions:
+                    ae = action.evaluate(self.env.current_state_of_the_game)
+                    potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
+                                                     self.weight[1] * ae["card"][2] + self.weight[2] *ae["nobles"] +\
+                                                     self.weight[3] * ae["card"][0] + self.weight[4] * sum(ae["gems_flow"]))
+                    potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1)
                     potential_reward_list.append(potential_reward)
                     self.restore_env(numerator)
 
