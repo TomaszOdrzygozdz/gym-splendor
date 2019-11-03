@@ -20,11 +20,9 @@ agent2 = MinMaxAgent()
 
 arena = Arena()
 
-arena.run_one_duel([agent0, agent2])
-
 multi_arena = ArenaMultiThread()
 
-results = multi_arena.all_vs_all([agent0, agent1, agent2], n_games=10)
+results = multi_arena.all_vs_all([agent1, agent2], n_games=100)
 
 
 
@@ -36,7 +34,7 @@ if main_thread:
     results.to_pandas().to_csv('wyniczki.csv')
 
     leader_board = LeaderBoard([agent0, agent1, agent2])
-    leader_board.load_from_file()
+    #leader_board.load_from_file()
     leader_board.register_from_games_statistics(results)
     print(leader_board)
     leader_board.save_to_file()
