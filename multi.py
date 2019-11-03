@@ -26,7 +26,7 @@ arena = Arena()
 multi_arena = ArenaMultiThread()
 
 n_games = 10
-list_of_agents = [agent0, agent1, agent2, agent3]
+list_of_agents = [agent0, agent1, agent2]
 
 results = multi_arena.all_vs_all(list_of_agents, n_games)
 
@@ -47,17 +47,17 @@ if main_thread:
     print(leader_board)
     leader_board.save_to_file()
 
-    plt.title('Average win rate over {} games'.format(n_games))
+    plt.title('Average win rate over {} games per pair:'.format(2*n_games))
     wins_pic = results.create_heatmap(param='wins', average=True)
     plt.savefig('reports/wins.png')
     plt.clf()
 
-    plt.title('Average reward over {} games'.format(n_games))
+    plt.title('Average reward over {} games per pair:'.format(2*n_games))
     reward_pic = results.create_heatmap('reward', average=True)
     plt.savefig('reports/reward.png')
     plt.clf()
 
-    plt.title('Average victory points over {} games'.format(n_games))
+    plt.title('Average victory points over {} games per pair:'.format(2*n_games))
     vic_points_pic = results.create_heatmap('victory_points', average=True)
     plt.savefig('reports/victory_points.png')
     plt.clf()

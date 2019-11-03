@@ -89,4 +89,4 @@ class GameStatisticsDuels:
         return str_to_return
 
     def crop_name(self, name):
-        return name[0:10]
+        return name[0:4]+' '+ name[-4:]
