@@ -34,7 +34,7 @@ class State():
         self.board = Board(all_cards, all_nobles, gems_on_board)
         self.active_player_id = 0
 
-    def setup_state(self, from_state = None, ordered_deck = False):
+    def setup_state(self, from_state = None, file = False, ordered_deck = False):
 
         if from_state is None:
             self.active_player_id = 0  # index
@@ -43,11 +43,13 @@ class State():
             self.board.lay_nobles_on_board()
 
         else:
-            with open(from_state) as json_data:
-                vector = json.load(json_data)
-                json_data.close()
-                vector = eval(vector.replace("NULL", "set()"))
-
+            if file:
+                with open(from_state) as json_data:
+                    vector = json.load(json_data)
+                    json_data.close()
+                    vector = eval(vector.replace("NULL", "set()"))
+            else:
+                vector = eval(from_state.replace("NULL", "set()"))
             self.active_player_id = vector['active_player_id']
             self.list_of_players_hands[self.active_player_id].from_vector(vector['active_player_hand'])
             self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)].from_vector(
