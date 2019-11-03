@@ -29,11 +29,13 @@ class GreedySearchAgent(Agent):
         #We specify the name of the agent
         self.name = name + ' ' + str(weight)
         self.weight = weight
-        self.normalize_weight()
         self.decay = decay
         self.depth = depth
         self.action_to_avoid = -100
-        self.path = "greedysearch_state_"
+
+        self.normalize_weight()
+        self.env_dict = {lvl : None for lvl in range(1, self.depth)}
+
 
     def choose_action(self, observation) -> Action:
 
@@ -48,7 +50,7 @@ class GreedySearchAgent(Agent):
             numerator = self.depth - 1
             potential_reward_max = self.action_to_avoid
 
-            self.env.vectorize_state(self.path + str(numerator) + ".json")
+            self.env_dict[numerator] = self.env.vectorize_state(return_var = True)
             for action in self.env.action_space.list_of_actions:
                 ae = action.evaluate(self.env.current_state_of_the_game)
                 potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
@@ -82,7 +84,7 @@ class GreedySearchAgent(Agent):
                     self.restore_env(numerator)
 
                 self.env.reset()
-                self.env.setup_state(self.path + str(numerator) + ".json", ordered_deck = True)
+                self.env.setup_state(self.env_dict[numerator])
 
             return random.choice(actions)
 
@@ -96,7 +98,7 @@ class GreedySearchAgent(Agent):
 
         if numerator > 1:
             current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
-            self.env.vectorize_state(self.path + str(numerator) + ".json")
+            self.env_dict[numerator] = self.env.vectorize_state(return_var = True)
             if len(self.env.action_space.list_of_actions) > 0:
                 potential_reward_list = []
                 for action in self.env.action_space.list_of_actions:
@@ -154,7 +156,7 @@ class GreedySearchAgent(Agent):
     def restore_env(self, numerator):
         self.env.is_done = False
         self.env.current_state_of_the_game = State(all_cards=self.env.all_cards, all_nobles=self.env.all_nobles)
-        self.env.setup_state(self.path + str(numerator) + ".json")
+        self.env.setup_state(self.env_dict[numerator])
         self.env.update_actions()
 
     def normalize_weight(self):

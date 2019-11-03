@@ -37,17 +37,20 @@ class SplendorEnv(Env):
         self.gui = None
 
         #Create initial state of the game
-    def setup_state(self, from_state = None, ordered_deck = False):
-        self.current_state_of_the_game.setup_state(from_state, ordered_deck)
+    def setup_state(self, from_state = None, file = False, ordered_deck = False):
+        self.current_state_of_the_game.setup_state(from_state, file, ordered_deck)
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
 
-    def vectorize_state(self, output_file = None):
+    def vectorize_state(self, output_file = None, return_var = False):
         state = str(self.current_state_of_the_game.vectorize()).replace("set()", "NULL")
         if output_file is not None:
             with open(output_file, 'w') as json_file:
                 json.dump(state, json_file)
+
+        if return_var:
+            return state
 
     def vectorize_action_space(self, output_file = None):
         state = str(self.action_space.vectorize()).replace("set()", "NULL")
