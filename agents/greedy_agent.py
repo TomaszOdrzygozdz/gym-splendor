@@ -9,7 +9,7 @@ class GreedyAgent(Agent):
 
     def __init__(self,
                 name: str = "Greedy",
-                weight: float = 0.5):
+                weight: float = 0.1):
         """:param:
         distribution: argument determining how action is chosen at random. Possible options are:
         uniform - this draws from random distribution on all legal action

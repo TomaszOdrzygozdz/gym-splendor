@@ -84,3 +84,4 @@ class ArenaMultiThread:
     def all_vs_all(self, list_of_agents, n_games):
         return self.one_group_vs_other_duels(list_of_agents, list_of_agents, games_per_duel=n_games)
 
+

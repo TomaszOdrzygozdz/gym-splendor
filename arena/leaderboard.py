@@ -31,7 +31,7 @@ class LeaderBoard:
         for entry in games_statistics.data:
             list_of_wins += [entry]*(games_statistics.data[entry].wins)
         random.shuffle(list_of_wins)
-        for entry in tqdm(list_of_wins):
+        for entry in list_of_wins:
             self.elo_implementation.recordMatch(entry[0], entry[1], winner=entry[0], draw=False)
 
     def get_rating_list(self):

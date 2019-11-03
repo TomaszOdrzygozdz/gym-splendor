@@ -11,20 +11,13 @@ from gym_splendor_code.envs.data.data_loader import load_all_cards, load_all_nob
 class GreedySearchAgent(Agent):
 
     def __init__(self,
-                name: str = "MinMax",
+                name: str = "GSearch",
                 weight: list = [100,2,2,1,0.1],
                 decay: float = 0.9,
                 depth: int = 3):
-        """:param:
-        distribution: argument determining how action is chosen at random. Possible options are:
-        uniform - this draws from random distribution on all legal action
-        uniform_on_types - first we draw a type of action at random (with uniform distribution on existing types) and
-        later choose at random an action of this type from uniform distribution along actions of this type
-        first_buy - if it is possible to buy a card we choose buying action at ranodm with uniform distribution, if not
-        we choose action at random."""
+
 
         super().__init__()
-
         #we create own gym-splendor enivronemt to have access to its functionality
         #We specify the name of the agent
         self.name = name + ' ' + str(weight)

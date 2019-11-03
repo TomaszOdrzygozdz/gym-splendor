@@ -1,8 +1,10 @@
 from itertools import product
 from typing import List, Dict
-from numpy import nan
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import seaborn as sns
 
 from agent import Agent
 from arena.one_agent_statistics import OneAgentStatistics
@@ -29,6 +31,7 @@ class GameStatisticsDuels:
                 all_pairs.append(pair)
 
         self.data = {pair: OneAgentStatistics() for pair in all_pairs if pair[0] != pair[1]}
+        self.n_games_dict = {pair: 0 for pair in all_pairs}
         self.number_of_games = number_of_games
 
     def register_from_dict(self, results_dict: Dict):
@@ -39,15 +42,18 @@ class GameStatisticsDuels:
                 if len(list_agents_names) < 2:
                     print(len(list_agents_names))
                 self.data[(list_agents_names[i], list_agents_names[(i+1)%2])] = results_dict[list_agents_names[i]]
+                self.n_games_dict[(list_agents_names[i], list_agents_names[(i + 1) % 2])] += 1
         self.number_of_games += 1
 
 
     def register(self, other):
         for pair in other.data.keys():
             self.data[pair] = self.data[pair] + other.data[pair]
+            self.n_games_dict[pair] = self.n_games_dict[pair] + other.n_games_dict[pair]
         self.number_of_games += other.number_of_games
 
-    def to_pandas(self, crop_names:bool = True):
+
+    def to_pandas(self, param='wins', average: bool=True, crop_names:bool = True):
         list_of_all_agents_names = self.list_of_agents_names1
         list_of_all_agents_names.extend(agent_name for agent_name in self.list_of_agents_names2
                                         if agent_name not in self.list_of_agents_names1 )
@@ -60,10 +66,21 @@ class GameStatisticsDuels:
             if crop_names:
                 name1 = self.crop_name(name1)
                 name2 = self.crop_name(name2)
-            data_frame.loc[self.crop_name(pair[0]), self.crop_name(pair[1])] = self.data[pair].wins
+            data_to_record = {'wins': self.data[pair].wins,
+                              'reward': self.data[pair].reward,
+                              'victory_points': self.data[pair].victory_points}
+            entry = data_to_record[param]
+            if average and self.n_games_dict[pair] > 0:
+                entry = round(float(entry/self.n_games_dict[pair]),2)
+            data_frame.loc[self.crop_name(pair[0]), self.crop_name(pair[1])] = entry
 
         data_frame.sort_index(inplace=True)
         return data_frame
+
+    def create_heatmap(self, param='wins', average: bool = True):
+        data_frame = self.to_pandas(param, average)
+        data_frame.sort_index(inplace=True)
+        return sns.heatmap(data_frame, annot=True)
 
     def __repr__(self):
         str_to_return = '\n {} games taken: \n'.format(self.number_of_games)
@@ -72,4 +89,4 @@ class GameStatisticsDuels:
         return str_to_return
 
     def crop_name(self, name):
-        return name[0:3] + '-' + name[-7:-4]
+        return name[0:10]
