@@ -68,7 +68,6 @@ class ArenaMultiThread:
             if main_thread:
                 self.set_progress_bar((game_id+1)*n_proc)
 
-
         #gather all results
         cumulative_results_unprocessed = comm.gather(local_results, root=0)
         if main_thread:

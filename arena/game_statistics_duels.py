@@ -80,6 +80,8 @@ class GameStatisticsDuels:
     def create_heatmap(self, param='wins', average: bool = True):
         data_frame = self.to_pandas(param, average)
         data_frame.sort_index(inplace=True)
+        plt.figure(figsize=(18, 18))
+        sns.set(font_scale=1)
         return sns.heatmap(data_frame, annot=True)
 
     def __repr__(self):
@@ -89,4 +91,4 @@ class GameStatisticsDuels:
         return str_to_return
 
     def crop_name(self, name):
-        return name[0:4]+' '+ name[-4:]
+        return name[-4:]

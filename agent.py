@@ -12,8 +12,9 @@ class Agent:
         self.env = gym.make(environment_id)
         self.name = 'Abstract agent '
         #id is uded to distinguish between two agents of the same type
-        self.id = Agent.agents_created
         Agent.agents_created += 1
+        self.id = Agent.agents_created
+
 
     @abstractmethod
     def choose_action(self, observation):

@@ -79,6 +79,7 @@ class Arena:
         one_game_statistics = GameStatisticsDuels(list_of_agents)
         one_game_statistics.register_from_dict(results_dict)
 
+        print(time.time())
         return one_game_statistics
 
     def run_many_duels(self,

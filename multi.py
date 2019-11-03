@@ -1,4 +1,5 @@
 from agents.greedy_agent import GreedyAgent
+from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.greedysearch_agent import GreedySearchAgent
 from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
@@ -16,17 +17,32 @@ comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
 main_thread = my_rank==0
 
-agent0 = RandomAgent(distribution='first_buy')
-agent1 = GreedyAgent()
-agent2 = GreedySearchAgent()
-agent3 = MinMaxAgent()
+agent1 = GreedyAgentBoost(name = "Greedy Paper(mod)", weight = [100,2,2,1,0.1])
+agent2 = GreedyAgentBoost(weight = [100,1.5,2.5,1,0.1])
+agent3 = GreedyAgentBoost(weight = [0.99954913, 0.01997425, 0.02001405, 0.01004779, 0.00101971])
+agent4 = GreedyAgentBoost(weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329])
+agent5 = GreedyAgentBoost(name = "Greedy Paper", weight = [100,2,2,1,1])
+agent6 = MinMaxAgent(weight = [100,2,2,1,0.1])
+agent7 = MinMaxAgent(name = "MinMax Paper(mod)",weight = [100,1.5,2.5,1,0.1])
+agent8 = MinMaxAgent(weight = [100,2,2,1,0.1], decay = 0.7)
+agent9 = MinMaxAgent(name = "MinMax Paper", weight = [100,1.5,2.5,1,1])
+agent10 = MinMaxAgent(weight = [100,2,2,1,0.1], decay = 1)
+agent11 = GreedySearchAgent(depth = 9, weight = [100,2,2,1,0.1], decay = 0.95)
+agent12 = GreedySearchAgent(depth = 7, weight = [100,2,2,1,0.1])
+agent13 = GreedySearchAgent(depth = 7, weight = [100,1.5,2.5,1,1], decay = 0.7)
+agent14 = GreedySearchAgent(depth = 7, weight = [100,1.5,2.5,1,1])
+agent15 = GreedySearchAgent(depth = 7, weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329], decay = 0.95)
+agent16 = RandomAgent(distribution='uniform')
+agent17 = RandomAgent(distribution='first_buy')
+
 
 arena = Arena()
 
 multi_arena = ArenaMultiThread()
 
-n_games = 10
-list_of_agents = [agent0, agent1, agent2]
+n_games = 0
+list_of_agents = [agent1, agent2, agent3, agent4, agent5, agent6, agent7, agent8,
+                  agent9, agent10, agent11, agent12, agent13, agent14, agent15, agent16, agent17]
 
 results = multi_arena.all_vs_all(list_of_agents, n_games)
 
