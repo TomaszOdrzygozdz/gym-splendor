@@ -51,10 +51,10 @@ class State():
             else:
                 vector = eval(from_state.replace("NULL", "set()"))
             self.active_player_id = vector['active_player_id']
-            self.list_of_players_hands[self.active_player_id].from_vector(vector['active_player_hand'])
-            self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)].from_vector(
+            self.list_of_players_hands[self.active_player_id].from_json(vector['active_player_hand'])
+            self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)].from_json(
                 vector['previous_player_hand'])
-            self.board.from_vector(vector)
+            self.board.from_json(vector)
 
             # Adding nobles
             for i in vector['active_player_hand']['noble_possessed_ids']:
@@ -99,8 +99,8 @@ class State():
         """Return the hans of the previous player"""
         return self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)]
 
-    def vectorize(self):
-        return {'active_player_hand': self.active_players_hand().vectorize(),
-                'previous_player_hand': self.previous_players_hand().vectorize(),
-                'board': self.board.vectorize(),
+    def jsonize(self):
+        return {'active_player_hand': self.active_players_hand().jsonize(),
+                'previous_player_hand': self.previous_players_hand().jsonize(),
+                'board': self.board.jsonize(),
                 'active_player_id': self.active_player_id}

@@ -31,7 +31,7 @@ class Action():
         pass
 
     @abstractmethod
-    def vectorize(self):
+    def jsonize(self):
         pass
 
     @abstractmethod
@@ -84,13 +84,13 @@ class ActionTradeGems(Action):
     def __repr__(self):
         return 'Trade gems ' + self.gems_from_board_to_player.__repr__()
 
-    def vectorize(self):
+    def jsonize(self):
         return {"action_type": self.action_type,
-                "gems_flow" : self.gems_from_board_to_player.vectorize()}
+                "gems_flow" : self.gems_from_board_to_player.jsonize()}
 
     def evaluate(self,
                 state: State) -> None:
-        return {"gems_flow" : self.gems_from_board_to_player.vectorize(),
+        return {"gems_flow" : self.gems_from_board_to_player.jsonize(),
                 "card" : [0, None, 0],
                 "nobles": 0}
 
@@ -150,10 +150,10 @@ class ActionBuyCard(Action):
     def __repr__(self):
         return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
                                                                 self.use_gold_as.__repr__())
-    def vectorize(self):
+    def jsonize(self):
         return {"action_type": self.action_type,
-                'gems_flow': self.price.vectorize(),
-                'card' : self.card.vectorize()}
+                'gems_flow': self.price.jsonize(),
+                'card' : self.card.jsonize()}
 
     def evaluate(self,
                 state: State) -> None:
@@ -169,7 +169,7 @@ class ActionBuyCard(Action):
         state.active_players_hand().cards_possessed.remove(self.card)
         card_properties = self.card.evaluate()
 
-        return {"gems_flow" : price.vectorize_neg(),
+        return {"gems_flow" : price.jsonize_neg(),
                 "card" : [1, card_properties[0], card_properties[1] + 3*nobles_to_transfer],
                 "nobles" : nobles_to_transfer}
 
@@ -219,15 +219,15 @@ class ActionReserveCard(Action):
         return 'Reserve ' + self.card.__repr__() + '\n take golden gem: {}, return_gem_color {}'.format(self.take_golden_gem,
                                                                                                       self.return_gem_color)
 
-    def vectorize(self):
+    def jsonize(self):
         gems = GemsCollection()
         gems.gems_dict[GemColor.GOLD] += 1
         if self.return_gem_color is not None:
             gems.gems_dict[self.return_gem_color] -= 1
 
         return {"action_type": self.action_type,
-                'gems_flow': gems.vectorize(),
-                'card' : self.card.vectorize()}
+                'gems_flow': gems.jsonize(),
+                'card' : self.card.jsonize()}
 
 
     def evaluate(self,
@@ -239,7 +239,7 @@ class ActionReserveCard(Action):
 
         card_properties = self.card.evaluate()
 
-        return {"gems_flow" : gems.vectorize(),
+        return {"gems_flow" : gems.jsonize(),
                 "card" : [0, None, 0],
                 "card_booked" : [1, card_properties[0], card_properties[1]],
                 "nobles" : 0}

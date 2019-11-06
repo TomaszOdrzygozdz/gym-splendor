@@ -49,8 +49,8 @@ class SplendorActionSpace(Space):
                '{} trade gems actions, {} buy actions and {} reservation actions.'\
             .format(len(self.list_of_actions), len(self.actions_by_type['trade']),
                     len(self.actions_by_type['buy']), len(self.actions_by_type['reserve']))
-    def vectorize(self):
-        return [x.vectorize() for x in self.list_of_actions]
+    def jsonize(self):
+        return [x.jsonize() for x in self.list_of_actions]
 
     def evaluate(self):
         return [x.evaluate() for x in self.list_of_actions]
