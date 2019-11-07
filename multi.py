@@ -3,7 +3,6 @@ from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.greedysearch_agent import GreedySearchAgent
 from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
-from agents.vanilla_mcts_agent import VanillaMCTSAgent
 from arena.arena import Arena
 from arena.arena_multi_thread import ArenaMultiThread
 
@@ -35,7 +34,7 @@ agent8 = MinMaxAgent(weight = [100,2,2,1,0.1], decay = 0.7)
 # agent15 = GreedySearchAgent(depth = 7, weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329], decay = 0.95)
 agent1 = RandomAgent(distribution='uniform')
 agent2 = RandomAgent(distribution='first_buy')
-agent_mcts = VanillaMCTSAgent(steps = 50)
+#agent_mcts = VanillaMCTSAgent(steps = 50)
 
 #
 # arena = Arena()
@@ -43,7 +42,7 @@ agent_mcts = VanillaMCTSAgent(steps = 50)
 # multi_arena = ArenaMultiThread()
 
 n_games = 1
-list_of_agents = [agent_mcts, agent1]
+list_of_agents = [agent1, agent8]
 
 arek = Arena()
 resu = arek.run_one_duel(list_of_agents)
