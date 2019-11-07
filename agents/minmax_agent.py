@@ -41,7 +41,7 @@ class MinMaxAgent(Agent):
             potential_reward_max = self.action_to_avoid
             numerator = self.depth - 1
 
-            self.env_dict[numerator] = self.env.vectorize_state(return_var = True)
+            self.env_dict[numerator] = self.env.jsonize_state(return_var = True)
             for action in self.env.action_space.list_of_actions:
                 ae = action.evaluate(self.env.current_state_of_the_game)
                 potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
@@ -73,7 +73,7 @@ class MinMaxAgent(Agent):
 
         if numerator > 1:
             current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
-            self.env_dict[numerator] = self.env.vectorize_state()
+            self.env_dict[numerator] = self.env.jsonize_state()
             if len(self.env.action_space.list_of_actions) > 0:
                 potential_reward_list = []
                 for action in self.env.action_space.list_of_actions:

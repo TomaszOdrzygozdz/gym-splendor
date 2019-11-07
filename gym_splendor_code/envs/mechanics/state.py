@@ -34,9 +34,9 @@ class State():
         self.board = Board(all_cards, all_nobles, gems_on_board)
         self.active_player_id = 0
 
-    def setup_state(self, state_as_json=None, ordered_deck = False):
+    def setup_state(self, from_state = None, file = False, ordered_deck = False):
 
-        if state_as_json is None:
+        if from_state is None:
             self.active_player_id = 0  # index
             self.board.deck.shuffle()
             self.board.lay_cards_on_board()
@@ -50,47 +50,43 @@ class State():
                     vector = eval(vector.replace("NULL", "set()"))
             else:
                 vector = eval(from_state.replace("NULL", "set()"))
+
             self.active_player_id = vector['active_player_id']
             self.list_of_players_hands[self.active_player_id].from_json(vector['active_player_hand'])
             self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)].from_json(
                 vector['previous_player_hand'])
             self.board.from_json(vector)
-            self.active_player_id = state_as_json['active_player_id']
-            self.list_of_players_hands[self.active_player_id].from_vector(state_as_json['active_player_hand'])
-            self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)].from_vector(
-                state_as_json['previous_player_hand'])
-            self.board.from_vector(state_as_json)
 
             # Adding nobles
-            for i in state_as_json['active_player_hand']['noble_possessed_ids']:
+            for i in vector['active_player_hand']['noble_possessed_ids']:
                 self.list_of_players_hands[self.active_player_id].nobles_possessed.add(
                     self.board.deck.pop_noble_by_id(i))
 
-            for i in state_as_json['previous_player_hand']['noble_possessed_ids']:
+            for i in vector['previous_player_hand']['noble_possessed_ids']:
                 self.list_of_players_hands[
                     (self.active_player_id - 1) % len(self.list_of_players_hands)].nobles_possessed.add(
                     self.board.deck.pop_noble_by_id(i))
 
-            for i in state_as_json['board']['nobles_on_board']:
+            for i in vector['board']['nobles_on_board']:
                 self.board.nobles_on_board.add(self.board.deck.pop_noble_by_id(i))
 
             # Adding cards
-            for i in state_as_json['active_player_hand']['cards_possessed_ids']:
+            for i in vector['active_player_hand']['cards_possessed_ids']:
                 self.list_of_players_hands[self.active_player_id].cards_possessed.add(self.board.deck.pop_card_by_id(i))
 
-            for i in state_as_json['active_player_hand']['cards_reserved_ids']:
+            for i in vector['active_player_hand']['cards_reserved_ids']:
                 self.list_of_players_hands[self.active_player_id].cards_reserved.add(self.board.deck.pop_card_by_id(i))
 
-            for i in state_as_json['previous_player_hand']['cards_possessed_ids']:
+            for i in vector['previous_player_hand']['cards_possessed_ids']:
                 self.list_of_players_hands[
                     (self.active_player_id - 1) % len(self.list_of_players_hands)].cards_possessed.add(
                     self.board.deck.pop_card_by_id(i))
 
-            for i in state_as_json['previous_player_hand']['cards_reserved_ids']:
+            for i in vector['previous_player_hand']['cards_reserved_ids']:
                 self.list_of_players_hands[(self.active_player_id - 1)%len(self.list_of_players_hands)].cards_reserved.add(self.board.deck.pop_card_by_id(i))
 
             if ordered_deck:
-                self.board.deck.order_deck(state_as_json)
+                self.board.deck.order_deck(vector)
             else:
                 self.board.deck.shuffle()
 

@@ -37,8 +37,8 @@ class SplendorEnv(Env):
         self.gui = None
 
         #Create initial state of the game
-    def setup_state(self, from_state = None, file = False, ordered_deck = False):
-        self.current_state_of_the_game.setup_state(from_state, file, ordered_deck)
+    def setup_state(self, from_json = None, ordered_deck = False):
+        self.current_state_of_the_game.setup_state(from_json, ordered_deck)
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
@@ -147,7 +147,7 @@ class SplendorEnv(Env):
         self.gui.interactive = interactive
 
         #clear gui:
-        self.gui.clear_all()
+        #self.gui.clear_all()
         #draw current_state
         self.gui.draw_state(self.current_state_of_the_game)
 
