@@ -52,7 +52,7 @@ class Board:
                 'gems_on_board' : self.gems_on_board.jsonize(),
                 'deck_order': self.deck.jsonize()}
 
-    def from_vector(self, vector):
+    def from_json(self, vector):
         """Take player's gems from the board. """
 
         gems = vector['active_player_hand']['gems_possessed']

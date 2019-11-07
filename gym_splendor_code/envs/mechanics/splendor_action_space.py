@@ -23,7 +23,7 @@ class SplendorActionSpace(Space):
                                 'reserve' : generate_all_legal_reservations(state)}
 
         self.list_of_actions = reduce(lambda x, y: x+y, self.actions_by_type.values())
-        self.shape = (len(self.list_of_actions))
+        self.n= (len(self.list_of_actions))
 
 
     def contains(self, x):
