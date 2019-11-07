@@ -47,8 +47,8 @@ class Board:
             self.cards_on_board.add(self.deck.pop_card(card.row))
 
     def vectorize(self):
-        return {'nobles_on_board' : {x.vectorize() for x in self.nobles_on_board},
-                'cards_on_board' : {x.vectorize() for x in self.cards_on_board},
+        return {'nobles_on_board' : {x.vectorize() for x in self.nobles_on_board if x is not None},
+                'cards_on_board' : {x.vectorize() for x in self.cards_on_board if x is not None},
                 'gems_on_board' : self.gems_on_board.vectorize(),
                 'deck_order': self.deck.vectorize()}
 
@@ -65,7 +65,7 @@ class Board:
                                     GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
                                     GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
 
-        """Puts cards on the board according to previous state. """
+        """Puts cards on the board according to previous current_state. """
         cards = vector['board']['cards_on_board']
         drawn_cards = map(lambda x: self.deck.pop_cards_from_id_list(cards, x), self.deck.decks_dict.keys())
         self.cards_on_board = set(reduce(lambda x, y: x + y, drawn_cards))

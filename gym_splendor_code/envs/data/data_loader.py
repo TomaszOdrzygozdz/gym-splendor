@@ -7,7 +7,7 @@ from gym_splendor_code.envs.mechanics.enums import Row, GemColor
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 from gym_splendor_code.envs.mechanics.noble import Noble
 
-# dictionaries useful to convert vector of state to state:
+# dictionaries useful to convert vector of current_state to current_state:
 id_to_card_dict = {}
 id_to_noble_dict = {}
 name_to_card_dict = {}

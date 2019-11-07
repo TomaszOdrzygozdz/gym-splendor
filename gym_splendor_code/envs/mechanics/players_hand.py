@@ -52,9 +52,9 @@ class PlayersHand:
         return sum([card.victory_points for card in self.cards_possessed]) + sum([noble.victory_points for noble in self.nobles_possessed])
 
     def vectorize(self):
-        return {'noble_possessed_ids' : {x.vectorize() for x in self.nobles_possessed},
-                'cards_possessed_ids' : {x.vectorize() for x in self.cards_possessed},
-                'cards_reserved_ids' : {x.vectorize() for x in self.cards_reserved},
+        return {'noble_possessed_ids' : {x.vectorize() for x in self.nobles_possessed if x is not None},
+                'cards_possessed_ids' : {x.vectorize() for x in self.cards_possessed if x is not None},
+                'cards_reserved_ids' : {x.vectorize() for x in self.cards_reserved if x is not None},
                 'gems_possessed' : self.gems_possessed.vectorize(),
                 'name': self.name}
 

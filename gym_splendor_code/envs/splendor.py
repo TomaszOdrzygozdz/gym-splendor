@@ -36,21 +36,15 @@ class SplendorEnv(Env):
         self.end_episode_mode = 'instant_end'
         self.gui = None
 
-        #Create initial state of the game
-    def setup_state(self, from_state = None, file = False, ordered_deck = False):
-        self.current_state_of_the_game.setup_state(from_state, file, ordered_deck)
+        #Create initial current_state of the game
+    def setup_state(self, state_as_json = None, ordered_deck = False):
+        self.current_state_of_the_game.setup_state(state_as_json, ordered_deck)
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
 
     def vectorize_state(self, output_file = None, return_var = False):
-        state = str(self.current_state_of_the_game.vectorize()).replace("set()", "NULL")
-        if output_file is not None:
-            with open(output_file, 'w') as json_file:
-                json.dump(state, json_file)
-
-        if return_var:
-            return state
+        return self.current_state_of_the_game.vectorize()
 
     def vectorize_action_space(self, output_file = None):
         state = str(self.action_space.vectorize()).replace("set()", "NULL")
@@ -61,7 +55,7 @@ class SplendorEnv(Env):
 
     def step(self, action: Action, ensure_correctness = False):
         """
-        Executes action on the environment. Action is performed on the current state of the game.
+        Executes action on the environment. Action is performed on the current current_state of the game.
 
 
         The are two modes for is_done: instant_end - the episode ends instantly when any player reaches the number of
@@ -75,7 +69,7 @@ class SplendorEnv(Env):
         ensure_correctness: True if you want the enivornment check if the action is legal, False if you are sure
         :return: observation, reward, is_done, info
         """
-        """Performs one action on the current state of the game. """
+        """Performs one action on the current current_state of the game. """
         info = {}
         if action is not None:
             if ensure_correctness:
@@ -140,7 +134,7 @@ class SplendorEnv(Env):
         return self.current_state_of_the_game.list_of_players_hands[id].number_of_my_points()
 
     def render(self, mode='human', interactive = True):
-        """Creates window if necessary, then renders the state of the game """
+        """Creates window if necessary, then renders the current_state of the game """
         if self.gui is None:
             self.gui = SplendorGUI()
 
@@ -148,7 +142,7 @@ class SplendorEnv(Env):
 
         #clear gui:
         self.gui.clear_all()
-        #draw state
+        #draw current_state
         self.gui.draw_state(self.current_state_of_the_game)
 
     def reset(self):

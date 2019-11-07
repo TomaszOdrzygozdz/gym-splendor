@@ -27,7 +27,7 @@ class Action():
     @abstractmethod
     def execute(self,
                 state: State) -> None:
-        """Executes action on the given state."""
+        """Executes action on the given current_state."""
         pass
 
     @abstractmethod
@@ -81,6 +81,9 @@ class ActionTradeGems(Action):
         else:
             return False
 
+    def __hash__(self):
+        return hash(self.gems_from_board_to_player.__repr__())
+
     def __repr__(self):
         return 'Trade gems ' + self.gems_from_board_to_player.__repr__()
 
@@ -113,8 +116,6 @@ class ActionBuyCard(Action):
         self.use_gold_as = use_gold_as
         self.price = self.card.price
 
-
-
     def execute(self,
                 state: State) -> None:
 
@@ -146,6 +147,9 @@ class ActionBuyCard(Action):
             return condition_2 and condition_3 and condition_4
         else:
             return False
+
+    def __hash__(self):
+        return hash('buy' + self.card.__repr__() + self.use_gold_as.__repr__()) + self.n_gold_gems_to_use
 
     def __repr__(self):
         return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
@@ -214,6 +218,9 @@ class ActionReserveCard(Action):
             return condition_2 and condition_3 and condition_4
         else:
             return False
+
+    def __hash__(self):
+        return hash('reserve' + self.card.__repr__() + self.return_gem_color.__repr__())
 
     def __repr__(self):
         return 'Reserve ' + self.card.__repr__() + '\n take golden gem: {}, return_gem_color {}'.format(self.take_golden_gem,

@@ -73,7 +73,7 @@ class MinMaxAgent(Agent):
 
         if numerator > 1:
             current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
-            self.env_dict[numerator] = self.env.vectorize_state(return_var = True)
+            self.env_dict[numerator] = self.env.vectorize_state()
             if len(self.env.action_space.list_of_actions) > 0:
                 potential_reward_list = []
                 for action in self.env.action_space.list_of_actions:

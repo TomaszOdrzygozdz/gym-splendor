@@ -10,13 +10,7 @@ class GreedyAgentBoost(Agent):
     def __init__(self,
                 name: str = "Greedy",
                 weight: list = []):
-        """:param:
-        distribution: argument determining how action is chosen at random. Possible options are:
-        uniform - this draws from random distribution on all legal action
-        uniform_on_types - first we draw a type of action at random (with uniform distribution on existing types) and
-        later choose at random an action of this type from uniform distribution along actions of this type
-        first_buy - if it is possible to buy a card we choose buying action at ranodm with uniform distribution, if not
-        we choose action at random."""
+
 
         super().__init__()
 

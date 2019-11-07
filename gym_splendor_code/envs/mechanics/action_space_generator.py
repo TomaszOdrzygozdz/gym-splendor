@@ -4,17 +4,18 @@ from itertools import combinations, combinations_with_replacement
 from gym_splendor_code.envs.mechanics.game_settings import *
 from gym_splendor_code.envs.mechanics.action import Action, ActionTradeGems, ActionBuyCard, ActionReserveCard
 from gym_splendor_code.envs.mechanics.enums import GemColor
+from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.utils.utils_functions import tuple_of_gems_to_gems_collection
 
 
 def generate_all_legal_actions(state: State) -> List[Action]:
-    """Generates list of all possible actions of an active player in a given state."""
+    """Generates list of all possible actions of an active player in a given current_state."""
     return generate_all_legal_trades(state) + generate_all_legal_buys(state) + generate_all_legal_reservations(state)
 
 
 def generate_all_legal_trades(state: State) -> List[ActionTradeGems]:
-    """Returns the list of all possible actions of trade in a given state"""
+    """Returns the list of all possible actions of trade in a given current_state"""
     list_of_actions_trade = []
     n_non_empty_stacks = len(state.board.gems_on_board.non_empty_stacks_except_gold())
     n_gems_to_get_netto = min(MAX_GEMS_ON_HAND - state.active_players_hand().gems_possessed.sum(),
@@ -44,14 +45,16 @@ def generate_all_legal_trades(state: State) -> List[ActionTradeGems]:
                 condition_1 = state.board.gems_on_board >= gems_collection_to_trade
                 # check if the player has enough gems to return:
                 condition_2 = state.active_players_hand().gems_possessed >= -gems_collection_to_trade
-                if condition_1 and condition_2:
+                condition3 = gems_collection_to_trade != GemsCollection()
+                if condition_1 and condition_2 and condition3:
                     list_of_actions_trade.append(ActionTradeGems(gems_collection_to_trade))
+
 
     return list_of_actions_trade
 
 
 def generate_all_legal_buys(state: State) -> List[ActionBuyCard]:
-    """Returns the list of all possible actions of buys in a given state"""
+    """Returns the list of all possible actions of buys in a given current_state"""
     list_of_actions_buy = []
     discount = state.active_players_hand().discount()
     all_cards_can_afford = [card for card in state.board.cards_on_board if
