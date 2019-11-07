@@ -16,5 +16,5 @@ class PreCard(metaclass=ABCMeta):
         self.price = price
         self.victory_points = victory_points
 
-    def vectorize(self):
+    def jsonize(self):
         return self.id

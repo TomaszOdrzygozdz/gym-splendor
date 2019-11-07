@@ -36,18 +36,24 @@ class SplendorEnv(Env):
         self.end_episode_mode = 'instant_end'
         self.gui = None
 
-        #Create initial current_state of the game
-    def setup_state(self, state_as_json = None, ordered_deck = False):
-        self.current_state_of_the_game.setup_state(state_as_json, ordered_deck)
+        #Create initial state of the game
+    def setup_state(self, from_state = None, file = False, ordered_deck = False):
+        self.current_state_of_the_game.setup_state(from_state, file, ordered_deck)
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
 
-    def vectorize_state(self, output_file = None, return_var = False):
-        return self.current_state_of_the_game.vectorize()
+    def jsonize_state(self, output_file = None, return_var = False):
+        state = str(self.current_state_of_the_game.jsonize()).replace("set()", "NULL")
+        if output_file is not None:
+            with open(output_file, 'w') as json_file:
+                json.dump(state, json_file)
 
-    def vectorize_action_space(self, output_file = None):
-        state = str(self.action_space.vectorize()).replace("set()", "NULL")
+        if return_var:
+            return state
+
+    def jsonize_action_space(self, output_file = None):
+        state = str(self.action_space.jsonize()).replace("set()", "NULL")
 
         if output_file is not None:
             with open(output_file, 'w') as json_file:
@@ -55,7 +61,7 @@ class SplendorEnv(Env):
 
     def step(self, action: Action, ensure_correctness = False):
         """
-        Executes action on the environment. Action is performed on the current current_state of the game.
+        Executes action on the environment. Action is performed on the current state of the game.
 
 
         The are two modes for is_done: instant_end - the episode ends instantly when any player reaches the number of

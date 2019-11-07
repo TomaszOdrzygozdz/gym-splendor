@@ -56,7 +56,7 @@ class Deck:
     def pop_card_by_id(self,
                         id: int):
             for row in Row:
-                ids = [i for i,x in enumerate([x.vectorize() for x in self.decks_dict[row]]) if x == id]
+                ids = [i for i,x in enumerate([x.jsonize() for x in self.decks_dict[row]]) if x == id]
                 if ids:
                     return self.decks_dict[row].pop(ids[0])
 
@@ -65,19 +65,19 @@ class Deck:
                         row: Row):
         cards = []
         for id in list:
-            ids = [i for i, x in enumerate([x.vectorize() for x in self.decks_dict[row]]) if x == id]
+            ids = [i for i, x in enumerate([x.jsonize() for x in self.decks_dict[row]]) if x == id]
             if ids:
                 cards.append(self.decks_dict[row].pop(ids[0]))
         return cards
 
     def pop_noble_by_id(self,
                         id: int):
-        ids = [i for i,x in enumerate([x.vectorize() for x in self.deck_of_nobles]) if x == id]
+        ids = [i for i,x in enumerate([x.jsonize() for x in self.deck_of_nobles]) if x == id]
         if ids:
             return self.deck_of_nobles.pop(ids[0])
 
-    def vectorize(self):
-        return [{str(row) : [x.vectorize() for x in self.decks_dict[row]]} for row in Row]
+    def jsonize(self):
+        return [{str(row) : [x.jsonize() for x in self.decks_dict[row]]} for row in Row]
 
     def order_deck(self, vector):
         for i, row in enumerate(Row):
