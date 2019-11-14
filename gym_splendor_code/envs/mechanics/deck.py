@@ -79,6 +79,6 @@ class Deck:
     def jsonize(self):
         return [{str(row) : [x.jsonize() for x in self.decks_dict[row]]} for row in Row]
 
-    def order_deck(self, vector):
+    def order_deck(self, state_as_dict):
         for i, row in enumerate(Row):
-            self.decks_dict[row] = self.pop_cards_from_id_list(vector["board"]["deck_order"][i][str(row)], row)
+            self.decks_dict[row] = self.pop_cards_from_id_list(state_as_dict["board"]["deck_order"][i][str(row)], row)
