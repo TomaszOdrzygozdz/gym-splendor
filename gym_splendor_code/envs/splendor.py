@@ -11,7 +11,6 @@ from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 from gym_splendor_code.envs.mechanics.splendor_action_space import SplendorActionSpace
 from gym_splendor_code.envs.mechanics.splendor_observation_space import SplendorObservationSpace
 from gym_splendor_code.envs.mechanics.state import State
-import simplejson as json
 
 from typing import List
 
@@ -28,7 +27,7 @@ class SplendorEnv(Env):
         self.all_nobles = load_all_nobles()
 
         self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
-        self.current_state_of_the_game.setup_state()
+        self.current_state_of_the_game.prepare_state()
         self.action_space = SplendorActionSpace()
         self.action_space.update(self.current_state_of_the_game)
         self.observation_space = SplendorObservationSpace(all_cards=self.all_cards, all_nobles=self.all_nobles)
@@ -37,27 +36,33 @@ class SplendorEnv(Env):
         self.gui = None
 
         #Create initial state of the game
-    def setup_state(self, from_json = None, ordered_deck = False):
-        self.current_state_of_the_game.setup_state(from_json, ordered_deck)
+    def prepare_state(self):
+        self.current_state_of_the_game.prepare_state()
+
+    def load_state_from_dict(self, state_as_dict):
+        self.current_state_of_the_game.load_from_dict(state_as_dict)
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
 
-    def jsonize_state(self, output_file = None, return_var = False):
-        state = str(self.current_state_of_the_game.jsonize()).replace("set()", "NULL")
-        if output_file is not None:
-            with open(output_file, 'w') as json_file:
-                json.dump(state, json_file)
+    # def jsonize_state(self, output_file = None, return_var = False):
+    #     state = str(self.current_state_of_the_game.jsonize()).replace("set()", "NULL")
+    #     if output_file is not None:
+    #         with open(output_file, 'w') as json_file:
+    #             json.dump(state, json_file)
+    #
+    #     if return_var:
+    #         return state
 
-        if return_var:
-            return state
+    def state_to_dict(self):
+        return self.current_state_of_the_game.to_dict()
 
-    def jsonize_action_space(self, output_file = None):
-        state = str(self.action_space.jsonize()).replace("set()", "NULL")
-
-        if output_file is not None:
-            with open(output_file, 'w') as json_file:
-                json.dump(state, json_file)
+    # def jsonize_action_space(self, output_file = None):
+    #     state = str(self.action_space.jsonize()).replace("set()", "NULL")
+    #
+    #     if output_file is not None:
+    #         with open(output_file, 'w') as json_file:
+    #             json.dump(state, json_file)
 
     def step(self, action: Action, ensure_correctness = False):
         """
@@ -154,7 +159,7 @@ class SplendorEnv(Env):
     def reset(self):
         self.is_done = False
         self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
-        self.current_state_of_the_game.setup_state()
+        self.current_state_of_the_game.prepare_state()
         self.update_actions()
 
     def show_observation(self):

@@ -41,13 +41,14 @@ agent2 = RandomAgent(distribution='first_buy')
 #
 # multi_arena = ArenaMultiThread()
 
-n_games = 1
-list_of_agents = [agent1, agent8]
+n_games = 4
+list_of_agents = [agent2, agent8]
 
 arek = Arena()
-resu = arek.run_one_duel(list_of_agents)
+resu = arek.run_one_duel(list_of_agents, 0)
 
-print(resu)
+if main_thread:
+    print(resu)
 
 # results = multi_arena.all_vs_all(list_of_agents, n_games)
 #
