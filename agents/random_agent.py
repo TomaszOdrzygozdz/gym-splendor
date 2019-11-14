@@ -23,8 +23,8 @@ class RandomAgent(Agent):
     def choose_action(self, observation) -> Action:
 
         #first we load observation to the private environment
-        self.env.load_observation(observation)
-        self.env.update_actions()
+        self.env.load_observation_light(observation)
+        self.env.update_actions_light()
 
         if len(self.env.action_space.list_of_actions):
             if self.distribution == 'uniform':

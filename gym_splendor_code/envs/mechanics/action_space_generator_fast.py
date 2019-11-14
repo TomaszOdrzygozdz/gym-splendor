@@ -16,7 +16,7 @@ def generate_all_legal_actions(state: State) -> List[Action]:
 def generate_all_legal_trades(state: State) -> List[ActionTradeGems]:
     """Returns the list of all possible actions of trade in a given current_state"""
     gems_board = state.board.gems_on_board
-    gems_player = state.active_players_hand().gems_possessed =
+    gems_player = state.active_players_hand().gems_possessed
 
     list_of_actions_trade = []
     gems_player_n = sum(gems_player.jsonize())

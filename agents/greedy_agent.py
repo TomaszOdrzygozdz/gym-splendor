@@ -28,8 +28,8 @@ class GreedyAgent(Agent):
     def choose_action(self, observation) -> Action:
 
         #first we load observation to the private environment
-        self.env.load_observation(observation)
-        self.env.update_actions()
+        self.env.load_observation_light(observation)
+        self.env.update_actions_light()
         current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
 
         if len(self.env.action_space.list_of_actions)>0:

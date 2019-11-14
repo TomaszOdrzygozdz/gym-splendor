@@ -124,3 +124,10 @@ class GemsCollection():
 
     def jsonize_neg(self):
         return [ -self.gems_dict[gem_color] for gem_color in GemColor]
+
+    def get_colors_on_condition(self, cond):
+        return {gem_color for gem_color in GemColor if self.gems_dict[gem_color] >= cond
+                and gem_color != GemColor.GOLD}
+
+    def get_all_colors_on_condition(self, cond):
+        return {gem_color for gem_color in GemColor if self.gems_dict[gem_color] >= cond}

@@ -31,7 +31,7 @@ class Action():
         pass
 
     @abstractmethod
-    def jsonize(self):
+    def to_dict(self):
         pass
 
     @abstractmethod
@@ -87,9 +87,10 @@ class ActionTradeGems(Action):
     def __repr__(self):
         return 'Trade gems ' + self.gems_from_board_to_player.__repr__()
 
-    def jsonize(self):
+    def to_dict(self):
         return {"action_type": self.action_type,
-                "gems_flow" : self.gems_from_board_to_player.jsonize()}
+                "gems_flow" : self.gems_from_board_to_player.jsonize(),
+                "card" : None}
 
     def evaluate(self,
                 state: State) -> None:
@@ -154,7 +155,7 @@ class ActionBuyCard(Action):
     def __repr__(self):
         return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
                                                                 self.use_gold_as.__repr__())
-    def jsonize(self):
+    def to_dict(self):
         return {"action_type": self.action_type,
                 'gems_flow': self.price.jsonize(),
                 'card' : self.card.jsonize()}
@@ -226,7 +227,7 @@ class ActionReserveCard(Action):
         return 'Reserve ' + self.card.__repr__() + '\n take golden gem: {}, return_gem_color {}'.format(self.take_golden_gem,
                                                                                                       self.return_gem_color)
 
-    def jsonize(self):
+    def to_dict(self):
         gems = GemsCollection()
         gems.gems_dict[GemColor.GOLD] += 1
         if self.return_gem_color is not None:

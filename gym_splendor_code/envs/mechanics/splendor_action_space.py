@@ -3,7 +3,7 @@ from functools import reduce
 
 from gym.spaces import Space
 
-from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_trades, generate_all_legal_buys, \
+from gym_splendor_code.envs.mechanics.action_space_generator_fast import generate_all_legal_trades, generate_all_legal_buys, \
     generate_all_legal_reservations
 from gym_splendor_code.envs.mechanics.state import State
 
@@ -49,8 +49,8 @@ class SplendorActionSpace(Space):
                '{} trade gems actions, {} buy actions and {} reservation actions.'\
             .format(len(self.list_of_actions), len(self.actions_by_type['trade']),
                     len(self.actions_by_type['buy']), len(self.actions_by_type['reserve']))
-    def jsonize(self):
-        return [x.jsonize() for x in self.list_of_actions]
+    def to_dict(self):
+        return [x.to_dict() for x in self.list_of_actions]
 
     def evaluate(self):
         return [x.evaluate() for x in self.list_of_actions]
