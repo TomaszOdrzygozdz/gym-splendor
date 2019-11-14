@@ -117,7 +117,7 @@ RandomAgent()
 ```
 
 
-###Greedy agent
+### Greedy agent
 The agent evaluates all possible actions according to set value function and choose one of the ones with the highest 
 evaluation score. Greedy Search takes several steps before evaluation.
 
@@ -125,7 +125,7 @@ evaluation score. Greedy Search takes several steps before evaluation.
 GreedyAgentBoost()
 ```
 
-###Minmax agent
+### Minmax agent
 The agent evaluates all possible actions and all actions emerging from the specific moves up to the set number of 
 iterations. The evaluation follows a specified value function and the action is taken according to the maximal 
 netto/relative gain from the move assuming the other agent to follow the same strategy.
