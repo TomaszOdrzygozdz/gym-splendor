@@ -101,3 +101,38 @@ To adjust the speed of rendered game you can modify the parameter ```GAME_SPEED`
 ```gym_splendor_code/envs/graphics/graphics_settings.py```. This parameter is the time (in seconds) between two consecutive
 actions in the game.
 
+### Baselines agents:
+
+The list of agents will be growing. Currently we provide the following verified agent to play Splendor:
+
+#### Random agent
+Random agent chooses an action at random among all legal actions in a given state. It has three possible
+probability distributions: 
+uniform - this is uniform distribution among all legal actions
+uniform on types - it first draw at random a type of action, and later an actions of given type
+first buy - it tries to draw a buying action if there is such, otherwise chooses a ranodm action.
+
+```python
+RandomAgent()
+```
+
+
+###Greedy agent
+The agent evaluates all possible actions according to set value function and choose one of the ones with the highest 
+evaluation score. Greedy Search takes several steps before evaluation.
+
+```python
+GreedyAgentBoost()
+```
+
+###Minmax agent
+The agent evaluates all possible actions and all actions emerging from the specific moves up to the set number of 
+iterations. The evaluation follows a specified value function and the action is taken according to the maximal 
+netto/relative gain from the move assuming the other agent to follow the same strategy.
+
+```python
+MinMaxAgent()
+```
+
+Minmax, Greedy and Random agents main purpose is to serve as baseline for more advanced algorithms. 
+

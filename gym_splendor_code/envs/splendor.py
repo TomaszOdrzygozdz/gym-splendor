@@ -11,7 +11,6 @@ from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 from gym_splendor_code.envs.mechanics.splendor_action_space import SplendorActionSpace
 from gym_splendor_code.envs.mechanics.splendor_observation_space import SplendorObservationSpace
 from gym_splendor_code.envs.mechanics.state import State
-import simplejson as json
 
 from typing import List
 
