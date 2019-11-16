@@ -29,7 +29,7 @@ class SplendorEnv(Env):
         self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
         self.current_state_of_the_game.prepare_state()
         self.action_space = SplendorActionSpace()
-        self.action_space.update(self.current_state_of_the_game)
+        self.update_actions()
         self.observation_space = SplendorObservationSpace(all_cards=self.all_cards, all_nobles=self.all_nobles)
         self.is_done = False
         self.end_episode_mode = 'instant_end'
@@ -41,6 +41,7 @@ class SplendorEnv(Env):
 
     def load_state_from_dict(self, state_as_dict):
         self.current_state_of_the_game.load_from_dict(state_as_dict)
+
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
@@ -56,6 +57,9 @@ class SplendorEnv(Env):
 
     def state_to_dict(self):
         return self.current_state_of_the_game.to_dict()
+
+    def action_space_to_dict(self):
+        return self.action_space.to_dict()
 
     # def jsonize_action_space(self, output_file = None):
     #     state = str(self.action_space.jsonize()).replace("set()", "NULL")
@@ -84,7 +88,7 @@ class SplendorEnv(Env):
         info = {}
         if action is not None:
             if ensure_correctness:
-                self.action_space.update(self.current_state_of_the_game)
+                self.update_actions()
                 assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
             action.execute(self.current_state_of_the_game)
 
@@ -118,9 +122,13 @@ class SplendorEnv(Env):
 
     def update_actions(self):
         self.action_space.update(self.current_state_of_the_game)
+        self.vectorize_action_space()
+
+    def update_actions_light(self):
+        self.action_space.update(self.current_state_of_the_game)
 
     def current_action_space(self):
-        self.action_space.update(self.current_state_of_the_game)
+        self.update_actions()
         return self.action_space
 
     def show_warning(self, action):
@@ -132,6 +140,10 @@ class SplendorEnv(Env):
             self.gui.show_last_action(action)
 
     def load_observation(self, observation):
+        self.current_state_of_the_game = self.observation_space.observation_to_state(observation)
+        self.vectorize_observation_space()
+
+    def load_observation_light(self, observation):
         self.current_state_of_the_game = self.observation_space.observation_to_state(observation)
 
     def set_active_player(self, id: int)->None:
@@ -165,3 +177,9 @@ class SplendorEnv(Env):
     def show_observation(self):
         self.update_actions()
         return self.observation_space.state_to_observation(self.current_state_of_the_game)
+
+    def vectorize_observation_space(self):
+        pass
+
+    def vectorize_action_space(self):
+        pass

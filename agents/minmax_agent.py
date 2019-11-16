@@ -32,8 +32,8 @@ class MinMaxAgent(Agent):
     def choose_action(self, observation) -> Action:
 
         #first we load observation to the private environment
-        self.env.load_observation(observation)
-        self.env.update_actions()
+        self.env.load_observation_light(observation)
+        self.env.update_actions_light()
         current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
 
         if len(self.env.action_space.list_of_actions)>0:
@@ -111,14 +111,14 @@ class MinMaxAgent(Agent):
 
     def get_temp_env(self, action, numerator):
         observation, reward, is_done, info = self.env.step(action, ensure_correctness = False)
-        self.env.load_observation(observation)
-        self.env.update_actions()
+        self.env.load_observation_light(observation)
+        self.env.update_actions_light()
 
     def restore_env(self, numerator):
         self.env.is_done = False
         self.env.current_state_of_the_game = State(all_cards=self.env.all_cards, all_nobles=self.env.all_nobles)
         self.env.load_state_from_dict(self.env_dict[numerator])
-        self.env.update_actions()
+        self.env.update_actions_light()
 
     def normalize_weight(self):
         if np.linalg.norm(self.weight) > 0:

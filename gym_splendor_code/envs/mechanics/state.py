@@ -147,4 +147,3 @@ class State():
             self.board.deck.order_deck(state_as_dict)
         else:
             self.board.deck.shuffle()
-
