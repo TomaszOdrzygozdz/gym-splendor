@@ -6,6 +6,7 @@ from gym_splendor_code.envs.mechanics.players_hand import GemColor
 
 import numpy as np
 from gym_splendor_code.envs.mechanics.game_settings import *
+from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 
 
 def tuple_of_gems_to_gems_collection(tuple_of_gems: Tuple[GemColor], val = 1, return_val = [1], return_colors = set()) -> GemsCollection:

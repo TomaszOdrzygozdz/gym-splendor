@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Tuple, List, Optional
 
 from mcts_alogrithms.lukas_mcts.ensemble_configurator import EnsembleConfigurator, InferenceEnsembleMembers
-from mcts_alogrithms.basic_tree import TreeNode, GraphNode
+from mcts_alogrithms.tree import TreeNode, GraphNode
 
 class Planner(metaclass=ABCMeta):
 
