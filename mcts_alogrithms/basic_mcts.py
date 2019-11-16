@@ -18,22 +18,22 @@ def randomPolicy(state):
     return state.getReward(), state.current_state.active_player_id
 
 
-class treeNode():
-    def __init__(self, state, parent):
-        if parent is None:
-            self.generation = 0
-        else:
-            self.generation = parent.generation + 1
-        self.state = state
-        self.isTerminal = state.isTerminal()
-        self.isFullyExpanded = self.isTerminal
-        self.parent = parent
-        self.numVisits = 0
-        self.totalReward = 0
-        self.children = {}
+# class treeNode():
+#     def __init__(self, state, parent):
+#         if parent is None:
+#             self.generation = 0
+#         else:
+#             self.generation = parent.generation + 1
+#         self.state = state
+#         self.isTerminal = state.isTerminal()
+#         self.isFullyExpanded = self.isTerminal
+#         self.parent = parent
+#         self.numVisits = 0
+#         self.totalReward = 0
+#         self.children = {}
 
 
-class MCTS():
+class VanillaMCTS():
     def __init__(self, timeLimit=None, iterationLimit=None, explorationConstant=1 / math.sqrt(2),
                  rolloutPolicy=randomPolicy):
         if timeLimit != None:

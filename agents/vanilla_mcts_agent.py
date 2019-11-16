@@ -2,7 +2,7 @@ import random
 from copy import deepcopy
 
 from agent import Agent
-from mcts_alogrithms.poor_mcts import MCTS
+from mcts_alogrithms.vanilla_mcts import MCTS
 
 from gym_splendor_code.envs.mechanics.splendor_observation_space import SplendorObservationSpace
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions

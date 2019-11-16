@@ -4,6 +4,8 @@ import time
 import math
 import random
 
+from mcts_alogrithms.rollout_policies.random_rollout import RandomRolloutPolicy
+
 
 def randomPolicy(state):
     tries = 0
@@ -35,7 +37,7 @@ class treeNode():
 
 class MCTS():
     def __init__(self, timeLimit=None, iterationLimit=None, explorationConstant=1 / math.sqrt(2),
-                 rolloutPolicy=randomPolicy):
+                 rolloutPolicy=RandomRolloutPolicy):
         if timeLimit != None:
             if iterationLimit != None:
                 raise ValueError("Cannot have both a time limit and an iteration limit")
