@@ -9,8 +9,8 @@ class SplendorWrapperEnv(SplendorEnv):
     """ Description:
         This environment runs the game Splendor."""
 
-    def __init__(self, thread_str=''):
-        super().__init__(thread_str)
+    def __init__(self):
+        super().__init__()
 
     def vectorize_observation_space(self):
         state = self.state_to_dict()

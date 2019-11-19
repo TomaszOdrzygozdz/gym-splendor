@@ -3,6 +3,7 @@ from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.greedysearch_agent import GreedySearchAgent
 from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
+from agents.simple_mcts_agent import SimpleMCTSAgent
 from arena.arena import Arena
 from arena.arena_multi_thread import ArenaMultiThread
 
@@ -12,6 +13,7 @@ import time
 
 #from arena.many_vs_many import ManyVsManyStatistics
 from arena.leaderboard import LeaderBoard
+from mcts_alogrithms.vanilla_mcts import FullStateVanillaMCTS
 
 comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
@@ -36,13 +38,19 @@ agent1 = RandomAgent(distribution='uniform')
 agent2 = RandomAgent(distribution='first_buy')
 #agent_mcts = VanillaMCTSAgent(steps = 50)
 
+
+my_mcts = FullStateVanillaMCTS(time_limit=5)
+
+agent_mcts = SimpleMCTSAgent(my_mcts)
 #
 # arena = Arena()
 #
 # multi_arena = ArenaMultiThread()
 
 n_games = 4
-list_of_agents = [agent2, agent8]
+list_of_agents = [agent_mcts, agent1]
+#list_of_agents = [agent8, agent1]
+
 
 arek = Arena()
 resu = arek.run_one_duel(list_of_agents, 0)

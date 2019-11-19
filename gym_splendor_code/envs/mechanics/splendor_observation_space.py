@@ -35,7 +35,7 @@ class SplendorObservationSpace(Space):
     def observation_to_state(self, observation) -> State:
         """Loads observation and return a current_state that agrees with the observation. Warning: this method is ambiguous,
         that is, many states can have the same observation (they may differ in the order of hidden cards)."""
-        state = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
+        state = State(all_cards=self.all_cards, all_nobles=self.all_nobles, prepare_state=False)
         cards_on_board_names = observation['cards_on_board_names']
         nobles_on_board_names = observation['nobles_on_board_names']
         for card_name in cards_on_board_names:

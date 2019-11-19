@@ -43,6 +43,7 @@ class ValueAccumulator:
 class ScalarMeanMaxValueAccumulator(ValueAccumulator):
 
     def __init__(self, value=0, state=None, mean_max_coeff=1.0):
+
         self._sum = 0.0
         self._count = 0
         self._max = value

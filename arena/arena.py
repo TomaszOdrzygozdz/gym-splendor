@@ -27,7 +27,6 @@ class Arena:
                  leaderboard: LeaderBoard = None) -> None:
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
-        self.env.prepare_state()
         self.leaderboard = leaderboard
 
     def run_one_duel(self,

@@ -9,7 +9,7 @@ from gym_splendor_code.envs.mechanics.action_space_generator_fast import generat
 
 class RandomRolloutPolicy(RolloutPolicy):
 
-    def __init__(self, distribution):
+    def __init__(self, distribution: str = 'unforim'):
         super().__init__('random')
         self.distribution = distribution
     def choose_action(self, state : State) ->Action:

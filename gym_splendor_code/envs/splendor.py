@@ -14,20 +14,22 @@ from gym_splendor_code.envs.mechanics.state import State
 
 from typing import List
 
+from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
+
+
 class SplendorEnv(Env):
     """ Description:
         This environment runs the game Splendor."""
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, thread_str=''):
+    def __init__(self):
 
         #load all cards and nobles
         self.all_cards = load_all_cards()
         self.all_nobles = load_all_nobles()
 
         self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
-        self.current_state_of_the_game.prepare_state()
         self.action_space = SplendorActionSpace()
         self.update_actions()
         self.observation_space = SplendorObservationSpace(all_cards=self.all_cards, all_nobles=self.all_nobles)
@@ -36,12 +38,12 @@ class SplendorEnv(Env):
         self.gui = None
 
         #Create initial state of the game
-    def prepare_state(self):
-        self.current_state_of_the_game.prepare_state()
 
-    def load_state_from_dict(self, state_as_dict):
-        self.current_state_of_the_game.load_from_dict(state_as_dict)
+    def load_state_from_dict(self, state_as_dict: StateAsDict):
+        self.current_state_of_the_game = state_as_dict.to_state()
 
+    def active_player_id(self):
+        return self.current_state_of_the_game.active_player_id
 
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
@@ -171,7 +173,7 @@ class SplendorEnv(Env):
     def reset(self):
         self.is_done = False
         self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
-        self.current_state_of_the_game.prepare_state()
+        self.current_state_of_the_game.prepare()
         self.update_actions()
 
     def show_observation(self):
