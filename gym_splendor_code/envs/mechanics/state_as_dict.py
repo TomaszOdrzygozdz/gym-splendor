@@ -6,7 +6,13 @@ from gym_splendor_code.envs.mechanics.state import State
 class StateAsDict:
 
     def __init__(self, state: State):
-        self.state_as_dict = state.to_dict()
+        if state is not None:
+            self.state_as_dict = state.to_dict()
+        else:
+            self.state_as_dict = {}
+
+    def load_from_dict(self, dict):
+        self.state_as_dict = dict
 
     def __getitem__(self, item):
         return self.state_as_dict[item]
@@ -62,5 +68,8 @@ class StateAsDict:
             state.board.deck.shuffle()
 
         return state
+
+    def __repr__(self):
+        return self.state_as_dict.__repr__()
 
 

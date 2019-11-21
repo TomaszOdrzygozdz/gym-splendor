@@ -20,17 +20,13 @@ from mcts_alogrithms.tree_renderer.tree_visualizer import TreeVisualizer
 verbose = True
 
 
-
-
-
-
 class FullStateVanillaMCTS:
     def __init__(self,
                  time_limit=None,
                  iteration_limit=None,
                  exploration_parameter = 1/math.sqrt(2),
-                 rollout_policy=RandomRolloutPolicy(),
-                 number_of_rollouts = 1):
+                 rollout_policy=RandomRolloutPolicy(distribution='first_buy'),
+                 number_of_rollouts = 10):
 
         self.full_state_env = gym.make('splendor-full_state-v0')
 
@@ -56,10 +52,12 @@ class FullStateVanillaMCTS:
 
     def create_root(self, state):
         self.root = TreeNode(state=state, parent=None, parent_action=None, terminal=False)
-        # self.root.generate_actions()
-        # self._expand_leaf(self.root)
+
+    def change_root(self, node):
+        self.root = node
 
     def _rollout(self, leaf: TreeNode):
+        value = 0
         is_done = False
         self.full_state_env.load_state_from_dict(leaf.state_as_dict)
         winner_id = None
@@ -67,25 +65,28 @@ class FullStateVanillaMCTS:
             action = self.rollout_policy.choose_action(self.full_state_env.current_state_of_the_game)
             if action is not None:
                 new_state, reward, is_done, winner_id = self.full_state_env.full_state_step(action)
+                value = reward
             else:
+                winner_id = self.full_state_env.previous_player_id()
+                value = 0.1
                 break
-        return winner_id
+
+        return winner_id, value
 
     def run_mcts_pass(self):
-
         leaf, search_path = self._tree_traversal()
+        # print(search_path)
+        for _ in range(self.number_of_rollouts):
+            winner_id, value = self._rollout(leaf)
+            self._backpropagate(search_path, winner_id, value)
+
         self._expand_leaf(leaf)
-        if not leaf.terminal:
-            node_to_rollout = self._select_child(leaf)
-            search_path.append(node_to_rollout)
-            for _ in range(self.number_of_rollouts):
-                winner_id = self._rollout(node_to_rollout)
-                self._backpropagate(search_path, winner_id)
+
+    def move_root(self, action):
+        new_root = self.root.action_to_children_dict[action]
 
     def _tree_traversal(self):
- #       node = self.root
-        search_path = [node]
-#        new_node = self._select_child(node)
+        search_path = [self.root]
 
         while search_path[-1].expanded() and not search_path[-1].terminal:
             node_to_add = self._select_child(search_path[-1])
@@ -101,6 +102,7 @@ class FullStateVanillaMCTS:
             self.full_state_env.load_state_from_dict(leaf.state_as_dict)
             child_state, reward, is_done, who_won = self.full_state_env.full_state_step(action)
             new_child = TreeNode(child_state, leaf, action, is_done)
+            leaf.action_to_children_dict[action] = new_child
             leaf.children.append(new_child)
 
 
@@ -119,15 +121,15 @@ class FullStateVanillaMCTS:
         return node.children[best_child_index], node.actions[best_child_index]
 
 
-    def _backpropagate(self, search_path: List[TreeNode], winner_id):
-        value = 1
+    def _backpropagate(self, search_path: List[TreeNode], winner_id, value):
         for node in search_path:
             if winner_id is not None:
                 if node.active_player_id() == winner_id:
-                    node.value_acc.add(value)
-                else:
                     node.value_acc.add(-value)
+                else:
+                    node.value_acc.add(value)
             else:
+                print('hej')
                 node.value_acc.add(0)
 
     def run_simulation(self):
@@ -146,31 +148,32 @@ class FullStateVanillaMCTS:
 
 
 
-stan = State()
-stan.active_players_hand().gems_possessed.gems_dict[GemColor.GREEN] = 2
-stan.active_players_hand().gems_possessed.gems_dict[GemColor.BLUE] = 2
-stan.active_players_hand().gems_possessed.gems_dict[GemColor.RED] = 2
-stan.active_players_hand().gems_possessed.gems_dict[GemColor.BLACK] = 2
-stan.active_players_hand().gems_possessed.gems_dict[GemColor.WHITE] = 2
-
-stan.board.gems_on_board.gems_dict[GemColor.GREEN] = 2
-stan.board.gems_on_board.gems_dict[GemColor.BLUE] = 2
-stan.board.gems_on_board.gems_dict[GemColor.RED] = 2
-stan.board.gems_on_board.gems_dict[GemColor.BLACK] = 2
-stan.board.gems_on_board.gems_dict[GemColor.WHITE] = 2
-
-
-
-mcts = FullStateVanillaMCTS(iteration_limit=50)
-mcts.create_root(stan)
-mcts.run_simulation()
-#print(mcts._select_best_child())
-#print(TreeNode.id)
-
-
-vizu = TreeVisualizer(show_unvisited_nodes=False)
-vizu.generate_html(mcts.root)
+# stan = State()
+# stan.active_players_hand().gems_possessed.gems_dict[GemColor.GREEN] = 2
+# stan.active_players_hand().gems_possessed.gems_dict[GemColor.BLUE] = 2
+# stan.active_players_hand().gems_possessed.gems_dict[GemColor.RED] = 2
+# stan.active_players_hand().gems_possessed.gems_dict[GemColor.BLACK] = 1
+# stan.active_players_hand().gems_possessed.gems_dict[GemColor.WHITE] = 2
 #
+# stan.board.gems_on_board.gems_dict[GemColor.GREEN] = 2
+# stan.board.gems_on_board.gems_dict[GemColor.BLUE] = 2
+# stan.board.gems_on_board.gems_dict[GemColor.RED] = 2
+# stan.board.gems_on_board.gems_dict[GemColor.BLACK] = 1
+# stan.board.gems_on_board.gems_dict[GemColor.WHITE] = 2
+#
+#
+#
+# mcts = FullStateVanillaMCTS(iteration_limit=100)
+# mcts.create_root(stan)
+# mcts.run_simulation()
+# print(mcts.choose_action())
+# #print(mcts._select_best_child())
+# #print(TreeNode.id)
+#
+#
+# vizu = TreeVisualizer(show_unvisited_nodes=False)
+# vizu.generate_html(mcts.root)
+# #
 
 
 

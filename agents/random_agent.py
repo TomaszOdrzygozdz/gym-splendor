@@ -44,5 +44,5 @@ class RandomAgent(Agent):
             return None
 
 
-    def choose_action_knowing_state(self, state):
+    def choose_action_knowing_state(self, state, action):
         return self.choose_action(self.env.observation_space.state_to_observation(state))

@@ -16,6 +16,8 @@ class SplendorFullState(SplendorEnv):
 
         else:
             info = {'Warning': 'There was no action.'}
+            self.is_done = True
+
         # We find the reward:
         reward = 0
         if not self.is_done:

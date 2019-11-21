@@ -39,9 +39,7 @@ agent1 = RandomAgent(distribution='uniform')
 agent2 = RandomAgent(distribution='first_buy')
 
 
-my_mcts = FullStateVanillaMCTS(iteration_limit=50)
-
-agent_mcts = SimpleMCTSAgent(my_mcts)
+agent_mcts = SimpleMCTSAgent(100)
 #
 # arena = Arena()
 #

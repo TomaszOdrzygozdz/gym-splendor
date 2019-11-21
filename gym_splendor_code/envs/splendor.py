@@ -180,6 +180,12 @@ class SplendorEnv(Env):
         self.update_actions()
         return self.observation_space.state_to_observation(self.current_state_of_the_game)
 
+    def previous_player_id(self):
+        return self.current_state_of_the_game.previous_player_id()
+
+    def active_player_id(self):
+        return self.current_state_of_the_game.active_player_id
+
     def vectorize_observation_space(self):
         pass
 

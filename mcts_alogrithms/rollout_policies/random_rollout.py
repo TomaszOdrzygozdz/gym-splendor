@@ -2,6 +2,7 @@ import random
 
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
+from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from mcts_alogrithms.rolluot_policy import RolloutPolicy
 from gym_splendor_code.envs.mechanics.action_space_generator_fast import generate_all_legal_reservations
 from gym_splendor_code.envs.mechanics.action_space_generator_fast import generate_all_legal_buys
@@ -9,7 +10,7 @@ from gym_splendor_code.envs.mechanics.action_space_generator_fast import generat
 
 class RandomRolloutPolicy(RolloutPolicy):
 
-    def __init__(self, distribution: str = 'uniform'):
+    def __init__(self, distribution: str = 'uniform_on_types'):
         super().__init__('random')
         self.distribution = distribution
     def choose_action(self, state : State) ->Action:

@@ -4,7 +4,7 @@ from typing import Dict
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from gym_splendor_code.envs.mechanics.action_space_generator_fast import generate_all_legal_actions
+from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions
 from mcts_alogrithms.value_accumulators import ScalarMeanMaxValueAccumulator
 
 
@@ -19,6 +19,7 @@ class TreeNode:
         self.state_as_dict = StateAsDict(state)
         self.state = self.state_as_dict.to_state()
         self.actions = []
+        self.action_to_children_dict = {}
         self.children = []
         self.value_acc = ScalarMeanMaxValueAccumulator()
         if parent is None:
@@ -38,7 +39,6 @@ class TreeNode:
     def generate_actions(self):
         if len(self.actions) == 0:
             self.actions = generate_all_legal_actions(self.state)
-            random.shuffle(self.actions)
 
     def state(self):
         return self.state

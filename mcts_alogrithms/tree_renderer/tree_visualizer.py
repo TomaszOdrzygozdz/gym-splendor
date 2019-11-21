@@ -19,13 +19,15 @@ class TreeVisualizer:
         self.states_as_dicts = ''
         self.level_interval = level_interval
 
+
     def add_node_to_dict(self, node):
         self.nodes_to_id[node] = self.last_nod_id
         self.last_nod_id += 1
 
-    def generate_html(self, root):
+    def generate_html(self, root, file_name):
         code = self.generate_tree_data(root)
-        self.combine_html(code)
+        self.combine_html(code, file_name)
+        self.__init__(show_unvisited_nodes=self.show_unvisited_nodes)
 
     def node_to_string(self, node: TreeNode):
         value_to_show = node.value_acc.get()
@@ -65,7 +67,7 @@ class TreeVisualizer:
 
         return 'edges.push({' +'from: {}, to: {}'.format(self.nodes_to_id[node1], self.nodes_to_id[node2])+ ',label: \"' + edge_caption + '\", ' +  'font: { align: "middle" } }); \n'
 
-    def combine_html(self, tree_code):
+    def combine_html(self, tree_code, file_name):
         with open('E:\ML_research\gym_splendor\mcts_alogrithms\\tree_renderer\preamble', 'r') as file:
             preamble = file.read()
         with open('E:\ML_research\gym_splendor\mcts_alogrithms\\tree_renderer\postamble', 'r') as file:
@@ -73,6 +75,6 @@ class TreeVisualizer:
 
         combined = preamble + self.nodes_str + self.edges_str + self.level_str + postamble + self.states_as_dicts + '</body></html>'
 
-        text_file = open("visualization.html", "w")
+        text_file = open(file_name, "w")
         text_file.write(combined)
         text_file.close()
