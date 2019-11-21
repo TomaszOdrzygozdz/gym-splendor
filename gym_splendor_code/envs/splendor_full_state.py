@@ -4,8 +4,6 @@ from gym_splendor_code.envs.splendor import SplendorEnv, POINTS_TO_WIN
 
 class SplendorFullState(SplendorEnv):
 
-
-
     def __init__(self):
         super().__init__()
 

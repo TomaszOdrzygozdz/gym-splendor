@@ -12,6 +12,7 @@ from matplotlib import pyplot as plt
 import time
 
 #from arena.many_vs_many import ManyVsManyStatistics
+from arena.full_state_arena import FullStateArena
 from arena.leaderboard import LeaderBoard
 from mcts_alogrithms.vanilla_mcts import FullStateVanillaMCTS
 
@@ -36,10 +37,9 @@ agent8 = MinMaxAgent(weight = [100,2,2,1,0.1], decay = 0.7)
 # agent15 = GreedySearchAgent(depth = 7, weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329], decay = 0.95)
 agent1 = RandomAgent(distribution='uniform')
 agent2 = RandomAgent(distribution='first_buy')
-#agent_mcts = VanillaMCTSAgent(steps = 50)
 
 
-my_mcts = FullStateVanillaMCTS(time_limit=5)
+my_mcts = FullStateVanillaMCTS(iteration_limit=50)
 
 agent_mcts = SimpleMCTSAgent(my_mcts)
 #
@@ -52,8 +52,8 @@ list_of_agents = [agent_mcts, agent1]
 #list_of_agents = [agent8, agent1]
 
 
-arek = Arena()
-resu = arek.run_one_duel(list_of_agents, 0)
+arek = FullStateArena()
+resu = arek.run_one_duel(list_of_agents, 0, render_game=False)
 
 if main_thread:
     print(resu)

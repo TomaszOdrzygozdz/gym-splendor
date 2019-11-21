@@ -6,7 +6,7 @@ class ValueAccumulator:
 
     def __init__(self, value, state=None):
         # Creates and initializes with typical add
-        self.add(value)
+        pass
 
     def add(self, value):
         """Adds an abstract value to the accumulator.
@@ -60,8 +60,11 @@ class ScalarMeanMaxValueAccumulator(ValueAccumulator):
         self.auxiliary_loss += value
 
     def get(self):
-        return (self._sum / self._count)*self.mean_max_coeff \
+        if self._count > 0:
+            return (self._sum / self._count)*self.mean_max_coeff \
                + self._max*(1-self.mean_max_coeff)
+        else:
+            return None
 
     def index(self, parent_value=None, action=None):
         return self.get() + self.auxiliary_loss  # auxiliary_loss alters tree traversal in mcts

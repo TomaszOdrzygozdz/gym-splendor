@@ -19,7 +19,6 @@ class SplendorObservationSpace(Space):
 
 
     def state_to_observation(self, state:State) -> Dict:
-
         cards_on_board_names = {card.name for card in state.board.cards_on_board if card is not None}
         nobles_on_board_names = {noble.name for noble in state.board.nobles_on_board if noble is not None}
         gems_on_board = state.board.gems_on_board.__copy__()

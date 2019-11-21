@@ -26,7 +26,15 @@ class SimpleMCTSAgent(Agent):
 
     def choose_action(self, observation):
         state_to_eval = self.env.observation_space.observation_to_state(observation)
-        print('Root state:')
         self.mcts_algorithm.create_root(state_to_eval)
         self.mcts_algorithm.run_simulation()
-        return self.mcts_algorithm.choose_best_action()
+        return self.mcts_algorithm._select_best_child()
+
+    def choose_action_knowing_state(self, state):
+        self.mcts_algorithm.create_root(state)
+        self.mcts_algorithm.run_simulation()
+        best_action = self.mcts_algorithm.choose_action()
+        print('Best action is:')
+        print(best_action)
+        return best_action
+

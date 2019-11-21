@@ -41,6 +41,7 @@ class SplendorEnv(Env):
 
     def load_state_from_dict(self, state_as_dict: StateAsDict):
         self.current_state_of_the_game = state_as_dict.to_state()
+        self.is_done = False
 
     def active_player_id(self):
         return self.current_state_of_the_game.active_player_id
@@ -173,7 +174,6 @@ class SplendorEnv(Env):
     def reset(self):
         self.is_done = False
         self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
-        self.current_state_of_the_game.prepare()
         self.update_actions()
 
     def show_observation(self):

@@ -9,7 +9,7 @@ from gym_splendor_code.envs.mechanics.action_space_generator_fast import generat
 
 class RandomRolloutPolicy(RolloutPolicy):
 
-    def __init__(self, distribution: str = 'unforim'):
+    def __init__(self, distribution: str = 'uniform'):
         super().__init__('random')
         self.distribution = distribution
     def choose_action(self, state : State) ->Action:
@@ -18,8 +18,7 @@ class RandomRolloutPolicy(RolloutPolicy):
                        'reserve': generate_all_legal_reservations(state)}
 
         list_of_actions = actions_by_type['buy'] + actions_by_type['reserve'] + actions_by_type['trade']
-
-        if len(list_of_actions):
+        if len(list_of_actions) > 0:
             if self.distribution == 'uniform':
                 return random.choice(list_of_actions)
             if self.distribution == 'uniform_on_types':

@@ -1,3 +1,4 @@
+import random
 from typing import Dict
 # tree node
 from gym_splendor_code.envs.mechanics.action import Action
@@ -8,25 +9,36 @@ from mcts_alogrithms.value_accumulators import ScalarMeanMaxValueAccumulator
 
 
 class TreeNode:
+    id = 0
 
-    def __init__(self, state: State, parent: 'MCTSTreeNode', terminal: bool = False, winner_id = None)->None:
+    def __init__(self, state: State, parent: 'MCTSTreeNode', parent_action: Action, terminal: bool = False)->None:
+        self.id = TreeNode.id
+        TreeNode.id += 1
         self.parent = parent
-        print(state.to_dict())
+        self.parent_action = parent_action
         self.state_as_dict = StateAsDict(state)
         self.state = self.state_as_dict.to_state()
-        self.terminal = terminal
         self.actions = []
         self.children = []
         self.value_acc = ScalarMeanMaxValueAccumulator()
+        if parent is None:
+            self.generation = 0
+        else:
+            self.generation = parent.generation + 1
+
+    def get_id(self):
+        return self.id
 
     def active_player_id(self):
         return self.state.active_player_id
 
     def check_if_terminal(self):
-        self.terminal = True if len(self.actions) > 0 else False
+        self.terminal = True if len(self.actions) == 0 else False
 
     def generate_actions(self):
-        self.actions = generate_all_legal_actions(self.state)
+        if len(self.actions) == 0:
+            self.actions = generate_all_legal_actions(self.state)
+            random.shuffle(self.actions)
 
     def state(self):
         return self.state

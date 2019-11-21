@@ -1,0 +1,78 @@
+
+
+            // create a network
+            var container = document.getElementById('mynetwork');
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+            var options = {
+                edges: {
+                    smooth: {
+                        type: 'cubicBezier',
+                        forceDirection: (directionInput.value == "UD" || directionInput.value == "DU") ? 'vertical' : 'horizontal',
+                        roundness: 0.4
+                    }
+                },
+                layout: {
+                    hierarchical: {
+                        direction: directionInput.value
+                    }
+                },
+                physics:false
+            };
+            network = new vis.Network(container, data, options);
+            // add event listeners
+            network.on('select', function (params) {
+                document.getElementById('selection').innerHTML = 'Selection: ' + params.nodes;
+            });
+        }
+    </script>
+
+</head>
+
+<body onload="draw();">
+<h2>MCTS Simple Visualization</h2>
+
+<div style="width:700px; font-size:14px; text-align: justify;">
+    This aplet shows a simple MCTS Tree Visualization. V is value accumulated in a node, and C is its count.
+</div>
+<p>
+    <input type="button" id="btn-UD" value="Up-Down">
+    <input type="button" id="btn-DU" value="Down-Up">
+    <input type="button" id="btn-LR" value="Left-Right">
+    <input type="button" id="btn-RL" value="Right-Left">
+    <input type="hidden" id='direction' value="UD">
+</p>
+
+<div id="mynetwork"></div>
+
+<p id="selection"></p>
+<script language="JavaScript">
+    var directionInput = document.getElementById("direction");
+    var btnUD = document.getElementById("btn-UD");
+    btnUD.onclick = function () {
+        directionInput.value = "UD";
+        draw();
+    };
+    var btnDU = document.getElementById("btn-DU");
+    btnDU.onclick = function () {
+        directionInput.value = "DU";
+        draw();
+    };
+    var btnLR = document.getElementById("btn-LR");
+    btnLR.onclick = function () {
+        directionInput.value = "LR";
+        draw();
+    };
+    var btnRL = document.getElementById("btn-RL");
+    btnRL.onclick = function () {
+        directionInput.value = "RL";
+        draw();
+    };
+</script>
+
+<br>
+<hr>
+States in the tree:
+<hr>
