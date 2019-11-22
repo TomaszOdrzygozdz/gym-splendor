@@ -54,14 +54,16 @@ class Arena:
         #Id if the player who first reaches number of points to win
         first_winner_id = None
         checked_all_players_after_first_winner = False
+        previous_actions = [None]
 
         if render_game:
             self.env.render()
             time.sleep(GAME_INITIAL_DELAY)
 
-        printed = False
+
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
-            action = list_of_agents[active_agent_id].choose_action(observation)
+            action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
+            previous_actions = [action]
             observation, reward, is_done, info = self.env.step(action)
             if render_game:
                 self.env.render()

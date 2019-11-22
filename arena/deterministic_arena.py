@@ -20,13 +20,16 @@ from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
 
 import time
 
-class FullStateArena:
+from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
+
+
+class DeterministicArena:
 
     def __init__(self,
                  environment_id: str = 'gym_splendor_code:splendor-v0',
                  leaderboard: LeaderBoard = None) -> None:
         """Arena has its private environment to run the game."""
-        self.env = gym.make('splendor-full_state-v0')
+        self.env = gym.make('splendor-deterministic-v0')
         self.leaderboard = leaderboard
 
     def run_one_duel(self,
@@ -54,28 +57,34 @@ class FullStateArena:
         #Id if the player who first reaches number of points to win
         first_winner_id = None
         checked_all_players_after_first_winner = False
+        previous_actions = [None]
 
         if render_game:
             self.env.render()
             time.sleep(GAME_INITIAL_DELAY)
 
-        printed = False
-        opponents_action = None
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
-            action = list_of_agents[active_agent_id].choose_action_knowing_state(full_state, opponents_action)
-            opponents_action = action
+            action = list_of_agents[active_agent_id].deterministic_choose_action(full_state, previous_actions)
+            if action is None:
+                print('None action by {}'.format(list_of_agents[active_agent_id].name))
+                print('Current state of the game')
+                state_str = StateAsDict(self.env.current_state_of_the_game)
+                print(state_str)
+            previous_actions = [action]
             if render_game:
                 self.env.render()
-            if action is not None:
-                full_state, reward, is_done, info = self.env.full_state_step(action)
-                if is_done:
-                    results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
-                        OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id), int(reward == 1))
-                    if first_winner_id is None:
-                        first_winner_id = active_agent_id
-                    checked_all_players_after_first_winner = active_agent_id == (first_winner_id-1)%len(list_of_agents)
-                active_agent_id = (active_agent_id + 1) % len(list_of_agents)
-                number_of_actions += 1
+            full_state, reward, is_done, info = self.env.deterministic_step(action)
+            if is_done:
+                results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
+                    OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id), int(reward == 1))
+                if first_winner_id is None:
+                    first_winner_id = active_agent_id
+                checked_all_players_after_first_winner = active_agent_id == (first_winner_id-1)%len(list_of_agents)
+            active_agent_id = (active_agent_id + 1) % len(list_of_agents)
+
+
+            number_of_actions += 1
+
 
         one_game_statistics = GameStatisticsDuels(list_of_agents)
         one_game_statistics.register_from_dict(results_dict)

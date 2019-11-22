@@ -1,7 +1,7 @@
 import math
 
-from mcts_alogrithms.constants import INFINITY
-from mcts_alogrithms.tree import TreeNode
+from monte_carlo_tree_search.constants import INFINITY
+from monte_carlo_tree_search.tree import TreeNode
 
 
 class ScoreComputer:

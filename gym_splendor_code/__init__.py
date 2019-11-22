@@ -15,6 +15,6 @@ register(
 )
 
 register(
-    id='splendor-full_state-v0',
-    entry_point='gym_splendor_code.envs.splendor_full_state:SplendorFullState',
+    id='splendor-deterministic-v0',
+    entry_point='gym_splendor_code.envs.splendor_deterministic:SplendorDeterministic',
 )

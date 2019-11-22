@@ -5,7 +5,7 @@ from gym_splendor_code.envs.mechanics.state import State
 
 class StateAsDict:
 
-    def __init__(self, state: State):
+    def __init__(self, state: State = None):
         if state is not None:
             self.state_as_dict = state.to_dict()
         else:
@@ -23,7 +23,7 @@ class StateAsDict:
     def __repr__(self):
         return self.state_as_dict.__repr__()
 
-    def to_state(self, order_deck = False):
+    def to_state(self, order_deck = True):
         state = State(prepare_state=False)
 
         state.active_player_id = self.state_as_dict['active_player_id']

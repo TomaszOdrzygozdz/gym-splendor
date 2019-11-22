@@ -67,7 +67,7 @@ class ScalarMeanMaxValueAccumulator(ValueAccumulator):
             return None
 
     def index(self, parent_value=None, action=None):
-        return self.get() + self.auxiliary_loss  # auxiliary_loss alters tree traversal in mcts
+        return self.get() + self.auxiliary_loss  # auxiliary_loss alters tree traversal in monte_carlo_tree_search
 
     def final_index(self, parent_value=None, action=None):
         return self.index(parent_value, action)

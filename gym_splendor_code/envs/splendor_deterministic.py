@@ -2,18 +2,16 @@ from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.splendor import SplendorEnv, POINTS_TO_WIN
 
 
-class SplendorFullState(SplendorEnv):
+class SplendorDeterministic(SplendorEnv):
 
     def __init__(self):
         super().__init__()
 
-    def full_state_step(self, action: Action):
+    def deterministic_step(self, action: Action):
 
         who_won_the_game = None
-
         if action is not None:
             action.execute(self.current_state_of_the_game)
-
         else:
             info = {'Warning': 'There was no action.'}
             self.is_done = True

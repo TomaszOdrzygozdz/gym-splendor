@@ -1,8 +1,5 @@
 """This code generates interactive HTML file with MCTS Tree Visualized"""
-import re
-
-from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from mcts_alogrithms.tree import TreeNode
+from monte_carlo_tree_search.tree import TreeNode
 
 
 class TreeVisualizer:
@@ -68,9 +65,9 @@ class TreeVisualizer:
         return 'edges.push({' +'from: {}, to: {}'.format(self.nodes_to_id[node1], self.nodes_to_id[node2])+ ',label: \"' + edge_caption + '\", ' +  'font: { align: "middle" } }); \n'
 
     def combine_html(self, tree_code, file_name):
-        with open('E:\ML_research\gym_splendor\mcts_alogrithms\\tree_renderer\preamble', 'r') as file:
+        with open('monte_carlo_tree_search\\tree_visualizer\preamble', 'r') as file:
             preamble = file.read()
-        with open('E:\ML_research\gym_splendor\mcts_alogrithms\\tree_renderer\postamble', 'r') as file:
+        with open('monte_carlo_tree_search\\tree_visualizer\postamble', 'r') as file:
             postamble = file.read()
 
         combined = preamble + self.nodes_str + self.edges_str + self.level_str + postamble + self.states_as_dicts + '</body></html>'
