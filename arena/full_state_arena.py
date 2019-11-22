@@ -60,8 +60,10 @@ class FullStateArena:
             time.sleep(GAME_INITIAL_DELAY)
 
         printed = False
+        opponents_action = None
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
-            action = list_of_agents[active_agent_id].choose_action_knowing_state(full_state)
+            action = list_of_agents[active_agent_id].choose_action_knowing_state(full_state, opponents_action)
+            opponents_action = action
             if render_game:
                 self.env.render()
             if action is not None:
@@ -79,6 +81,7 @@ class FullStateArena:
         one_game_statistics.register_from_dict(results_dict)
 
         print(time.time())
+
         return one_game_statistics
 
     def run_many_duels(self,

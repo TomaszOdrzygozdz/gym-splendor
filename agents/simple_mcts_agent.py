@@ -37,14 +37,20 @@ class SimpleMCTSAgent(Agent):
     def choose_action_knowing_state(self, state, opponents_action):
         if not self.mcts_started:
             self.mcts_algorithm.create_root(state)
+            self.mcts_started = True
         if opponents_action is not None:
+            print('MOVING OPPONENT')
             self.mcts_algorithm.move_root(opponents_action)
         SimpleMCTSAgent.action_number+= 1
         self.mcts_algorithm.run_simulation()
         self.visualizer.generate_html(self.mcts_algorithm.root, 'renders\\action_{}.html'.format(SimpleMCTSAgent.action_number))
         best_action = self.mcts_algorithm.choose_action()
         self.mcts_algorithm.move_root(best_action)
+        self.draw_final_tree()
         print('Best action is:')
         print(best_action)
         return best_action
+
+    def draw_final_tree(self):
+        self.visualizer.generate_html(self.mcts_algorithm.original_root, 'renders\\full_game.html')
 

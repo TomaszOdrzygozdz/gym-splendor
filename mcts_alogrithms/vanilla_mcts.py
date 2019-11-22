@@ -51,7 +51,8 @@ class FullStateVanillaMCTS:
         self.score_evaluator = UCB1Score(self.exploration_parameter)
 
     def create_root(self, state):
-        self.root = TreeNode(state=state, parent=None, parent_action=None, terminal=False)
+        self.original_root = TreeNode(state=state, parent=None, parent_action=None, terminal=False)
+        self.root = self.original_root
 
     def change_root(self, node):
         self.root = node
@@ -83,7 +84,15 @@ class FullStateVanillaMCTS:
         self._expand_leaf(leaf)
 
     def move_root(self, action):
-        new_root = self.root.action_to_children_dict[action]
+        # print(action)
+        # print(self.root.action_to_children_dicts
+        if not self.root.expanded():
+            print('expanding_root')
+            self._expand_leaf(self.root)
+
+        print(self.root.action_to_children_dict)
+        self.root = self.root.action_to_children_dict[action.__repr__()]
+        print('MOVE ROOT DONE')
 
     def _tree_traversal(self):
         search_path = [self.root]
@@ -102,7 +111,7 @@ class FullStateVanillaMCTS:
             self.full_state_env.load_state_from_dict(leaf.state_as_dict)
             child_state, reward, is_done, who_won = self.full_state_env.full_state_step(action)
             new_child = TreeNode(child_state, leaf, action, is_done)
-            leaf.action_to_children_dict[action] = new_child
+            leaf.action_to_children_dict[action.__repr__()] = new_child
             leaf.children.append(new_child)
 
 
