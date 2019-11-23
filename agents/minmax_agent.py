@@ -7,6 +7,8 @@ from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.data.data_loader import load_all_cards, load_all_nobles
+from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
+
 
 class MinMaxAgent(Agent):
 
@@ -29,7 +31,7 @@ class MinMaxAgent(Agent):
 
         self.env_dict = {lvl : None for lvl in range(1, self.depth)}
 
-    def choose_action(self, observation) -> Action:
+    def choose_action(self, observation, previous_actions) -> Action:
 
         #first we load observation to the private environment
         self.env.load_observation_light(observation)
@@ -41,7 +43,7 @@ class MinMaxAgent(Agent):
             potential_reward_max = self.action_to_avoid
             numerator = self.depth - 1
 
-            self.env_dict[numerator] = self.env.state_to_dict()
+            self.env_dict[numerator] = StateAsDict(self.env.current_state_of_the_game)
             for action in self.env.action_space.list_of_actions:
                 ae = action.evaluate(self.env.current_state_of_the_game)
                 potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\

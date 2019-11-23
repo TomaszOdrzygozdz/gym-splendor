@@ -60,7 +60,7 @@ class Board:
                                     GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
                                     GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
 
-        gems = vector['previous_player_hand']['gems_possessed']
+        gems = vector['other_player_hand']['gems_possessed']
         self.gems_on_board = self.gems_on_board -  GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
                                     GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
                                     GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})

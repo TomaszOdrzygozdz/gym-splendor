@@ -1,7 +1,7 @@
 """This file contains constants that are used in the game."""
 from gym_splendor_code.envs.mechanics.enums import *
 
-USE_TKINTER = False
+USE_TKINTER = True
 
 MAX_GEMS_IN_ONE_MOVE = 3
 MAX_GEMS_ON_HAND = 10

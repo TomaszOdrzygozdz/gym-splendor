@@ -277,6 +277,7 @@ if USE_TKINTER:
 
         def draw_state(self, state: State) -> None:
             """Draws the current_state. """
+            self.clear_all()
             for number, player in enumerate(state.list_of_players_hands):
                 x_coord_player = STATE_PLAYERS_X + number % 2 * STATE_PLAYER_HORIZONTAL_SHIFT
                 y_coord_player = STATE_PLAYERS_Y + (number - number % 2) / 2 * STATE_PLAYER_VERTICAL_SHIFT
@@ -284,6 +285,7 @@ if USE_TKINTER:
 
             self.draw_board(state.board, STATE_BOARD_X, STATE_BOARD_Y, state)
             self.keep_window_open(GAME_SPEED)
+
 
         def prepare_to_buy(self,
                            card: Card,

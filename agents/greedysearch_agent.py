@@ -30,7 +30,7 @@ class GreedySearchAgent(Agent):
         self.env_dict = {lvl : None for lvl in range(1, self.depth)}
 
 
-    def choose_action(self, observation) -> Action:
+    def choose_action(self, observation, previous_actions) -> Action:
 
         #first we load observation to the private environment
         self.env.load_observation_light(observation)

@@ -35,6 +35,10 @@ class Action():
         pass
 
     @abstractmethod
+    def short_description(self):
+        pass
+
+    @abstractmethod
     def evaluate(self):
         pass
 
@@ -98,6 +102,16 @@ class ActionTradeGems(Action):
                 "card" : [0, None, 0],
                 "nobles": 0}
 
+    def short_description(self):
+        str_to_return = 'Trade'
+        str_to_return += ' GL' + str(self.gems_from_board_to_player.value(GemColor.GOLD))
+        str_to_return += ', R' + str(self.gems_from_board_to_player.value(GemColor.RED))
+        str_to_return += ', G' + str(self.gems_from_board_to_player.value(GemColor.GREEN))
+        str_to_return += ', B' + str(self.gems_from_board_to_player.value(GemColor.BLUE))
+        str_to_return += ', W' + str(self.gems_from_board_to_player.value(GemColor.WHITE))
+        str_to_return += ', BL' + str(self.gems_from_board_to_player.value(GemColor.BLACK))
+        return str_to_return
+
 class ActionBuyCard(Action):
     """Action of buying a card."""
     action_type = 'buy'
@@ -155,6 +169,10 @@ class ActionBuyCard(Action):
     def __repr__(self):
         return 'Buy ' + self.card.__repr__() + '\n gold gems to use: {}, use gold gems as: {}'.format(self.n_gold_gems_to_use,
                                                                 self.use_gold_as.__repr__())
+
+    def short_description(self):
+        return 'Buy ' + self.card.name
+
     def to_dict(self):
         return {"action_type": self.action_type,
                 'gems_flow': self.price.jsonize(),
@@ -226,6 +244,9 @@ class ActionReserveCard(Action):
     def __repr__(self):
         return 'Reserve ' + self.card.__repr__() + '\n take golden gem: {}, return_gem_color {}'.format(self.take_golden_gem,
                                                                                                       self.return_gem_color)
+
+    def short_description(self):
+        return 'Rsrv ' + self.card.name
 
     def to_dict(self):
         gems = GemsCollection()

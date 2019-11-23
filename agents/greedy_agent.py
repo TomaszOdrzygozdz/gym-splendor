@@ -25,7 +25,7 @@ class GreedyAgent(Agent):
         self.name = name + ' ' + str(weight)
         self.weight = weight
 
-    def choose_action(self, observation) -> Action:
+    def choose_action(self, observation, previous_actions) -> Action:
 
         #first we load observation to the private environment
         self.env.load_observation_light(observation)

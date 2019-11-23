@@ -1,17 +1,11 @@
-from agents.greedy_agent import GreedyAgent
-from agents.greedy_agent_boost import GreedyAgentBoost
-from agents.greedysearch_agent import GreedySearchAgent
 from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
-from arena.arena import Arena
-from arena.arena_multi_thread import ArenaMultiThread
+from agents.simple_mcts_agent import SimpleMCTSAgent
 
 from mpi4py import MPI
-from matplotlib import pyplot as plt
-from matplotlib.pyplot import figure
-import time
+
 #from arena.many_vs_many import ManyVsManyStatistics
-from arena.leaderboard import LeaderBoard
+from arena.deterministic_arena import DeterministicArena
 
 comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
@@ -39,16 +33,20 @@ agent2 = RandomAgent(distribution='first_buy')
 
 #agent_mcts = VanillaMCTSAgent(steps = 50)
 
+
+agent_mcts = SimpleMCTSAgent(150)
 #
 # arena = Arena()
 #
  multi_arena = ArenaMultiThread()
 
-n_games = 500
-list_of_agents = [agent1, agent2]
+n_games = 4
+list_of_agents = [agent_mcts, agent1]
+#list_of_agents = [agent8, agent1]
 
-#arek = Arena()
-#resu = arek.run_one_duel(list_of_agents, 0)
+
+arek = DeterministicArena()
+resu = arek.run_one_duel(list_of_agents, 0, render_game=False)
 
 #if main_thread:
 #    print(resu)

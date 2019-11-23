@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+    <title>MCTS Tree Visualization</title>
+
+    <style type="text/css">
+        body {
+            font: 10pt sans;
+        }
+        #mynetwork {
+            width: 1200px;
+            height: 900px;
+            border: 1px solid lightgray;
+        }
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+
+    <script type="text/javascript">
+        var nodes = null;
+        var edges = null;
+        var network = null;
+        var directionInput = document.getElementById("direction");
+        function destroy() {
+            if (network !== null) {
+                network.destroy();
+                network = null;
+            }
+        }
+        function draw() {
+            destroy();
+            nodes = [];
+            edges = [];
+            var connectionCount = [];
+

@@ -2,6 +2,7 @@ import random
 
 from agent import Agent
 from gym_splendor_code.envs.mechanics.action import Action
+from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 
 
 class RandomAgent(Agent):
@@ -20,7 +21,7 @@ class RandomAgent(Agent):
         #We specify the name of the agent
         self.name = 'RandomAgent - ' + self.distribution + ' '
 
-    def choose_action(self, observation) -> Action:
+    def choose_action(self, observation, previous_actions) -> Action:
 
         #first we load observation to the private environment
         self.env.load_observation_light(observation)
@@ -42,3 +43,7 @@ class RandomAgent(Agent):
 
         else:
             return None
+
+
+    def deterministic_choose_action(self, state, previous_actions):
+        return self.choose_action(self.env.observation_space.state_to_observation(state), previous_actions)
