@@ -53,7 +53,7 @@ class GameStatisticsDuels:
         self.number_of_games += other.number_of_games
 
 
-    def to_pandas(self, param='wins', average: bool=True, crop_names:bool = True):
+    def to_pandas(self, param='wins', average: bool=True, crop_names:bool = True, n_games = 1000):
         list_of_all_agents_names = self.list_of_agents_names1
         list_of_all_agents_names.extend(agent_name for agent_name in self.list_of_agents_names2
                                         if agent_name not in self.list_of_agents_names1 )
@@ -68,20 +68,26 @@ class GameStatisticsDuels:
                 name2 = self.crop_name(name2)
             data_to_record = {'wins': self.data[pair].wins,
                               'reward': self.data[pair].reward,
-                              'victory_points': self.data[pair].victory_points}
+                              'victory_points': self.data[pair].victory_points,
+                              'games': 2 * self.data[pair].wins - self.data[pair].reward}
+
             entry = data_to_record[param]
-            if average and self.n_games_dict[pair] > 0:
+
+            if average and self.n_games_dict[pair] > 0 and param != "games":
                 entry = round(float(entry/self.n_games_dict[pair]),2)
+            elif average and self.n_games_dict[pair] > 0 and param == "games":
+                entry = round(float(entry/n_games/2),2)
             data_frame.loc[self.crop_name(pair[0]), self.crop_name(pair[1])] = entry
 
         data_frame.sort_index(inplace=True)
         return data_frame
 
-    def create_heatmap(self, param='wins', average: bool = True):
-        data_frame = self.to_pandas(param, average)
-        data_frame.sort_index(inplace=True)
-        plt.figure(figsize=(18, 18))
-        sns.set(font_scale=1)
+    def create_heatmap(self, param='wins', average: bool = True, p1 = 18, p2 = 1, n_games = 1000):
+        data_frame = self.to_pandas(param, average, n_games = n_games)
+        data_frame.sort_index(inplace=True, ascending = False)
+        data_frame = data_frame.reindex(sorted(data_frame.columns), axis=1)
+        plt.figure(figsize=(p1, p1))
+        sns.set(font_scale=p2)
         return sns.heatmap(data_frame, annot=True)
 
     def __repr__(self):

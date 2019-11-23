@@ -41,9 +41,8 @@ class GreedySearchAgent(Agent):
             actions = []
             potential_reward_max = self.action_to_avoid
             numerator = self.depth - 1
-            potential_reward_max = self.action_to_avoid
 
-            self.env_dict[numerator] = self.env.vectorize_state(return_var = True)
+            self.env_dict[numerator] = self.env.state_to_dict()
             for action in self.env.action_space.list_of_actions:
                 ae = action.evaluate(self.env.current_state_of_the_game)
                 potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
@@ -77,7 +76,7 @@ class GreedySearchAgent(Agent):
                     self.restore_env(numerator)
 
                 self.env.reset()
-                self.env.setup_state(self.env_dict[numerator])
+                self.env.load_state_from_dict(self.env_dict[numerator])
 
             return random.choice(actions)
 
@@ -91,7 +90,7 @@ class GreedySearchAgent(Agent):
 
         if numerator > 1:
             current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
-            self.env_dict[numerator] = self.env.vectorize_state(return_var = True)
+            self.env_dict[numerator] = self.env.state_to_dict()
             if len(self.env.action_space.list_of_actions) > 0:
                 potential_reward_list = []
                 for action in self.env.action_space.list_of_actions:
@@ -149,7 +148,7 @@ class GreedySearchAgent(Agent):
     def restore_env(self, numerator):
         self.env.is_done = False
         self.env.current_state_of_the_game = State(all_cards=self.env.all_cards, all_nobles=self.env.all_nobles)
-        self.env.setup_state(self.env_dict[numerator])
+        self.env.load_state_from_dict(self.env_dict[numerator])
         self.env.update_actions_light()
 
     def normalize_weight(self):

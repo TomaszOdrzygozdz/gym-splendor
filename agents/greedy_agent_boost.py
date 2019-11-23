@@ -29,19 +29,17 @@ class GreedyAgentBoost(Agent):
 
         if len(self.env.action_space.list_of_actions):
             actions = []
+            points = []
             potential_reward_max = -20
             for action in self.env.action_space.list_of_actions:
                 ae = action.evaluate(self.env.current_state_of_the_game)
                 potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
                                     self.weight[1] * ae["card"][2] + self.weight[2] *ae["nobles"] +\
                                      self.weight[3] * ae["card"][0] + self.weight[4] * sum(ae["gems_flow"]))
-                if potential_reward > potential_reward_max:
-                    potential_reward_max = potential_reward
-                    actions = []
-                    actions.append(action)
-                elif potential_reward == potential_reward_max:
-                    actions.append(action)
 
+                actions.append(action)
+                points.append(potential_reward)
+            actions = [actions[i] for i, point in enumerate(points) if  point >= sorted(set(points))[-1]]
             return random.choice(actions)
 
         else:

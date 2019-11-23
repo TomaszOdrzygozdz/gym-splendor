@@ -1,22 +1,24 @@
 from agents.random_agent import RandomAgent
 from agents.greedy_agent import GreedyAgent
 from agents.minmax_agent import MinMaxAgent
+from agents.greedysearch_agent2 import GreedySearchAgent
 
 import time
 
 from arena.arena import Arena
 import cProfile
-fight_pit = Arena()
+environment_id = 'gym_splendor_code:splendor-v1'
+fight_pit = Arena(environment_id)
 
 goku = RandomAgent(distribution='first_buy')
 goku2 = RandomAgent(distribution='uniform')
 #gohan = RandomAgent(distribution='uniform_on_types')
 #gohan = RandomAgent(distribution='uniform')
 #goku = GreedyAgen/t(weight = 0.3)
-gohan = GreedyAgent(weight = 0.1)
+gohan = GreedySearchAgent(depth = 5)
 goku = MinMaxAgent(name = "MinMax", depth = 3)
-
-
+gohan.name = "g2"
+goku.name = "g1"
 # profi = cProfile.Profile()
 #
 # profi.run('(fight_pit.run_many_duels([goku, gohan], number_of_games=50))')
