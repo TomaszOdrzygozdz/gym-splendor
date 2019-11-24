@@ -22,9 +22,9 @@ fuf = DeterministicMCTSMultiProcess(comm)
 stanek = State()
 fuf.create_root(stanek)
 
-fuf.run_simulation(2)
+fuf.run_simulation(40)
 
 
 if main_process:
-    tit = TreeVisualizer(show_unvisited_nodes=True)
+    tit = TreeVisualizer(show_unvisited_nodes=False)
     tit.generate_html(fuf.return_root(), 'dudik.html')

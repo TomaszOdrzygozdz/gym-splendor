@@ -59,7 +59,8 @@ class DeterministicMCTSMultiProcess:
                 #print('Process {}  got {} states to rollout'.format(process_number, len(states_for_i_th_process)))
             if process_number >= n_child_to_rollout:
                 states_to_rollout.append({})
-        return states_to_rollout
+
+        return states_to_rollout, n_child_to_rollout
 
     def run_mcts_pass(self, iteration_limit):
 
@@ -69,10 +70,14 @@ class DeterministicMCTSMultiProcess:
             #rollout_repetition = self.n_rollout_repetition if rollout_repetition is None else rollout_repetition
 
         iteration_limit_for_expand = iteration_limit - self.iterations_done_so_far
-        self.iterations_done_so_far += iteration_limit_for_expand
+
         states_to_rollout = None
+        jobs_to_do = None
         if self.main_process:
-            states_to_rollout = self.prepare_list_of_states_to_rollout(leaf, iteration_limit_for_expand)
+            states_to_rollout, jobs_to_do = self.prepare_list_of_states_to_rollout(leaf, iteration_limit_for_expand)
+
+        jobs_done= self.mpi_communicator.bcast(jobs_to_do, root=0)
+
 
         my_nodes_to_rollout = self.mpi_communicator.scatter(states_to_rollout, root=0)
         my_results = self._rollout_many_nodes(my_nodes_to_rollout)
@@ -82,6 +87,8 @@ class DeterministicMCTSMultiProcess:
         if self.main_process:
             flattened_results = self.flatten_list_of_dicts(combined_results)
             self._backpropagate_many_results(search_path, flattened_results)
+
+        return jobs_done
 
     def _rollout_many_nodes(self, dict_of_nodes):
         rollout_results_dict = {}
@@ -109,9 +116,15 @@ class DeterministicMCTSMultiProcess:
     def run_simulation(self, iteration_limit):
         iterations_done_so_far = 0
         while iterations_done_so_far < iteration_limit:
+            if self.main_process:
+                print('HEJ DOING PASS')
             limit_for_this_pass = iteration_limit - iterations_done_so_far
-            self.run_mcts_pass(limit_for_this_pass)
-            iterations_done_so_far += self.iterations_done_so_far
+            if self.main_process:
+                print(limit_for_this_pass)
+            jobs_done = self.run_mcts_pass(limit_for_this_pass)
+            iterations_done_so_far += jobs_done
+            if self.main_process:
+                print('DONE SO FAR {}'.format(iterations_done_so_far))
 
     def return_root(self):
         return self.mcts.root
