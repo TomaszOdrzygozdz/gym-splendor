@@ -1,3 +1,5 @@
+import time
+
 from mpi4py import MPI
 
 from gym_splendor_code.envs.mechanics.state import State
@@ -22,8 +24,14 @@ fuf = DeterministicMCTSMultiProcess(comm)
 stanek = State()
 fuf.create_root(stanek)
 
-fuf.run_simulation(40)
+print('Dup')
 
+if my_rank == 0:
+    start = time.time()
+
+fuf.run_simulation(100)
+if my_rank == 0:
+    print('Time taken = {}'.format(time.time() - start))
 
 if main_process:
     tit = TreeVisualizer(show_unvisited_nodes=False)

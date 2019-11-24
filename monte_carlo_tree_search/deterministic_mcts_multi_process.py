@@ -47,6 +47,7 @@ class DeterministicMCTSMultiProcess:
         #print('remaining = {}'.format(remaining))
         states_to_rollout = []
         #print('my_comm_size = {}'.format(self.my_comm_size))
+
         for process_number in range(self.my_comm_size):
             if process_number < remaining:
                 states_for_i_th_process = {i*self.my_comm_size + process_number: children[i*self.my_comm_size + process_number] for i in range(0,childs_per_process + 1)}
@@ -77,6 +78,7 @@ class DeterministicMCTSMultiProcess:
             states_to_rollout, jobs_to_do = self.prepare_list_of_states_to_rollout(leaf, iteration_limit_for_expand)
 
         jobs_done= self.mpi_communicator.bcast(jobs_to_do, root=0)
+        print('Jobs done ='.format(jobs_done))
 
 
         my_nodes_to_rollout = self.mpi_communicator.scatter(states_to_rollout, root=0)
@@ -114,6 +116,7 @@ class DeterministicMCTSMultiProcess:
         return combined_dict
 
     def run_simulation(self, iteration_limit):
+        print('HEJ DOING PASS')
         iterations_done_so_far = 0
         while iterations_done_so_far < iteration_limit:
             if self.main_process:
