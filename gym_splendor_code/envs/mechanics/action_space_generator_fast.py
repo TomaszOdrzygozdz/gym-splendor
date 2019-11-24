@@ -9,11 +9,7 @@ from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.utils.utils_functions import tuple_of_gems_to_gems_collection
 
 
-def generate_all_legal_actions(state: State) -> List[Action]:
-    """Generates list of all possible actions of an active player in a given current_state."""
-    return generate_all_legal_trades(state) + generate_all_legal_buys(state) + generate_all_legal_reservations(state)
-
-def generate_all_legal_trades(state: State) -> List[ActionTradeGems]:
+def generate_all_legal_trades_fast(state: State) -> List[ActionTradeGems]:
     """Returns the list of all possible actions of trade in a given current_state"""
     gems_board = state.board.gems_on_board
     gems_player = state.active_players_hand().gems_possessed
@@ -123,7 +119,7 @@ def generate_all_legal_trades(state: State) -> List[ActionTradeGems]:
     return list_of_actions_trade
 
 
-def generate_all_legal_buys(state: State) -> List[ActionBuyCard]:
+def generate_all_legal_buys_fast(state: State) -> List[ActionBuyCard]:
     """Returns the list of all possible actions of buys in a given current_state"""
     list_of_actions_buy = []
     discount = state.active_players_hand().discount()
@@ -152,7 +148,7 @@ def generate_all_legal_buys(state: State) -> List[ActionBuyCard]:
     return list_of_actions_buy
 
 
-def generate_all_legal_reservations(state: State) -> List[ActionReserveCard]:
+def generate_all_legal_reservations_fast(state: State) -> List[ActionReserveCard]:
     list_of_actions_reserve = []
     # first check if active player has not exceeded the limit of reservations
     condition_1 = len(state.active_players_hand().cards_reserved) < MAX_RESERVED_CARDS

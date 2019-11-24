@@ -2,7 +2,7 @@
 # w2 = GemsCollecion({GemColor.GOLD: 2, GemColor.RED: 1, GemColor.GREEN: 6, GemColor.BLUE: 3, GemColor.WHITE: 7, GemColor.BLACK: 5})
 # print(w1 <= w2)
 from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI, GemColor
-from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_reservations
+from gym_splendor_code.envs.mechanics.action_space_generator_classic import generate_all_legal_reservations
 from gym_splendor_code.envs.mechanics.players_hand import PlayersHand
 from gym_splendor_code.envs.mechanics.state import State
 

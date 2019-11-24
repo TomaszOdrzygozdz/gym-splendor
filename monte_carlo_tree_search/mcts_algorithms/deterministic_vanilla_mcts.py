@@ -27,6 +27,7 @@ class DeterministicVanillaMCTS(MCTS):
         self.exploration_parameter = exploration_parameter
         self.rollout_policy = rollout_policy
         self.score_evaluator = UCB1Score(self.exploration_parameter)
+        self.root = None
 
     def create_root(self, state):
         self.original_root = DeterministicTreeNode(state=state, parent=None, parent_action=None)

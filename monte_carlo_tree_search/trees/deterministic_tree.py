@@ -4,7 +4,7 @@ from typing import Dict
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from gym_splendor_code.envs.mechanics.action_space_generator_fast import generate_all_legal_actions
+from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions
 from monte_carlo_tree_search.tree import TreeNode
 from monte_carlo_tree_search.value_accumulators import ScalarMeanMaxValueAccumulator
 
@@ -28,6 +28,7 @@ class DeterministicTreeNode(TreeNode):
     def generate_actions(self):
         if len(self.actions) == 0:
             self.actions = generate_all_legal_actions(self.state)
+        self.check_if_terminal()
 
     def state(self):
         return self.state

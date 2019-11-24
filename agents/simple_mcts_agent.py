@@ -28,7 +28,6 @@ class SimpleMCTSAgent(Agent):
         return self.mcts_algorithm._select_best_child()
 
     def deterministic_choose_action(self, state, previous_actions):
-
         opponents_action = previous_actions[0]
         if not self.mcts_started:
             self.mcts_algorithm.create_root(state)
