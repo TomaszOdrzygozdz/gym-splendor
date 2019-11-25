@@ -1,0 +1,3 @@
+
+class DeterministicVanillaMCTSMultiProcess:
+    pass

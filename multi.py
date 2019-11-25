@@ -34,7 +34,7 @@ agent2 = RandomAgent(distribution='first_buy')
 #agent_mcts = VanillaMCTSAgent(steps = 50)
 
 
-agent_mcts = SimpleMCTSAgent(150)
+agent_mcts = SimpleMCTSAgent(2)
 #
 # arena = Arena()
 #

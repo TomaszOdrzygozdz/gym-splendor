@@ -11,13 +11,24 @@ class Agent:
     """An abstract class to create agents for playing Splendor."""
     """Every agent must have specified name."""
     agents_created = 0
-    def __init__(self, environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
+    def __init__(self, environment_id: str = 'gym_splendor_code:splendor-v0', multi_process: bool = False,
+                 mpi_comunicator=None) -> None:
+
+        self.multi_process = multi_process
+        self.mpi_communicator = mpi_comunicator
+        if mpi_comunicator is None:
+            self.main_process = True
+        else:
+            self.main_process = mpi_comunicator.Get_rank() == 0
+
         """Every agent has its private environment to check legal actions, make simulations etc."""
-        self.env = gym.make(environment_id)
+        if self.main_process:
+            self.env = gym.make(environment_id)
         self.name = 'Abstract agent '
         #id is uded to distinguish between two agents of the same type
-        Agent.agents_created += 1
-        self.id = Agent.agents_created
+        if self.main_process:
+            Agent.agents_created += 1
+            self.id = Agent.agents_created
 
 
     @abstractmethod
@@ -36,3 +47,10 @@ class Agent:
 
     def my_name_with_id(self):
         return self.name + ' (' + str(self.id) + ')'
+
+
+    def set_communicator(self, mpi_communicator):
+        if self.multi_process:
+            self.mpi_communicator = mpi_communicator
+        else:
+            print('This agent does not need mpi communicator')
