@@ -3,6 +3,7 @@ from typing import List
 import math
 import numpy as np
 
+from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from monte_carlo_tree_search.mcts import MCTS
 from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRolloutPolicy
 from monte_carlo_tree_search.score_compute import UCB1Score
@@ -30,16 +31,17 @@ class DeterministicVanillaMCTS(MCTS):
         self.root = None
 
     def create_root(self, state):
-        self.original_root = DeterministicTreeNode(state=state, parent=None, parent_action=None)
+        self.original_root = DeterministicTreeNode(state=state, parent=None, parent_action=None, reward=0,
+                                                   is_done=False, winner_id=None)
         self.root = self.original_root
 
     def change_root(self, node):
         self.root = node
 
-    def _rollout(self, leaf: TreeNode):
+    def _rollout_from_state_as_dict(self, state_as_dict: StateAsDict):
         value = 0
         is_done = False
-        self.env.load_state_from_dict(leaf.state_as_dict)
+        self.env.load_state_from_dict(state_as_dict)
         winner_id = None
         while not is_done:
             action = self.rollout_policy.choose_action(self.env.current_state_of_the_game)
@@ -50,8 +52,34 @@ class DeterministicVanillaMCTS(MCTS):
                 winner_id = self.env.previous_player_id()
                 value = 0.1
                 break
-
         return winner_id, value
+
+    def _rollout(self, leaf: TreeNode):
+
+        if not leaf.terminal:
+            value = 0
+            is_done = False
+            self.env.load_state_from_dict(leaf.state_as_dict)
+            winner_id = None
+            while not is_done:
+                action = self.rollout_policy.choose_action(self.env.current_state_of_the_game)
+                if action is not None:
+                    new_state, reward, is_done, winner_id = self.env.deterministic_step(action)
+                    value = reward
+                else:
+                    winner_id = self.env.previous_player_id()
+                    value = 0.1
+                    break
+
+            return winner_id, value
+
+        if leaf.terminal:
+            value = 0
+            winner_id = leaf.winner_id
+            if leaf.perfect_value is not None:
+                value = leaf.perfect_value
+
+            return winner_id, value
 
     # def run_mcts_pass(self):
     #     leaf, search_path = self._tree_traversal()
@@ -61,6 +89,9 @@ class DeterministicVanillaMCTS(MCTS):
     #     self._expand_leaf(leaf)
 
     def move_root(self, action):
+        if self.root.expanded() == False:
+            self._expand_leaf(self.root)
+        print(self.root.action_to_children_dict)
         self.root = self.root.action_to_children_dict[action.__repr__()]
 
     def _tree_traversal(self):
@@ -78,8 +109,8 @@ class DeterministicVanillaMCTS(MCTS):
             leaf.check_if_terminal()
             for action in leaf.actions:
                 self.env.load_state_from_dict(leaf.state_as_dict)
-                child_state, reward, is_done, who_won = self.env.deterministic_step(action)
-                new_child = DeterministicTreeNode(child_state, leaf, action, is_done)
+                child_state, reward, is_done, winner_id = self.env.deterministic_step(action)
+                new_child = DeterministicTreeNode(child_state, leaf, action, reward, is_done, winner_id)
                 leaf.action_to_children_dict[action.__repr__()] = new_child
                 leaf.children.append(new_child)
 

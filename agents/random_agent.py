@@ -6,7 +6,7 @@ from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 
 
 class RandomAgent(Agent):
-    def __init__(self, distribution='uniform_on_types'):
+    def __init__(self, distribution='uniform_on_types', mpi_communicator=None):
         """:param:
         distribution: argument determining how action is chosen at random. Possible options are:
         uniform - this draws from random distribution on all legal action
@@ -15,7 +15,7 @@ class RandomAgent(Agent):
         first_buy - if it is possible to buy a card we choose buying action at ranodm with uniform distribution, if not
         we choose action at random."""
 
-        super().__init__()
+        super().__init__(mpi_comunicator=mpi_communicator)
         self.distribution = distribution
         #we create own gym-splendor enivronemt to have access to its functionality
         #We specify the name of the agent

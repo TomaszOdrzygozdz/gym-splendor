@@ -30,7 +30,7 @@ agent1 = RandomAgent(distribution='uniform')
 agent2 = RandomAgent(distribution='first_buy')
 
 
-agent_mcts = SimpleMCTSAgent(150)
+agent_mcts = SimpleMCTSAgent(2)
 #
 # arena = Arena()
 #

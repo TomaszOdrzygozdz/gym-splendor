@@ -11,19 +11,33 @@ from monte_carlo_tree_search.value_accumulators import ScalarMeanMaxValueAccumul
 
 class DeterministicTreeNode(TreeNode):
 
-    def __init__(self, state: State, parent: 'MCTSTreeNode', parent_action: Action, terminal: bool = False)->None:
+    def __init__(self, state: State, parent: 'MCTSTreeNode', parent_action: Action, reward: int, is_done: bool, winner_id: int)->None:
         super().__init__(parent, parent_action, ScalarMeanMaxValueAccumulator(), )
         self.state_as_dict = StateAsDict(state)
         self.state = self.state_as_dict.to_state()
-
-    def get_id(self):
-        return self.id
+        self.perfect_value = None
+        self.reward = reward
+        self.is_done = is_done
+        self.winner_id = winner_id
+        self.terminal = False
+        if self.is_done:
+            self.perfect_value = reward
+            self.terminal = True
 
     def active_player_id(self):
         return self.state.active_player_id
 
     def check_if_terminal(self):
-        self.terminal = True if len(self.actions) == 0 else False
+        #Node can be terminal in two ways
+        if not self.terminal:
+            if self.is_done:
+                self.teminal = True
+            else:
+                self.terminal = terminal = True if len(self.actions) == 0 else False
+                if self.winner_id is None and self.terminal:
+                    self.winner_id = self.state.previous_player_id()
+        else:
+            pass
 
     def generate_actions(self):
         if len(self.actions) == 0:
@@ -34,10 +48,10 @@ class DeterministicTreeNode(TreeNode):
         return self.state
 
     def expanded(self):
-        return True if self.actions else False
-
-    def terminal(self):
-        return self.terminal
+        if self.terminal:
+            return True
+        else:
+            return True if self.actions else False
 
     def parent(self):
         return self.parent

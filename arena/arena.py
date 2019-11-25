@@ -82,6 +82,7 @@ class Arena:
         print(time.time())
         return one_game_statistics
 
+
     def run_many_duels(self,
                        list_of_agents: List[Agent],
                        number_of_games: int,
