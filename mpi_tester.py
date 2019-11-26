@@ -1,4 +1,4 @@
-import time
+import random
 
 from mpi4py import MPI
 
@@ -7,9 +7,7 @@ from agents.random_agent import RandomAgent
 from agents.simple_mcts_agent import SimpleMCTSAgent
 from arena.arena_multi_process_single_duel import MultiProcessSingleDuelArena
 from gym_splendor_code.envs.mechanics.state import State
-from monte_carlo_tree_search.deterministic_mcts_multi_process import DeterministicMCTSMultiProcess
-from monte_carlo_tree_search.mcts_multi_process import MCTSMultiProcess
-from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
+from monte_carlo_tree_search.mcts_algorithms.deterministic_mcts_multi_process import DeterministicMCTSMultiProcess
 
 comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
@@ -18,17 +16,40 @@ main_process = my_rank==0
 
 agent1 = RandomAgent(mpi_communicator=comm)
 agent2 = RandomAgent(mpi_communicator=comm)
+#
+agent3  = MultiProcessMCTSAgent(50, True, False)
+agent4 = SimpleMCTSAgent(10)
 
-agent3  = MultiProcessMCTSAgent(150, True)
+random.seed(2)
 
-agent4  = SimpleMCTSAgent(2)
-
+# random.randint.seed(100)
 arek = MultiProcessSingleDuelArena()
+result = arek.run_one_duel_multi_process_deterministic(comm, [agent3, agent1])
+
+if main_process:
+    print(result)
+
+#fufu = DeterministicMCTSMultiProcess(comm)
+
+#fufu.create_root(State())
+
+#fufu.run_simulation(15, 5)
+
+# arek = Arena()
+# result = arek.run_one_duel([agent1, agent4])
 
 
-result = arek.run_one_duel_multi_process_deterministic(comm, [agent1, agent4])
 
-print(result)
+
+
+
+
+
+
+
+
+
+
 #
 # my_color = my_rank % 2
 # NEW_COMM = MPI.COMM_WORLD.Split(my_color)

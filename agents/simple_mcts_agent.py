@@ -42,7 +42,8 @@ class SimpleMCTSAgent(Agent):
         SimpleMCTSAgent.action_number+= 1
         self.mcts_algorithm.run_simulation()
         self.visualizer.generate_html(self.mcts_algorithm.root, 'renders\\action_{}.html'.format(SimpleMCTSAgent.action_number))
-        best_action = self.mcts_algorithm.choose_action()
+        if not self.mcts_algorithm.root.terminal:
+            best_action = self.mcts_algorithm.choose_action()
         if best_action is not None and self.main_process:
             self.mcts_algorithm.move_root(best_action)
             self.draw_final_tree()

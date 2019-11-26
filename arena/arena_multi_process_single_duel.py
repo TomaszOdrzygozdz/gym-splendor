@@ -96,95 +96,80 @@ class MultiProcessSingleDuelArena:
 
         # determine which agents need multi processing:
         agents_needing_multi_processing = [agent for agent in list_of_agents if agent.multi_process == True]
-
         print('Agents needing multi process: {}'.format(agents_needing_multi_processing))
-
         for agent_needing_multi_processing in agents_needing_multi_processing:
             agent_needing_multi_processing.set_communicator(mpi_communicator)
 
         my_rank = mpi_communicator.Get_rank()
         main_process = my_rank == 0
 
+
         if not self.env_initialized:
             self.initialize_env()
-
             # prepare the game
-            self.env.reset()
-            self.env.set_active_player(starting_agent_id)
-            # set players names:
-            self.env.set_players_names([agent.name for agent in list_of_agents])
+        self.env.reset()
+        self.env.set_active_player(starting_agent_id)
+        # set players names:
+        self.env.set_players_names([agent.name for agent in list_of_agents])
+        # set the initial observation
+        full_state = self.env.current_state_of_the_game
+        results_dict = {}
+        # Id if the player who first reaches number of points to win
+        first_winner_id = None
 
-            # set the initial observation
-            full_state = self.env.current_state_of_the_game
-            results_dict = {}
-            # Id if the player who first reaches number of points to win
-            first_winner_id = None
+        previous_actions = [None]
+        is_done = False
+        checked_all_players_after_first_winner = False
+        number_of_actions = 0
+        active_agent_id = starting_agent_id
 
-
-            if render_game:
-                self.env.render()
-                time.sleep(GAME_INITIAL_DELAY)
-
-            previous_actions = [None]
-            is_done = False
-            checked_all_players_after_first_winner = False
-            number_of_actions = 0
-            active_agent_id = starting_agent_id
-
-            while number_of_actions < MAX_NUMBER_OF_MOVES and not (
-                    is_done and checked_all_players_after_first_winner):
-
-                if main_process:
-                    print('Number of actions : {}'.format(number_of_actions))
-
-                if list_of_agents[active_agent_id].multi_process == True:
-                    action = list_of_agents[active_agent_id].deterministic_choose_action(full_state, previous_actions)
-                    if main_process:
-                        print('Agent {} taking action'.format(list_of_agents[active_agent_id].name))
-                if list_of_agents[active_agent_id].multi_process == False and main_process:
-                    action = list_of_agents[active_agent_id].deterministic_choose_action(full_state, previous_actions)
-                    if main_process:
-                        print('Agent {} taking action'.format(list_of_agents[active_agent_id].name))
-
-                if main_process:
-                    if action is None:
-                        print('None action by {}'.format(list_of_agents[active_agent_id].name))
-                        print('Current state of the game')
-                        state_str = StateAsDict(self.env.current_state_of_the_game)
-                        print(state_str)
-                    previous_actions = [action]
-                    if render_game:
-                        self.env.render()
-
-                    full_state, reward, is_done, info = self.env.deterministic_step(action)
-
-                    if is_done:
-                        results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
-                            OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id),
-                                               int(reward == 1))
-                        if first_winner_id is None:
-                            first_winner_id = active_agent_id
-                        checked_all_players_after_first_winner = active_agent_id == (first_winner_id - 1) % len(
-                            list_of_agents)
-
-                active_agent_id = (active_agent_id + 1) % len(list_of_agents)
-                number_of_actions += 1
-
-                #broadcast to all processes
-
-                is_done = mpi_communicator.bcast(is_done, root=0)
-                number_of_actions = mpi_communicator.bcast(number_of_actions, root=0)
-                checked_all_players_after_first_winner = mpi_communicator.bcast(checked_all_players_after_first_winner, root=0)
-                active_agent_id =  mpi_communicator.bcast(active_agent_id, root=0)
+        while number_of_actions < MAX_NUMBER_OF_MOVES and not (
+                is_done and checked_all_players_after_first_winner):
 
             if main_process:
-                one_game_statistics = GameStatisticsDuels(list_of_agents)
-                one_game_statistics.register_from_dict(results_dict)
-            if not main_process:
-                one_game_statistics = None
+                print('Number of actions : {}'.format(number_of_actions))
+                if number_of_actions == 64:
+                    print("a")
+            if list_of_agents[active_agent_id].multi_process == True:
+                action = list_of_agents[active_agent_id].deterministic_choose_action(full_state, previous_actions)
+            if list_of_agents[active_agent_id].multi_process == False and main_process:
+                action = list_of_agents[active_agent_id].deterministic_choose_action(full_state, previous_actions)
+                print('____ \n I am random my state is {} \n The action I chose is {} \n___'.format(StateAsDict(full_state), action))
+
+            if main_process:
+                if action is None:
+                    print('None action by {}'.format(list_of_agents[active_agent_id].name))
+                    print('Current state of the game')
+                    state_str = StateAsDict(self.env.current_state_of_the_game)
+                    print(state_str)
+                    is_done = True
+                previous_actions = [action]
+                full_state, reward, is_done, info = self.env.deterministic_step(action)
+
+                if is_done:
+                    results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
+                        OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id),
+                                           int(reward == 1))
+                    if first_winner_id is None:
+                        first_winner_id = active_agent_id
+                    checked_all_players_after_first_winner = active_agent_id == (first_winner_id - 1) % len(
+                        list_of_agents)
+
+            active_agent_id = (active_agent_id + 1) % len(list_of_agents)
+            number_of_actions += 1
+
+            #broadcast to all processes
+
+            is_done = mpi_communicator.bcast(is_done, root=0)
+            number_of_actions = mpi_communicator.bcast(number_of_actions, root=0)
+            checked_all_players_after_first_winner = mpi_communicator.bcast(checked_all_players_after_first_winner, root=0)
+            active_agent_id =  mpi_communicator.bcast(active_agent_id, root=0)
+
+        if main_process:
+            one_game_statistics = GameStatisticsDuels(list_of_agents)
+            one_game_statistics.register_from_dict(results_dict)
+        if not main_process:
+            one_game_statistics = None
 
 
-            return one_game_statistics
-
-
-
+        return one_game_statistics
