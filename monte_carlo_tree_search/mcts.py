@@ -47,12 +47,22 @@ class MCTS:
         raise NotImplementedError
 
     def run_mcts_pass(self, rollout_repetition: int = None):
-        leaf, search_path = self._tree_traversal()
-        rollout_repetition = self.n_rollout_repetition if rollout_repetition is None else rollout_repetition
-        for _ in range(rollout_repetition):
-            winner_id, value = self._rollout(leaf)
-            self._backpropagate(search_path, winner_id, value)
-        self._expand_leaf(leaf)
+        print('run pass')
+        if not self.root.terminal:
+            print('not terminal')
+            leaf, search_path = self._tree_traversal()
+            print('search path chosen')
+            rollout_repetition = self.n_rollout_repetition if rollout_repetition is None else rollout_repetition
+            print('rollout repetition done')
+            for _ in range(rollout_repetition):
+                print('before rollout')
+                winner_id, value = self._rollout(leaf)
+                print('after rollout')
+                self._backpropagate(search_path, winner_id, value)
+                print('backpropagated')
+            print('leaf exanding')
+            self._expand_leaf(leaf)
+            print('leaf expanded')
 
     def run_simulation(self, number_of_passes:int=None):
         assert self.root is not None, 'Root is None. Cannot run MCTS pass.'

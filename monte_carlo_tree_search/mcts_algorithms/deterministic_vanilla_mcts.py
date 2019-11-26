@@ -81,22 +81,16 @@ class DeterministicVanillaMCTS(MCTS):
 
             return winner_id, value
 
-    # def run_mcts_pass(self):
-    #     leaf, search_path = self._tree_traversal()
-    #     for _ in range(self.number_of_rollouts):
-    #         winner_id, value = self._rollout(leaf)
-    #         self._backpropagate(search_path, winner_id, value)
-    #     self._expand_leaf(leaf)
 
     def move_root(self, action):
         if self.root.expanded() == False:
             self._expand_leaf(self.root)
-        print(self.root.action_to_children_dict)
+        root_active = self.root.state.active_player_id
+        print(' _______  \n ROOT ACTIVE PLAYER {} \n ROOT STAE = {}, \n'.format(root_active, self.root.state_as_dict))
         self.root = self.root.action_to_children_dict[action.__repr__()]
 
     def _tree_traversal(self):
         search_path = [self.root]
-
         while search_path[-1].expanded() and not search_path[-1].terminal:
             node_to_add = self._select_child(search_path[-1])
             search_path.append(node_to_add)
@@ -113,7 +107,6 @@ class DeterministicVanillaMCTS(MCTS):
                 new_child = DeterministicTreeNode(child_state, leaf, action, reward, is_done, winner_id)
                 leaf.action_to_children_dict[action.__repr__()] = new_child
                 leaf.children.append(new_child)
-
 
     def _select_child(self, node):
         children_ratings = [self.score_evaluator.compute_score(child, node) for child in node.children]
@@ -139,13 +132,6 @@ class DeterministicVanillaMCTS(MCTS):
                     node.value_acc.add(value)
             else:
                 node.value_acc.add(0)
-
-    # def run_simulation(self, number_of_passes:int=None):
-    #     assert self.root is not None, 'Root is None. Cannot run MCTS pass.'
-    #     if number_of_passes is None:
-    #         number_of_passes = self.iteration_limit
-    #     for i in tqdm(range(self.iteration_limit)):
-    #         self.run_mcts_pass()
 
     def choose_action(self):
         _, best_action = self._select_best_child()

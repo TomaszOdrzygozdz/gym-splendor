@@ -129,26 +129,26 @@ class ActionBuyCard(Action):
         assert n_gold_gems_to_use == use_gold_as.sum(), 'n_gold_gems_to_use must be equal the sum of gems in use_gold_as'
         self.n_gold_gems_to_use = n_gold_gems_to_use
         self.use_gold_as = use_gold_as
-        self.price = self.card.price
 
     def execute(self,
                 state: State) -> None:
 
+        card_price = self.card.price
         #First we need to find the price players has to pay for a card after considering his discount
-        self.price = self.price % state.active_players_hand().discount()
+        price = card_price % state.active_players_hand().discount()
         if self.n_gold_gems_to_use > 0:
             #take golden gems from player:
             state.active_players_hand().gems_possessed.gems_dict[GemColor.GOLD] -= self.n_gold_gems_to_use
             #reduce the price of card:
-            self.price -= self.use_gold_as
+            price -= self.use_gold_as
 
         state.active_players_hand().cards_possessed.add(self.card)
         if self.card in state.board.cards_on_board:
             state.board.remove_card_from_board_and_refill(self.card)
         if self.card in state.active_players_hand().cards_reserved:
             state.active_players_hand().cards_reserved.remove(self.card)
-        state.active_players_hand().gems_possessed = state.active_players_hand().gems_possessed - self.price
-        state.board.gems_on_board = state.board.gems_on_board + self.price
+        state.active_players_hand().gems_possessed = state.active_players_hand().gems_possessed - price
+        state.board.gems_on_board = state.board.gems_on_board + price
         state.board.gems_on_board.gems_dict[GemColor.GOLD] += self.n_gold_gems_to_use
         self.give_nobles(state)
         self.change_active_player(state)
