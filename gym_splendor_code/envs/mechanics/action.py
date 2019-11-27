@@ -175,12 +175,12 @@ class ActionBuyCard(Action):
 
     def to_dict(self):
         return {"action_type": self.action_type,
-                'gems_flow': self.price.jsonize(),
+                'gems_flow': self.card.price.jsonize(),
                 'card' : self.card.jsonize()}
 
     def evaluate(self,
                 state: State) -> None:
-        price = self.price % state.active_players_hand().discount()
+        price = self.card.price % state.active_players_hand().discount()
         if self.n_gold_gems_to_use > 0:
             price -= self.use_gold_as
 

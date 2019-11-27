@@ -162,10 +162,12 @@ class DeterministicMCTSMultiProcess:
         #     self.create_progress_bar(iteration_limit)
 
         iterations_done_so_far = 0
-        while iterations_done_so_far < iteration_limit:
+        safety_limit = 0
+        while max(iterations_done_so_far, safety_limit) < iteration_limit:
             limit_for_this_pass = iteration_limit - iterations_done_so_far
             jobs_done = self.run_mcts_pass(limit_for_this_pass, rollout_repetition)
             iterations_done_so_far += jobs_done
+            safety_limit += 1
 
     def return_root(self):
         return self.mcts.root

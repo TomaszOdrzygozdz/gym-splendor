@@ -111,16 +111,19 @@ class DeterministicVanillaMCTS(MCTS):
     def _select_child(self, node):
         children_ratings = [self.score_evaluator.compute_score(child, node) for child in node.children]
         child_to_choose_index = np.argmax(children_ratings)
-
         return node.children[child_to_choose_index]
 
     def _select_best_child(self, node: DeterministicTreeNode=None):
         node = node if node is not None else self.root
         children_values = [child.value_acc.get() for child in node.children if child.value_acc.get() is not None]
-        best_child_index = np.argmax(children_values)
-        if len(children_values) < len(node.children):
-            print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n')
-        return node.children[best_child_index], node.actions[best_child_index]
+        if len(children_values):
+            best_child_index = np.argmax(children_values)
+            if len(children_values) < len(node.children):
+                print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n')
+            return node.children[best_child_index], node.actions[best_child_index]
+        else:
+            print(print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n'))
+            return None
 
 
     def _backpropagate(self, search_path: List[DeterministicTreeNode], winner_id, value):

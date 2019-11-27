@@ -10,6 +10,7 @@ class MultiProcessMCTSAgent(Agent):
 
     def __init__(self,
                  iteration_limit,
+                 rollout_repetition,
                  create_visualizer: bool=True,
                  show_unvisited_nodes = False):
 
@@ -19,6 +20,7 @@ class MultiProcessMCTSAgent(Agent):
         self.mcts_initialized = False
         self.name = 'Multi Process MCTS'
         self.visualize = create_visualizer
+        self.rollout_repetition = rollout_repetition
         if self.visualize:
             self.visualizer = TreeVisualizer(show_unvisited_nodes=show_unvisited_nodes)
 
@@ -72,7 +74,7 @@ class MultiProcessMCTSAgent(Agent):
         root_is_terminal = self.mpi_communicator.bcast(root_is_terminal, root=0)
         print('is root terminal?')
         if not root_is_terminal:
-            self.mcts_algorithm.run_simulation(self.iteration_limit,1)
+            self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition)
             if self.visualize and self.main_process:
                 self.visualizer.generate_html(self.mcts_algorithm.return_root(), 'renders\\action_{}.html'.format(self.actions_taken_so_far))
             best_action = self.mcts_algorithm.choose_action()
