@@ -19,7 +19,7 @@ def pupu():
 
 def run_baseline_comparison_v1():
 
-    experiment_name = 'baseline comparison v1'
+    experiment_name = 'baseline_comparison_v1'
 
     # agent1 = GreedyAgentBoost(name = "Greedy Paper(mod)", weight = [100,2,2,1,0.1])
     # agent2 = GreedyAgentBoost(weight = [100,1.5,2.5,1,0.1])
