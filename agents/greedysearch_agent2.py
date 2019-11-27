@@ -1,6 +1,5 @@
 import random
 import numpy as np
-from copy import deepcopy
 
 from agent import Agent
 from gym_splendor_code.envs.mechanics.action import Action
@@ -52,7 +51,7 @@ class GreedySearchAgent(Agent):
                                                  self.weight[3] * ae["card"][0] + self.weight[4] * sum(ae["gems_flow"]))
                 points.append(potential_reward)
                 actions.append(action)
-                
+
             values = set(points)
             if len(values) >= self.breadth:
                 actions = [actions[i] for i, point in enumerate(points) if  point >= sorted(values)[-self.breadth]]

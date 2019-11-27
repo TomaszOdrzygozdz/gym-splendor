@@ -4,7 +4,9 @@ ___Single thread version___
 hold only 1 vs 1 games."""
 
 from typing import List, Dict
-from tqdm import tqdm
+from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
+if USE_TQDM:
+    from tqdm import tqdm
 import random
 
 import gym
@@ -12,7 +14,6 @@ import gym
 from agent import Agent
 from agents.random_agent import RandomAgent
 from arena.game_statistics_duels import GameStatisticsDuels
-from arena.leaderboard import LeaderBoard
 from arena.one_agent_statistics import OneAgentStatistics
 from gym_splendor_code.envs.graphics.graphics_settings import GAME_INITIAL_DELAY
 from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI
@@ -23,11 +24,10 @@ import time
 class Arena:
 
     def __init__(self,
-                 environment_id: str = 'gym_splendor_code:splendor-v0',
-                 leaderboard: LeaderBoard = None) -> None:
+                 environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
-        self.leaderboard = leaderboard
+
 
     def run_one_duel(self,
                      list_of_agents: List[Agent],
@@ -97,7 +97,8 @@ class Arena:
         """
         assert number_of_games > 0, 'Number of games must be positive'
         cumulative_results = GameStatisticsDuels(list_of_agents)
-        for game_id in tqdm(range(number_of_games)):
+        games_ids_to_iterate = tqdm(range(number_of_games)) if USE_TQDM else range(number_of_games)
+        for game_id in games_ids_to_iterate:
             if shuffle_agents:
                 starting_agent_id = random.choice(range(len(list_of_agents)))
             one_game_results = self.run_one_duel(list_of_agents, starting_agent_id)
