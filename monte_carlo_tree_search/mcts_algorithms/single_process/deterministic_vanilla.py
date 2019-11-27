@@ -4,10 +4,10 @@ import math
 import numpy as np
 
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from monte_carlo_tree_search.mcts import MCTS
+from monte_carlo_tree_search.mcts_algorithms.abstract_deterministic_mcts import MCTS
 from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRolloutPolicy
-from monte_carlo_tree_search.score_compute import UCB1Score
-from monte_carlo_tree_search.tree import TreeNode
+from monte_carlo_tree_search.score_computers.ucb1_score import UCB1Score
+from monte_carlo_tree_search.trees.abstract_tree import TreeNode
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 
@@ -54,32 +54,32 @@ class DeterministicVanillaMCTS(MCTS):
                 break
         return winner_id, value
 
-    def _rollout(self, leaf: TreeNode):
-
-        if not leaf.terminal:
-            value = 0
-            is_done = False
-            self.env.load_state_from_dict(leaf.state_as_dict)
-            winner_id = None
-            while not is_done:
-                action = self.rollout_policy.choose_action(self.env.current_state_of_the_game)
-                if action is not None:
-                    new_state, reward, is_done, winner_id = self.env.deterministic_step(action)
-                    value = reward
-                else:
-                    winner_id = self.env.previous_player_id()
-                    value = 0.1
-                    break
-
-            return winner_id, value
-
-        if leaf.terminal:
-            value = 0
-            winner_id = leaf.winner_id
-            if leaf.perfect_value is not None:
-                value = leaf.perfect_value
-
-            return winner_id, value
+    # def _rollout(self, leaf: TreeNode):
+    #
+    #     if not leaf.terminal:
+    #         value = 0
+    #         is_done = False
+    #         self.env.load_state_from_dict(leaf.state_as_dict)
+    #         winner_id = None
+    #         while not is_done:
+    #             action = self.rollout_policy.choose_action(self.env.current_state_of_the_game)
+    #             if action is not None:
+    #                 new_state, reward, is_done, winner_id = self.env.deterministic_step(action)
+    #                 value = reward
+    #             else:
+    #                 winner_id = self.env.previous_player_id()
+    #                 value = 0.1
+    #                 break
+    #
+    #         return winner_id, value
+    #
+    #     if leaf.terminal:
+    #         value = 0
+    #         winner_id = leaf.winner_id
+    #         if leaf.perfect_value is not None:
+    #             value = leaf.perfect_value
+    #
+    #         return winner_id, value
 
 
     def move_root(self, action):

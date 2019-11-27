@@ -3,8 +3,8 @@ from typing import List
 import gym
 from tqdm import tqdm
 
-from monte_carlo_tree_search.rolluot_policy import RolloutPolicy
-from monte_carlo_tree_search.tree import TreeNode
+from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
+from monte_carlo_tree_search.trees.abstract_tree import TreeNode
 
 
 class MCTS:

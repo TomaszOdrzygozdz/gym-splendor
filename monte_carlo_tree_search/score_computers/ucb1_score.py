@@ -1,12 +1,7 @@
 import math
-
 from monte_carlo_tree_search.constants import INFINITY
-from monte_carlo_tree_search.tree import TreeNode
+from monte_carlo_tree_search.score_computers.abstract_score_computer import ScoreComputer
 
-
-class ScoreComputer:
-    def compute_score(self, node: TreeNode, parent: TreeNode):
-        pass
 
 class UCB1Score(ScoreComputer):
 

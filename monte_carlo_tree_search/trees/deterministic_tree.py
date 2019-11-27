@@ -1,13 +1,10 @@
-import random
-from typing import Dict
 # tree node
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions
-from monte_carlo_tree_search.tree import TreeNode
-from monte_carlo_tree_search.value_accumulators import ScalarMeanMaxValueAccumulator
-
+from monte_carlo_tree_search.trees.abstract_tree import TreeNode
+from monte_carlo_tree_search.value_accumulators.scalar_min_max_value_acc import ScalarMeanMaxValueAccumulator
 
 class DeterministicTreeNode(TreeNode):
 
@@ -20,6 +17,8 @@ class DeterministicTreeNode(TreeNode):
         self.is_done = is_done
         self.winner_id = winner_id
         self.terminal = False
+        if self.winner_id is not None:
+            self.solved = True
         if self.is_done:
             self.perfect_value = reward
             self.terminal = True
