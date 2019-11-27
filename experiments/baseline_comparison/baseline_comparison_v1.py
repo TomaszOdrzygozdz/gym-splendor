@@ -1,3 +1,5 @@
+from agents.greedy_agent_boost import GreedyAgentBoost
+from agents.greedysearch_agent import GreedySearchAgent
 from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
 from mpi4py import MPI
@@ -15,23 +17,14 @@ def run_baseline_comparison_v1():
 
     experiment_name = 'baseline_comparison_v1'
 
-    # agent1 = GreedyAgentBoost(name = "Greedy Paper(mod)", weight = [100,2,2,1,0.1])
-    # agent2 = GreedyAgentBoost(weight = [100,1.5,2.5,1,0.1])
-    # agent3 = GreedyAgentBoost(weight = [0.99954913, 0.01997425, 0.02001405, 0.01004779, 0.00101971])
-    # agent4 = GreedyAgentBoost(weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329])
-    # agent5 = GreedyAgentBoost(name = "Greedy Paper", weight = [100,2,2,1,1])
-    # agent6 = MinMaxAgent(weight = [100,2,2,1,0.1])
-    # agent7 = MinMaxAgent(name = "MinMax Paper(mod)",weight = [100,1.5,2.5,1,0.1])
-    agent8 = MinMaxAgent(weight=[100, 2, 2, 1, 0.1], decay=0.7)
-    # agent9 = MinMaxAgent(name = "MinMax Paper", weight = [100,1.5,2.5,1,1])
-    # agent10 = MinMaxAgent(weight = [100,2,2,1,0.1], decay = 1)
-    # agent11 = GreedySearchAgent(depth = 9, weight = [100,2,2,1,0.1], decay = 0.95)
-    # agent12 = GreedySearchAgent(depth = 7, weight = [100,2,2,1,0.1])
-    # agent13 = GreedySearchAgent(depth = 7, weight = [100,1.5,2.5,1,1], decay = 0.7)
-    # agent14 = GreedySearchAgent(depth = 7, weight = [100,1.5,2.5,1,1])
-    # agent15 = GreedySearchAgent(depth = 7, weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329], decay = 0.95)
-    agent1 = RandomAgent(distribution='uniform')
-    agent2 = RandomAgent(distribution='first_buy')
+    agent1 = GreedyAgentBoost(weight = [100,1.5,2.5,1,0.1])
+    agent2 = GreedyAgentBoost(weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329])
+    agent3 = MinMaxAgent(weight = [100,2,2,1,0.1])
+    agent4 = MinMaxAgent(weight=[100, 2, 2, 1, 0.1], decay=0.7)
+    agent5 = GreedySearchAgent(depth = 9, weight = [100,2,2,1,0.1], decay = 0.95)
+    agent6 = GreedySearchAgent(depth = 7, weight = [100,2,2,1,0.1])
+    agent7 = GreedySearchAgent(depth = 7, weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329], decay = 0.95)
+    agent8 = RandomAgent(distribution='first_buy')
 
     multi_arena = ArenaMultiThread()
 

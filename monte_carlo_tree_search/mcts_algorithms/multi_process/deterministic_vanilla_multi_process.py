@@ -1,18 +1,13 @@
-import random
-from typing import List
 # from mpi4py import MPI
 from tqdm import tqdm
 
 from gym_splendor_code.envs.mechanics.action import Action
-from monte_carlo_tree_search.mcts import MCTS
-from monte_carlo_tree_search.mcts_algorithms.deterministic_vanilla_mcts import DeterministicVanillaMCTS
-from monte_carlo_tree_search.rolluot_policy import RolloutPolicy
+from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla import DeterministicVanillaMCTS
+from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
 
 # comm = MPI.COMM_WORLD
 # my_rank = MPI.COMM_WORLD.Get_rank()
 # main_thread = my_rank==0
-from monte_carlo_tree_search.tree import TreeNode
-from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 class DeterministicMCTSMultiProcess:

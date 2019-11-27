@@ -1,5 +1,5 @@
 """This code generates interactive HTML file with MCTS Tree Visualized"""
-from monte_carlo_tree_search.tree import TreeNode
+from monte_carlo_tree_search.trees.abstract_tree import TreeNode
 
 
 class TreeVisualizer:

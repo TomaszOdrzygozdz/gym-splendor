@@ -1,13 +1,10 @@
 import random
 
 from mpi4py import MPI
-
 from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
 from agents.random_agent import RandomAgent
 from agents.simple_mcts_agent import SimpleMCTSAgent
 from arena.arena_multi_process_single_duel import MultiProcessSingleDuelArena
-from gym_splendor_code.envs.mechanics.state import State
-from monte_carlo_tree_search.mcts_algorithms.deterministic_mcts_multi_process import DeterministicMCTSMultiProcess
 
 comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()

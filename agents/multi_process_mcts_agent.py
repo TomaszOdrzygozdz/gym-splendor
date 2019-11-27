@@ -1,6 +1,5 @@
 from agent import Agent
-from gym_splendor_code.envs.mechanics.state import State
-from monte_carlo_tree_search.mcts_algorithms.deterministic_mcts_multi_process import DeterministicMCTSMultiProcess
+from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_multi_process import DeterministicMCTSMultiProcess
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 
 
@@ -57,7 +56,6 @@ class MultiProcessMCTSAgent(Agent):
         rootek = self.mcts_algorithm.return_root()
         if self.main_process:
             if rootek.state.to_dict() != state.to_dict():
-                import pdb;pdb.set_trace()
                 print('Dupa')
                 print('PREVIOUS ROOT_STATE')
                 assert False, 'COINS DO NOT MATCH'
