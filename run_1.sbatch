@@ -2,13 +2,13 @@
 ## Nazwa zlecenia
 #SBATCH -J SplendorAgentsArena
 ## Liczba alokowanych wezlow
-#SBATCH -N 100
+#SBATCH -N 1
 ## Liczba zadan per wezel (domyslnie jest to liczba alokowanych rdzeni na wezle)
-#SBATCH --ntasks-per-node=24
+#SBATCH --ntasks-per-node=4
 ## Ilosc pamieci przypadajacej na jeden rdzen obliczeniowy (domyslnie 5GB na rdzen)
 #SBATCH --mem-per-cpu=5GB
 ## Maksymalny czas trwania zlecenia (format HH:MM:SS)
-#SBATCH --time=01:00:00
+#SBATCH --time=00:02:00
 ## Nazwa grantu do rozliczenia zuzycia zasobow
 #SBATCH -A planningrl
 ## Specyfikacja partycji
@@ -38,6 +38,6 @@ echo "Running on $SLURM_NNODES nodes."
 echo "Running on $SLURM_NPROCS processors."
 echo "Current working directory is `pwd`"
 
-mpiexec python3 ./multi.py
+mpiexec python3 ./run_experiment.py
 
 echo Job finished at `date`

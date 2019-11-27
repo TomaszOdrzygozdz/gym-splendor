@@ -4,12 +4,14 @@ from typing import List
 import random
 import numpy as np
 from itertools import combinations, product
-from tqdm import tqdm
+from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
+if USE_TQDM:
+    from tqdm import tqdm
+
 
 from agent import Agent
 from arena.arena import Arena
 from arena.game_statistics_duels import GameStatisticsDuels
-from arena.leaderboard import LeaderBoard
 
 comm = MPI.COMM_WORLD
 n_proc = MPI.COMM_WORLD.Get_size()
@@ -21,19 +23,17 @@ class ArenaMultiThread:
 
 
     def __init__(self,
-                 environment_id='gym_splendor_code:splendor-v0',
-                 leaderboard: LeaderBoard = None):
+                 environment_id='gym_splendor_code:splendor-v0'):
 
         self.environment_id = environment_id
         self.progress_bar = None
-        self.leaderboard = leaderboard
 
     def create_progress_bar(self, lenght):
-        if main_thread:
+        if main_thread and USE_TQDM:
             self.progress_bar = tqdm(total=lenght, postfix=None)
 
     def set_progress_bar(self, value):
-        if main_thread:
+        if main_thread and USE_TQDM:
             self.progress_bar.n = min(value, self.progress_bar.total-1)
             self.progress_bar.update()
 
@@ -82,5 +82,3 @@ class ArenaMultiThread:
 
     def all_vs_all(self, list_of_agents, n_games):
         return self.one_group_vs_other_duels(list_of_agents, list_of_agents, games_per_duel=n_games)
-
-

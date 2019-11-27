@@ -5,17 +5,12 @@ from agents.random_agent import RandomAgent
 from mpi4py import MPI
 
 from arena.arena_multi_thread import ArenaMultiThread
-from arena.leaderboard import LeaderBoard
+
 
 comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
 main_thread = my_rank == 0
 import matplotlib.pyplot as plt
-from arena.deterministic_arena import DeterministicArena
-
-
-def pupu():
-    print('dudu')
 
 
 def run_baseline_comparison_v1():
@@ -45,11 +40,11 @@ def run_baseline_comparison_v1():
         vic_points = results.to_pandas(param='victory_points').to_csv('victory_points.csv')
         rewards = results.to_pandas(param='reward').to_csv('reward.csv')
 
-        leader_board = LeaderBoard(list_of_agents)
+        #leader_board = LeaderBoard(list_of_agents)
         #leader_board.load_from_file()
-        leader_board.register_from_games_statistics(results)
-        print(leader_board)
-        leader_board.save_to_file()
+        #leader_board.register_from_games_statistics(results)
+        #print(leader_board)
+        #leader_board.save_to_file()
 
         plt.title('Average win rate over {} games per pair:'.format(2*n_games))
         wins_pic = results.create_heatmap(param='wins', average=True)
