@@ -2,11 +2,10 @@ import random
 
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
-from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_reservations
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_buys
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_trades
-from monte_carlo_tree_search.rolluot_policy import RolloutPolicy
+from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
 
 
 class RandomRolloutPolicy(RolloutPolicy):

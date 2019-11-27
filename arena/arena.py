@@ -4,7 +4,6 @@ ___Single thread version___
 hold only 1 vs 1 games."""
 
 from typing import List, Dict
-from tqdm import tqdm
 import random
 
 import gym
@@ -98,7 +97,7 @@ class Arena:
         """
         assert number_of_games > 0, 'Number of games must be positive'
         cumulative_results = GameStatisticsDuels(list_of_agents)
-        for game_id in tqdm(range(number_of_games)):
+        for game_id in range(number_of_games):
             if shuffle_agents:
                 starting_agent_id = random.choice(range(len(list_of_agents)))
             one_game_results = self.run_one_duel(list_of_agents, starting_agent_id)

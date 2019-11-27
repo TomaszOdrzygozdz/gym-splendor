@@ -1,6 +1,5 @@
 from gym_splendor_code.envs.mechanics.action import Action
-from gym_splendor_code.envs.mechanics.state import State
-from monte_carlo_tree_search.value_accumulators import ValueAccumulator
+from monte_carlo_tree_search.value_accumulators.abstract_value_accumulator import ValueAccumulator
 
 
 class TreeNode:
