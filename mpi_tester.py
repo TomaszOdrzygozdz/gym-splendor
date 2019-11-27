@@ -17,7 +17,7 @@ main_process = my_rank==0
 agent1 = RandomAgent(mpi_communicator=comm)
 agent2 = RandomAgent(mpi_communicator=comm)
 #
-agent3  = MultiProcessMCTSAgent(50, True, False)
+agent3  = MultiProcessMCTSAgent(150, 5, True, False)
 agent4 = SimpleMCTSAgent(10)
 
 random.seed(2)

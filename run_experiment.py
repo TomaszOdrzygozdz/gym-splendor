@@ -1,0 +1,3 @@
+from experiments.baseline_comparison.baseline_comparison_v1 import run_baseline_comparison_v1
+
+run_baseline_comparison_v1()
