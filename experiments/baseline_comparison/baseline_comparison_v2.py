@@ -17,21 +17,20 @@ def run_baseline_comparison_v2():
     experiment_name = 'baseline_comparison_v2'
 
     agent1 = GreedyAgentBoost(weight = [100, 1.5, 2.5, 1, 0.1])
-    agent2 = GreedyAgentBoost(weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329])
-    agent3 = GreedyAgentBoost(weight = [100, 2, 2, 1, 0.1])
-    agent4 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], depth = 2)
-    agent5 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1])
-    agent6 = MinMaxAgent(weight = [100, 1.5, 2.5, 1, 0.1])
-    agent7 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], decay = 0.7)
-    agent8 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], decay = 1.2)
-    agent9 = GreedySearchAgent(depth = 3, breadth = 1, weight = [100, 2, 2, 1, 0.1])
-    agent10 = GreedySearchAgent(depth = 3, weight = [100, 2, 2, 1, 0.1])
-    agent11 = GreedySearchAgent(depth = 3, weight = [100, 2.5, 1.5, 1, 0.1])
-    agent12 = GreedySearchAgent(depth = 4, weight = [100, 2, 2, 1, 0.1])
-    agent13 = GreedySearchAgent(depth = 5, breadth = 1, weight = [100, 2, 2, 1, 0.1])
-    agent14 = RandomAgent(distribution = 'uniform')
-    agent15 = RandomAgent(distribution = 'uniform_by_types')
-    agent16 = RandomAgent(distribution = 'first_buy')
+    agent2 = GreedyAgentBoost(weight = [100, 2, 2, 1, 0.1])
+    agent3 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], depth = 2)
+    agent4 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1])
+    agent5 = MinMaxAgent(weight = [100, 1.5, 2.5, 1, 0.1])
+    agent6 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], decay = 0.7)
+    agent7 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], decay = 1.2)
+    agent8 = GreedySearchAgent(depth = 3, breadth = 1, weight = [100, 2, 2, 1, 0.1])
+    agent9 = GreedySearchAgent(depth = 3, weight = [100, 2, 2, 1, 0.1])
+    agent10 = GreedySearchAgent(depth = 3, weight = [100, 2.5, 1.5, 1, 0.1])
+    agent11 = GreedySearchAgent(depth = 4, weight = [100, 2, 2, 1, 0.1])
+    agent12 = GreedySearchAgent(depth = 5, breadth = 1, weight = [100, 2, 2, 1, 0.1])
+    agent13 = RandomAgent(distribution = 'uniform')
+    agent14 = RandomAgent(distribution = 'uniform_by_types')
+    agent15 = RandomAgent(distribution = 'first_buy')
 
 
     multi_arena = ArenaMultiThread()
@@ -51,8 +50,7 @@ def run_baseline_comparison_v2():
                       agent12,
                       agent13,
                       agent14,
-                      agent15,
-                      agent16]
+                      agent15]
 
     results = multi_arena.all_vs_all(list_of_agents, n_games)
 
@@ -70,12 +68,12 @@ def run_baseline_comparison_v2():
         #print(leader_board)
         #leader_board.save_to_file()
 
-        plt.title('Average win rate over {} games per pair:'.format(2*n_games))
+        plt.title('Average win rate over {} games per pair:'.format(2 * n_games))
         wins_pic = results.create_heatmap(param='wins', average=True)
         plt.savefig('reports/wins.png')
         plt.clf()
 
-        plt.title('Average reward over {} games per pair:'.format(2*n_games))
+        plt.title('Average reward over {} games per pair:'.format(2 * n_games))
         reward_pic = results.create_heatmap('reward', average=True)
         plt.savefig('reports/reward.png')
         plt.clf()
