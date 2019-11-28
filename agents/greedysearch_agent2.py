@@ -1,11 +1,11 @@
 import random
 import numpy as np
 
-from agent import Agent
+from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
 from gym_splendor_code.envs.mechanics.state import State
-from gym_splendor_code.envs.data.data_loader import load_all_cards, load_all_nobles
+
 
 class GreedySearchAgent(Agent):
 
@@ -31,7 +31,7 @@ class GreedySearchAgent(Agent):
         self.env_dict = {lvl : None for lvl in range(1, self.depth)}
 
 
-    def choose_action(self, observation) -> Action:
+    def choose_action(self, observation, previous_actions) -> Action:
 
         #first we load observation to the private environment
         self.env.load_observation_light(observation)

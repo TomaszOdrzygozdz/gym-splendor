@@ -3,19 +3,17 @@
 ___Single thread version___
 hold only 1 vs 1 games."""
 
-from typing import List, Dict
+from typing import List
 from tqdm import tqdm
 import random
 
 import gym
 
-from agent import Agent
-from agents.random_agent import RandomAgent
+from agents.abstract_agent import Agent
 from arena.game_statistics_duels import GameStatisticsDuels
 from arena.leaderboard import LeaderBoard
 from arena.one_agent_statistics import OneAgentStatistics
 from gym_splendor_code.envs.graphics.graphics_settings import GAME_INITIAL_DELAY
-from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI
 from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
 
 import time

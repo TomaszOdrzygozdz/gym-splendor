@@ -1,4 +1,4 @@
-from agent import Agent
+from agents.abstract_agent import Agent
 from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_multi_process import DeterministicMCTSMultiProcess
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 
@@ -25,7 +25,6 @@ class MultiProcessMCTSAgent(Agent):
 
         self.previous_root_state = None
         self.previous_game_state = None
-
         self.actions_taken_so_far = 0
 
     def initialize_mcts(self, mpi_communicator):
@@ -91,4 +90,13 @@ class MultiProcessMCTSAgent(Agent):
     def draw_final_tree(self):
         if self.visualize and self.main_process:
             self.visualizer.generate_html(self.mcts_algorithm.original_root(), 'renders\\full_game.html')
+
+    def finish_game(self):
+        '''When game is finished we need to clear out tree.'''
+        self.mcts_started = False
+        self.actions_taken_so_far = 0
+        self.previous_root_state = None
+        self.previous_game_state = None
+        self.actions_taken_so_far = 0
+
 

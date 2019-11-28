@@ -1,12 +1,11 @@
 import random
 import numpy as np
-from copy import deepcopy
 
-from agent import Agent
+from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
 from gym_splendor_code.envs.mechanics.state import State
-from gym_splendor_code.envs.data.data_loader import load_all_cards, load_all_nobles
+
 
 class GreedySearchAgent(Agent):
 

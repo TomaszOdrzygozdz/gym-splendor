@@ -1,12 +1,9 @@
 from agents.random_agent import RandomAgent
-from agents.greedy_agent import GreedyAgent
 from agents.minmax_agent import MinMaxAgent
 from agents.greedysearch_agent2 import GreedySearchAgent
 
-import time
+from arena.single_process.arena import Arena
 
-from arena.arena import Arena
-import cProfile
 environment_id = 'gym_splendor_code:splendor-v1'
 fight_pit = Arena(environment_id)
 

@@ -1,4 +1,4 @@
-from agent import Agent
+from agents.abstract_agent import Agent
 from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla import DeterministicVanillaMCTS
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 
