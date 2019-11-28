@@ -54,3 +54,6 @@ class Agent:
             self.mpi_communicator = mpi_communicator
         else:
             print('This agent does not need mpi communicator')
+
+    def finish_game(self):
+        pass

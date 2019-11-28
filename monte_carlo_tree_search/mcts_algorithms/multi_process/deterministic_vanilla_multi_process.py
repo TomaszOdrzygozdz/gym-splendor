@@ -89,7 +89,6 @@ class DeterministicMCTSMultiProcess:
                 flattened_results = self.flatten_list_of_dicts(combined_results)
                 self._backpropagate_many_results(search_path, flattened_results)
 
-
         #colloect values for terminal children:
         if self.main_process:
             for terminal_child in terminal_children:
@@ -157,13 +156,12 @@ class DeterministicMCTSMultiProcess:
         #     self.create_progress_bar(iteration_limit)
 
         iterations_done_so_far = 0
-        safety_limit = 0
-        while max(iterations_done_so_far, safety_limit) < iteration_limit:
+        while iterations_done_so_far < iteration_limit:
             limit_for_this_pass = iteration_limit - iterations_done_so_far
             jobs_done = self.run_mcts_pass(limit_for_this_pass, rollout_repetition)
+            if jobs_done == 0:
+                break
             iterations_done_so_far += jobs_done
-            safety_limit += 1
 
     def return_root(self):
         return self.mcts.root
-

@@ -2,11 +2,10 @@ from itertools import product
 from typing import List, Dict
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from agent import Agent
+from agents.abstract_agent import Agent
 from arena.one_agent_statistics import OneAgentStatistics
 
 

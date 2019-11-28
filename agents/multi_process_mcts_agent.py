@@ -1,4 +1,4 @@
-from agent import Agent
+from agents.abstract_agent import Agent
 from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_multi_process import DeterministicMCTSMultiProcess
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 
@@ -25,7 +25,6 @@ class MultiProcessMCTSAgent(Agent):
 
         self.previous_root_state = None
         self.previous_game_state = None
-
         self.actions_taken_so_far = 0
 
     def initialize_mcts(self, mpi_communicator):
@@ -44,6 +43,9 @@ class MultiProcessMCTSAgent(Agent):
             print(' STARTING MCTS')
             self.mcts_algorithm.create_root(state)
             print('STARTING STATE FOR MCTS = {}'.format(state.to_dict()))
+            print('CHECK REAL MCTS ROOT STATE = {}'.format(self.mcts_algorithm.return_root().state.to_dict()))
+            print('CHECK REAL MCTS ROOT STATE AS DICT = {}'.format(self.mcts_algorithm.return_root().state_as_dict))
+            print("STATE = {}".format(state.to_dict()))
             self.mcts_started = True
             ignore_previous_action = True
 
@@ -52,12 +54,12 @@ class MultiProcessMCTSAgent(Agent):
                 if self.mcts_started and self.main_process:
                     if not self.mcts_algorithm.return_root().terminal:
                         self.mcts_algorithm.move_root(previous_actions[0])
-        print("root moved")
+                        print("root moved")
         rootek = self.mcts_algorithm.return_root()
         if self.main_process:
             if rootek.state.to_dict() != state.to_dict():
                 print('Dupa')
-                print('PREVIOUS ROOT_STATE')
+                print('ROOTEK STATE = {} \n STATE = {}'.format(rootek.state.to_dict(), state.to_dict()))
                 assert False, 'COINS DO NOT MATCH'
 
         if self.main_process:
@@ -91,4 +93,13 @@ class MultiProcessMCTSAgent(Agent):
     def draw_final_tree(self):
         if self.visualize and self.main_process:
             self.visualizer.generate_html(self.mcts_algorithm.original_root(), 'renders\\full_game.html')
+
+    def finish_game(self):
+        '''When game is finished we need to clear out tree.'''
+        self.mcts_started = False
+        self.actions_taken_so_far = 0
+        self.previous_root_state = None
+        self.previous_game_state = None
+        self.actions_taken_so_far = 0
+
 

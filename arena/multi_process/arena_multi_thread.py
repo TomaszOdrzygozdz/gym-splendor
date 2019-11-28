@@ -2,15 +2,14 @@ from mpi4py import MPI
 from typing import List
 
 import random
-import numpy as np
-from itertools import combinations, product
+from itertools import product
 from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
 if USE_TQDM:
     from tqdm import tqdm
 
 
-from agent import Agent
-from arena.arena import Arena
+from agents.abstract_agent import Agent
+from arena.single_process.arena import Arena
 from arena.game_statistics_duels import GameStatisticsDuels
 
 comm = MPI.COMM_WORLD

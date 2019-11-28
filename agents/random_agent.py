@@ -1,8 +1,7 @@
 import random
 
-from agent import Agent
+from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.action import Action
-from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 
 
 class RandomAgent(Agent):
