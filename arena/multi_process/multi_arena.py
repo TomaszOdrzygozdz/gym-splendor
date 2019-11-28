@@ -1,3 +1,4 @@
+import random
 from itertools import product
 from typing import List
 
@@ -23,6 +24,7 @@ class DeterministicMultiProcessArena:
 
         self.env_initialized = False
         self.name = 'Multi Process Arena'
+        self.initialize_env()
 
 
     def initialize_env(self, environment_id: str = 'gym_splendor_code:splendor-deterministic-v0'):
@@ -32,7 +34,8 @@ class DeterministicMultiProcessArena:
     def run_one_duel(self,
                      list_of_agents: List[Agent],
                      starting_agent_id: int = 0,
-                     render_game: bool = False) -> GameStatisticsDuels:
+                     mpi_communicator=None,
+                     ) -> GameStatisticsDuels:
         """Runs one game between two agents.
         :param:
         list_of_agents: List of agents to play, they will play in the order given by the list
@@ -40,6 +43,10 @@ class DeterministicMultiProcessArena:
         show_game: If True, GUI will appear showing the game. """
 
         # prepare the game
+        mpi_communicator = comm if mpi_communicator is None else mpi_communicator
+
+        #Determine agents needing multi processing
+
         self.env.reset()
         self.env.set_active_player(starting_agent_id)
         # set players names:
@@ -56,16 +63,10 @@ class DeterministicMultiProcessArena:
         checked_all_players_after_first_winner = False
         previous_actions = [None]
 
-        if render_game:
-            self.env.render()
-            time.sleep(GAME_INITIAL_DELAY)
-
         while number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
             action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
             previous_actions = [action]
             observation, reward, is_done, info = self.env.step(action)
-            if render_game:
-                self.env.render()
             if is_done:
                 results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
                     OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id), int(reward == 1))
@@ -86,65 +87,63 @@ class DeterministicMultiProcessArena:
 
     def run_many_duels(self, list_of_agents: List[Agent], n_games: int, n_proc_per_agent:int, shuffle: bool = True):
 
+
+        assert n_games > 0, 'Number of games must be positive.'
+        assert len(list_of_agents) == 2, 'This method can run on exactly two agents.'
+
         n_process = comm.Get_size()
-        #Determine number of games that can take place at the same time:
+        my_rank = comm.Get_rank()
+        n_proc_per_agent = max(min(n_proc_per_agent, n_proc),1)
+
         n_parallel_games = int(n_process / n_proc_per_agent)
-        remainder = n_process % n_proc_per_agent
+        remaining_processes = n_process % n_proc_per_agent
+        extra_process_per_game = int(remaining_processes / n_parallel_games)
+        remaining_processes_after_all = remaining_processes % n_parallel_games
+
+        colors = []
+        for i in range(n_parallel_games):
+            if i < remaining_processes_after_all:
+                processes_to_add = n_proc_per_agent + extra_process_per_game + 1
+                colors += [i]*processes_to_add
+            if i >= remaining_processes_after_all:
+                processes_to_add = n_proc_per_agent + extra_process_per_game
+                colors += [i] * processes_to_add
+
+        my_color = colors[my_rank]
+        if main_process:
+            print(colors)
+
+        #create communicators:
+        new_communicator = comm.Split(my_color)
+
+        #prepare jobs for each group of processes
+        n_games_for_one_communicator = int(n_games / n_parallel_games)
+        remaining_games = n_games % n_parallel_games
+
+        if my_color < remaining_games:
+            my_games = n_games_for_one_communicator + 1
+        if my_color >= remaining_games:
+            my_games = n_games_for_one_communicator
+
+        local_main = new_communicator.Get_rank() == 0
+        if local_main:
+            print('My color = {} I have to take = {} games'.format(my_color, my_games ))
+
+        local_results = GameStatisticsDuels(list_of_agents[:1], list_of_agents[1:])
+
+        if local_main:
+            for _ in range(my_games):
+                if shuffle:
+                    starting_agent_id = random.choice(range(2))
+                one_game_results = self.run_one_duel(list_of_agents)
+                local_results.register(one_game_results)
+
+        #Gather all results:
+        combined_results_list = comm.gather(local_results, root=0)
 
         if main_process:
-            print('n_parallel_games = {}, remainder = {}'.format(n_parallel_games, remainder))
+            global_results = GameStatisticsDuels(list_of_agents[:1], list_of_agents[1:])
+            for local_result in combined_results_list:
+                global_results.register(local_result)
 
-        if main_process:
-            print('n _ Proc per agent {}'.format(n_proc_per_agent))
-        remainder = n_process % n_parallel_games
-        #prepare communicators:
-        list_of_processes = list(range(n_process))
-
-        # communicators = []
-        # start = 0
-        # for i in range(n_parallel_games+1):
-        #     if i < remainder:
-        #         processes_to_add = n_proc_per_game + 1
-        #         communicators.append(list_of_processes[start: start + processes_to_add])
-        #         start += processes_to_add
-        #     if i >= remainder:
-        #         processes_to_add = n_proc_per_game
-        #         communicators.append(list_of_processes[start: start + n_process])
-        #         start+= n_process
-        #
-        # if main_process:
-        #     print(communicators)
-
-        # #create all pairs to fightd
-        # all_pairs = list(product(list_of_agents1, list_of_agents2))
-        # pairs_to_duel = [pair for pair in all_pairs if pair[0] != pair[1]]
-        # #create list of jobs:
-        # list_of_jobs = pairs_to_duel*games_per_duel
-        # #calculate jobs per thread:
-        # jobs_per_thread = int(len(list_of_jobs) / n_proc)
-        # remaining_jobs = len(list_of_jobs) % n_proc
-        # #create local arena
-        # local_arena = Arena()
-        # local_results = GameStatisticsDuels(list_of_agents1, list_of_agents2)
-        # add_remaining_job = int(my_rank < remaining_jobs)
-        #
-        # #create progress bar
-        # self.create_progress_bar(len(list_of_jobs))
-        #
-        # for game_id in range(0, jobs_per_thread + add_remaining_job):
-        #     pair_to_duel = list_of_jobs[game_id*n_proc + my_rank]
-        #     if shuffle:
-        #         starting_agent_id = random.choice(range(2))
-        #     one_game_results = local_arena.run_one_duel(list(pair_to_duel))
-        #     local_results.register(one_game_results)
-        #     if main_thread:
-        #         self.set_progress_bar((game_id+1)*n_proc)
-        #
-        # #gather all results
-        # cumulative_results_unprocessed = comm.gather(local_results, root=0)
-        # if main_thread:
-        #     cumulative_results = GameStatisticsDuels(list_of_agents1, list_of_agents2)
-        #     for one_thread_results in cumulative_results_unprocessed:
-        #         cumulative_results.register(one_thread_results)
-        #
-        #     return cumulative_results
+            print(global_results)
