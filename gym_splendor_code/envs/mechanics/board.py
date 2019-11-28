@@ -55,15 +55,10 @@ class Board:
     def from_json(self, vector):
         """Take player's gems from the board. """
 
-        gems = vector['active_player_hand']['gems_possessed']
-        self.gems_on_board = self.gems_on_board -  GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
-                                    GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
-                                    GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
+        gems = vector['board']['gems_on_board']
+        self.gems_on_board = GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
+                        GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
 
-        gems = vector['other_player_hand']['gems_possessed']
-        self.gems_on_board = self.gems_on_board -  GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
-                                    GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
-                                    GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
 
         """Puts cards on the board according to previous current_state. """
         cards = vector['board']['cards_on_board']

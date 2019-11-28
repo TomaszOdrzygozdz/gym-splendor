@@ -43,6 +43,9 @@ class MultiProcessMCTSAgent(Agent):
             print(' STARTING MCTS')
             self.mcts_algorithm.create_root(state)
             print('STARTING STATE FOR MCTS = {}'.format(state.to_dict()))
+            print('CHECK REAL MCTS ROOT STATE = {}'.format(self.mcts_algorithm.return_root().state.to_dict()))
+            print('CHECK REAL MCTS ROOT STATE AS DICT = {}'.format(self.mcts_algorithm.return_root().state_as_dict))
+            print("STATE = {}".format(state.to_dict()))
             self.mcts_started = True
             ignore_previous_action = True
 
@@ -51,12 +54,12 @@ class MultiProcessMCTSAgent(Agent):
                 if self.mcts_started and self.main_process:
                     if not self.mcts_algorithm.return_root().terminal:
                         self.mcts_algorithm.move_root(previous_actions[0])
-        print("root moved")
+                        print("root moved")
         rootek = self.mcts_algorithm.return_root()
         if self.main_process:
             if rootek.state.to_dict() != state.to_dict():
                 print('Dupa')
-                print('PREVIOUS ROOT_STATE')
+                print('ROOTEK STATE = {} \n STATE = {}'.format(rootek.state.to_dict(), state.to_dict()))
                 assert False, 'COINS DO NOT MATCH'
 
         if self.main_process:

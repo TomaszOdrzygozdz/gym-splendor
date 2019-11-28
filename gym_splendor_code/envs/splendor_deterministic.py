@@ -13,7 +13,9 @@ class SplendorDeterministic(SplendorEnv):
         reward = 0
         who_won_the_game = None
         if action is not None:
+            #print('STATE BEFORE ACTION EXECUTE = {}'.format(self.current_state_of_the_game.to_dict()))
             action.execute(self.current_state_of_the_game)
+            #print('STATE AFTER ACTION EXECUTE = {}'.format(self.current_state_of_the_game.to_dict()))
         else:
             info = {'Warning': 'There was no action.'}
             self.is_done = True
@@ -29,5 +31,8 @@ class SplendorDeterministic(SplendorEnv):
             reward = -1
 
         self.is_done_update(self.end_episode_mode)
+        state_to_return_as_dict = StateAsDict(self.current_state_of_the_game)
 
-        return self.current_state_of_the_game, reward, self.is_done, who_won_the_game
+        #print("STATE TO RETURN = {}".format(state_to_return_as_dict))
+
+        return state_to_return_as_dict.to_state(), reward, self.is_done, who_won_the_game

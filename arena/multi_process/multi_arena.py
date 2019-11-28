@@ -24,7 +24,6 @@ class DeterministicMultiProcessArena:
 
         self.env_initialized = False
         self.name = 'Multi Process Arena'
-        self.initialize_env()
 
 
     def initialize_env(self, environment_id: str = 'gym_splendor_code:splendor-deterministic-v0'):
@@ -45,8 +44,16 @@ class DeterministicMultiProcessArena:
         # prepare the game
         mpi_communicator = comm if mpi_communicator is None else mpi_communicator
 
-        #Determine agents needing multi processing
+        print('My rank = {}'.format(mpi_communicator.Get_rank()))
 
+        #Determine agents needing multi processing
+        for agent in list_of_agents:
+            if agent.multi_process:
+                agent.set_communicator(mpi_communicator)
+
+        local_main_process = mpi_communicator.Get_rank() == 0
+
+        self.initialize_env()
         self.env.reset()
         self.env.set_active_player(starting_agent_id)
         # set players names:
@@ -62,28 +69,47 @@ class DeterministicMultiProcessArena:
         first_winner_id = None
         checked_all_players_after_first_winner = False
         previous_actions = [None]
+        full_state = self.env.current_state_of_the_game if local_main_process else None
 
+        results_dict = {}
         while number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
-            action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
-            previous_actions = [action]
-            observation, reward, is_done, info = self.env.step(action)
-            if is_done:
-                results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
-                    OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id), int(reward == 1))
-                if first_winner_id is None:
-                    first_winner_id = active_agent_id
-                checked_all_players_after_first_winner = active_agent_id == (first_winner_id - 1) % len(list_of_agents)
-            active_agent_id = (active_agent_id + 1) % len(list_of_agents)
-            number_of_actions += 1
+            print('My rank = {}'.format(mpi_communicator.Get_rank()))
+            active_agent = list_of_agents[active_agent_id]
+            if active_agent.multi_process:
+                print('MCTS taking action')
+                action = active_agent.deterministic_choose_action(full_state, previous_actions)
+            if not active_agent.multi_process and local_main_process:
+                print('RANDOM TAKING ACTION')
+                action = active_agent.deterministic_choose_action(full_state, previous_actions)
+
+            if local_main_process:
+                previous_actions = [action]
+                print('FULL STATE BEFORE ACTION = {}'.format(full_state.to_dict()))
+                full_state, reward, is_done, info = self.env.deterministic_step(action)
+                print('FULL STATE = {}'.format(full_state.to_dict()))
+                if is_done:
+                    results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
+                        OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id), int(reward == 1))
+                    if first_winner_id is None:
+                        first_winner_id = active_agent_id
+                    checked_all_players_after_first_winner = active_agent_id == (first_winner_id - 1) % len(list_of_agents)
+                active_agent_id = (active_agent_id + 1) % len(list_of_agents)
+                number_of_actions += 1
+
+            #broadcast info:
+            is_done = mpi_communicator.bcast(is_done, root=0)
+            number_of_actions = mpi_communicator.bcast(number_of_actions, root=0)
+            checked_all_players_after_first_winner = mpi_communicator.bcast(checked_all_players_after_first_winner)
 
         one_game_statistics = GameStatisticsDuels(list_of_agents)
+        print(results_dict)
         one_game_statistics.register_from_dict(results_dict)
 
         #Inform all agents that game is finished
         for agent in list_of_agents:
             agent.finish_game()
 
-        return one_game_statistics
+        return one_game_statistics if local_main_process else None
 
     def run_many_duels_one_pair(self, list_of_agents: List[Agent], n_games: int, n_proc_per_agent:int, shuffle: bool = True):
 
@@ -127,15 +153,16 @@ class DeterministicMultiProcessArena:
 
         local_main = new_communicator.Get_rank() == 0
         if local_main:
-            print('My color = {} I have to take = {} games'.format(my_color, my_games ))
+            print('My color = {} I have to take = {} games'.format(my_color, my_games))
+            local_results = GameStatisticsDuels(list_of_agents[:1], list_of_agents[1:])
 
-        local_results = GameStatisticsDuels(list_of_agents[:1], list_of_agents[1:])
-
-        if local_main:
-            for _ in range(my_games):
-                if shuffle:
-                    starting_agent_id = random.choice(range(2))
-                one_game_results = self.run_one_duel(list_of_agents)
+        print('hejo')
+        for _ in range(my_games):
+            if shuffle:
+                starting_agent_id = random.choice(range(2))
+            print('Running duel')
+            one_game_results = self.run_one_duel(list_of_agents, mpi_communicator=new_communicator)
+            if local_main:
                 local_results.register(one_game_results)
 
         #Gather all results:
