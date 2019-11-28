@@ -85,7 +85,7 @@ class DeterministicMultiProcessArena:
 
         return one_game_statistics
 
-    def run_many_duels(self, list_of_agents: List[Agent], n_games: int, n_proc_per_agent:int, shuffle: bool = True):
+    def run_many_duels_one_pair(self, list_of_agents: List[Agent], n_games: int, n_proc_per_agent:int, shuffle: bool = True):
 
 
         assert n_games > 0, 'Number of games must be positive.'
