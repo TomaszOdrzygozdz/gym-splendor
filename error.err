@@ -1,0 +1,29 @@
+ plgrid/tools/gcc/6.4.0 loaded.
+ plgrid/tools/intel/18.0.0 loaded.
+ plgrid/libs/mkl/2018.0.0 loaded.
+*********WARNING*********
+    To use TensorFlow with GPU you need to have your own cuDNN 7 libraries
+    and add its path to variabele LD_LIBRARY_PATH:
+    export LD_LIBRARY_PATH=/path/to/cudnn/libraries:$LD_LIBRARY_PATH 
+ plgrid/tools/python/3.6.5 loaded.
+ plgrid/tools/impi/2018 loaded.
+ plgrid/libs/python-mpi4py/3.0.1-python-3.6 loaded.
+ plgrid/libs/mkl/2018.0.0 unloaded.
+ plgrid/tools/python/3.6.5 unloaded.
+ plgrid/libs/hdf5/1.10.4 loaded.
+ plgrid/libs/mkl/2018.0.0 loaded.
+*********WARNING*********
+    To use TensorFlow with GPU you need to have your own cuDNN 7 libraries
+    and add its path to variabele LD_LIBRARY_PATH:
+    export LD_LIBRARY_PATH=/path/to/cudnn/libraries:$LD_LIBRARY_PATH 
+ plgrid/tools/python/3.7 loaded.
+
+The following have been reloaded with a version change:
+  1) plgrid/tools/python/3.6.5 => plgrid/tools/python/3.7
+
+ plgrid/tools/gcc/6.4.0 unloaded.
+ plgrid/tools/intel/18.0.0 unloaded.
+ plgrid/tools/impi/2018 unloaded.
+ plgrid/tools/gcc/6.4.0 loaded.
+ plgrid/tools/intel/18.0.0 loaded.
+ plgrid/tools/impi/2018 loaded.

@@ -12,9 +12,9 @@ my_rank = MPI.COMM_WORLD.Get_rank()
 main_thread = my_rank == 0
 
 
-def run_baseline_comparison_v1():
+def run_baseline_comparison_v2():
 
-    experiment_name = 'baseline_comparison_v1'
+    experiment_name = 'baseline_comparison_v2'
 
     agent1 = GreedyAgentBoost(weight = [100, 1.5, 2.5, 1, 0.1])
     agent2 = GreedyAgentBoost(weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329])
@@ -89,5 +89,3 @@ def run_baseline_comparison_v1():
         vic_points_pic = results.create_heatmap('games', average=True)
         plt.savefig('reports/games.png')
         plt.clf()
-
-run_baseline_comparison_v1()
