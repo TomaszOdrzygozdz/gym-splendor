@@ -46,13 +46,13 @@ class Board:
         if len(self.deck.decks_dict[card.row]):
             self.cards_on_board.add(self.deck.pop_card(card.row))
 
-    def jsonize(self):
-        return {'nobles_on_board' : {x.jsonize() for x in self.nobles_on_board},
-                'cards_on_board' : {x.jsonize() for x in self.cards_on_board},
-                'gems_on_board' : self.gems_on_board.jsonize(),
-                'deck_order': self.deck.jsonize()}
+    def to_dict(self):
+        return {'nobles_on_board' : {x.to_dict() for x in self.nobles_on_board},
+                'cards_on_board' : {x.to_dict() for x in self.cards_on_board},
+                'gems_on_board' : self.gems_on_board.to_dict(),
+                'deck_order': self.deck.to_dict()}
 
-    def from_json(self, vector):
+    def from_dict(self, vector):
         """Take player's gems from the board. """
 
         gems = vector['board']['gems_on_board']

@@ -58,8 +58,7 @@ class State():
         return self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)]
 
     def to_dict(self) -> Dict:
-        return {'active_player_hand': self.active_players_hand().jsonize(),
-                'other_player_hand': self.previous_players_hand().jsonize(),
-                'board': self.board.jsonize(),
+        return {'active_player_hand': self.active_players_hand().to_dict(),
+                'other_player_hand': self.previous_players_hand().to_dict(),
+                'board': self.board.to_dict(),
                 'active_player_id': self.active_player_id}
-

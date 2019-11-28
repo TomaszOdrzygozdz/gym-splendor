@@ -19,7 +19,7 @@ def generate_all_legal_trades_fast(state: State) -> List[ActionTradeGems]:
     take2 = min(2, n_non_empty_stacks)
 
     list_of_actions_trade = []
-    gems_player_n = sum(gems_player.jsonize())
+    gems_player_n = sum(gems_player.to_dict())
 
     if gems_player_n < 8:
         """ Take 2 gems of same color """
