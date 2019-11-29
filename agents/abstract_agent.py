@@ -3,6 +3,9 @@ from typing import List
 
 
 import gym
+
+from gym_splendor_code.envs.mechanics.abstract_observation import SplendorObservation, StochasticObservation, \
+    DeterministicObservation
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
 
@@ -30,16 +33,24 @@ class Agent:
             Agent.agents_created += 1
             self.id = Agent.agents_created
 
-
     @abstractmethod
-    def choose_action(self, observation, previous_actions : List[Action]):
+    def choose_action(self, observation : SplendorObservation, previous_actions : List[Action]):
         """This method chooses one action to take, based on the provided observation. This method should not have
         access to the original gym-splendor environment - you can create your own environment for example to do
         simulations of game, or have access to environment methods."""
+        if observation.name == 'deterministic':
+            return self.deterministic_choose_action(observation, previous_actions)
+        if observation.name == 'stochastic':
+            return self.stochastic_choose_action(observation, previous_actions)
+        else:
+            raise ValueError
+
+    @abstractmethod
+    def stochastic_choose_action(self, observation: StochasticObservation, previous_actions : List):
         raise NotImplementedError
 
-    def deterministic_choose_action(self, state: State, previous_actions : List[Action]):
-        """This method is used for games with no randomness."""
+    @abstractmethod
+    def deterministic_choose_action(self, observation : DeterministicObservation, previous_actions : List[Action]):
         raise NotImplementedError
 
     def __repr__(self):
@@ -48,12 +59,9 @@ class Agent:
     def my_name_with_id(self):
         return self.name + ' (' + str(self.id) + ')'
 
-
     def set_communicator(self, mpi_communicator):
-        if self.multi_process:
-            self.mpi_communicator = mpi_communicator
-        else:
-            print('This agent does not need mpi communicator')
+        assert self.multi_process, 'This agent does not need mpi communicator.'
+        self.mpi_communicator = mpi_communicator
 
     def finish_game(self):
         pass
