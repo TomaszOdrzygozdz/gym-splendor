@@ -1,4 +1,4 @@
 #from experiments.vanilla_mcts_experiments.vanilla_mcts_experiment_v1 import run
-from experiments.baseline_comparison.baseline_comparison_v3 import run_baseline_comparison_v3
+from experiments.baseline_comparison.baseline_comparison_v2 import run_baseline_comparison_v2
 
-run_baseline_comparison_v3(10)
+run_baseline_comparison_v2(10)

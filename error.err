@@ -27,3 +27,99 @@ The following have been reloaded with a version change:
  plgrid/tools/gcc/6.4.0 loaded.
  plgrid/tools/intel/18.0.0 loaded.
  plgrid/tools/impi/2018 loaded.
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "./run_experiment.py", line 4, in <module>
+    run_baseline_comparison_v2(10)
+TypeError: run_baseline_comparison_v2() takes 0 positional arguments but 1 was given
