@@ -48,8 +48,8 @@ class SplendorEnv(Env):
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
 
-    # def jsonize_state(self, output_file = None, return_var = False):
-    #     state = str(self.current_state_of_the_game.jsonize()).replace("set()", "NULL")
+    # def to_dict_state(self, output_file = None, return_var = False):
+    #     state = str(self.current_state_of_the_game.to_dict()).replace("set()", "NULL")
     #     if output_file is not None:
     #         with open(output_file, 'w') as json_file:
     #             json.dump(state, json_file)
@@ -63,8 +63,8 @@ class SplendorEnv(Env):
     def action_space_to_dict(self):
         return self.action_space.to_dict()
 
-    # def jsonize_action_space(self, output_file = None):
-    #     state = str(self.action_space.jsonize()).replace("set()", "NULL")
+    # def to_dict_action_space(self, output_file = None):
+    #     state = str(self.action_space.to_dict()).replace("set()", "NULL")
     #
     #     if output_file is not None:
     #         with open(output_file, 'w') as json_file:

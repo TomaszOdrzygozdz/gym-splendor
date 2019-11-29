@@ -4,7 +4,8 @@ from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
 from mpi4py import MPI
 import matplotlib.pyplot as plt
-from arena.arena_multi_thread import ArenaMultiThread
+from arena.multi_process.arena_multi_thread import ArenaMultiThread
+import pickle
 
 
 comm = MPI.COMM_WORLD
@@ -12,30 +13,24 @@ my_rank = MPI.COMM_WORLD.Get_rank()
 main_thread = my_rank == 0
 
 
-def run_baseline_comparison_v2():
+def run_baseline_comparison_v3(n_games = 5):
 
-    experiment_name = 'baseline_comparison_v2'
+    experiment_name = 'baseline_comparison_v3'
 
     agent1 = GreedyAgentBoost(weight = [100, 1.5, 2.5, 1, 0.1])
-    agent2 = GreedyAgentBoost(weight = [100, 2, 2, 1, 0.1])
-    agent3 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], depth = 2)
-    agent4 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1])
-    agent5 = MinMaxAgent(weight = [100, 1.5, 2.5, 1, 0.1])
-    agent6 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], decay = 0.7)
-    agent7 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], decay = 1.2)
-    agent8 = GreedySearchAgent(depth = 3, breadth = 1, weight = [100, 2, 2, 1, 0.1])
-    agent9 = GreedySearchAgent(depth = 3, weight = [100, 2, 2, 1, 0.1])
-    agent10 = GreedySearchAgent(depth = 3, weight = [100, 2.5, 1.5, 1, 0.1])
-    agent11 = GreedySearchAgent(depth = 4, weight = [100, 2, 2, 1, 0.1])
-    agent12 = GreedySearchAgent(depth = 5, breadth = 1, weight = [100, 2, 2, 1, 0.1])
-    agent13 = RandomAgent(distribution = 'uniform')
-    agent14 = RandomAgent(distribution = 'uniform_by_types')
-    agent15 = RandomAgent(distribution = 'first_buy')
-
+    agent2 = GreedyAgentBoost(weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329])
+    agent3 = GreedyAgentBoost(weight = [100, 2, 2, 1, 0.1])
+    agent4 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], depth = 2)
+    agent5 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1])
+    agent6 = MinMaxAgent(weight = [100, 1.5, 2.5, 1, 0.1])
+    agent7 = GreedySearchAgent(depth = 3, breadth = 1, weight = [100, 2, 2, 1, 0.1])
+    agent8 = GreedySearchAgent(depth = 3, weight = [100, 2, 2, 1, 0.1])
+    agent9 = GreedySearchAgent(depth = 4, weight = [100, 2, 2, 1, 0.1])
+    agent10 = RandomAgent(distribution = 'uniform')
+    agent11 = RandomAgent(distribution = 'uniform_by_types')
+    agent12 = RandomAgent(distribution = 'first_buy')
 
     multi_arena = ArenaMultiThread()
-
-    n_games = 1
     list_of_agents = [agent1,
                       agent2,
                       agent3,
@@ -47,12 +42,15 @@ def run_baseline_comparison_v2():
                       agent9,
                       agent10,
                       agent11,
-                      agent12,
-                      agent13,
-                      agent14,
-                      agent15]
+                      agent12]
+
+    print([agent.my_name_with_id() for agent in list_of_agents])
 
     results = multi_arena.all_vs_all(list_of_agents, n_games)
+
+    filehandler = open("report/results.pickle","wb")
+    pickle.dump(results, filehandler)
+    filehandler.close()
 
     if main_thread:
         print(' \n \n {}'.format(results.to_pandas()))
@@ -68,12 +66,12 @@ def run_baseline_comparison_v2():
         #print(leader_board)
         #leader_board.save_to_file()
 
-        plt.title('Average win rate over {} games per pair:'.format(2 * n_games))
+        plt.title('Average win rate over {} games per pair:'.format(2*n_games))
         wins_pic = results.create_heatmap(param='wins', average=True)
         plt.savefig('reports/wins.png')
         plt.clf()
 
-        plt.title('Average reward over {} games per pair:'.format(2 * n_games))
+        plt.title('Average reward over {} games per pair:'.format(2*n_games))
         reward_pic = results.create_heatmap('reward', average=True)
         plt.savefig('reports/reward.png')
         plt.clf()
@@ -84,6 +82,6 @@ def run_baseline_comparison_v2():
         plt.clf()
 
         plt.title('Average games played over {} games per pair:'.format(2*n_games))
-        vic_points_pic = results.create_heatmap('games', average=True)
+        vic_points_pic = results.create_heatmap('games', average=True, n_games = n_games)
         plt.savefig('reports/games.png')
         plt.clf()
