@@ -81,7 +81,7 @@ class GameStatisticsDuels:
         data_frame.sort_index(inplace=True)
         return data_frame
 
-    def create_heatmap(self, param='wins', average: bool = True, p1 = 18, p2 = 1, n_games = 1000):
+    def create_heatmap(self, param='wins', average: bool = True, p1 = 16, p2 = 1, n_games = 1000):
         data_frame = self.to_pandas(param, average, n_games = n_games)
         data_frame.sort_index(inplace=True, ascending = False)
         data_frame = data_frame.reindex(sorted(data_frame.columns), axis=1)

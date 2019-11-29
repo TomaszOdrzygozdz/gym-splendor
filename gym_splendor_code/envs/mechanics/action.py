@@ -93,12 +93,12 @@ class ActionTradeGems(Action):
 
     def to_dict(self):
         return {"action_type": self.action_type,
-                "gems_flow" : self.gems_from_board_to_player.jsonize(),
+                "gems_flow" : self.gems_from_board_to_player.to_dict(),
                 "card" : None}
 
     def evaluate(self,
                 state: State) -> None:
-        return {"gems_flow" : self.gems_from_board_to_player.jsonize(),
+        return {"gems_flow" : self.gems_from_board_to_player.to_dict(),
                 "card" : [0, None, 0],
                 "nobles": 0}
 
@@ -175,8 +175,8 @@ class ActionBuyCard(Action):
 
     def to_dict(self):
         return {"action_type": self.action_type,
-                'gems_flow': self.card.price.jsonize(),
-                'card' : self.card.jsonize()}
+                'gems_flow': self.card.price.to_dict(),
+                'card' : self.card.to_dict()}
 
     def evaluate(self,
                 state: State) -> None:
@@ -192,8 +192,8 @@ class ActionBuyCard(Action):
         state.active_players_hand().cards_possessed.remove(self.card)
         card_properties = self.card.evaluate()
 
-        return {"gems_flow" : price.jsonize_neg(),
-                "card" : [1, card_properties[0], card_properties[1] + 3*nobles_to_transfer],
+        return {"gems_flow" : price.to_dict_neg(),
+                "card" : [1, card_properties[0], card_properties[1] + 3 * nobles_to_transfer],
                 "nobles" : nobles_to_transfer}
 
 class ActionReserveCard(Action):
@@ -256,8 +256,8 @@ class ActionReserveCard(Action):
             gems.gems_dict[self.return_gem_color] -= 1
 
         return {"action_type": self.action_type,
-                'gems_flow': gems.jsonize(),
-                'card' : self.card.jsonize()}
+                'gems_flow': gems.to_dict(),
+                'card' : self.card.to_dict()}
 
 
     def evaluate(self,
@@ -269,7 +269,7 @@ class ActionReserveCard(Action):
 
         card_properties = self.card.evaluate()
 
-        return {"gems_flow" : gems.jsonize(),
+        return {"gems_flow" : gems.to_dict(),
                 "card" : [0, None, 0],
                 "card_booked" : [1, card_properties[0], card_properties[1]],
                 "nobles" : 0}

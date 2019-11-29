@@ -2,7 +2,7 @@ from agents.random_agent import RandomAgent
 from agents.greedy_agent import GreedyAgent
 
 from agents.minmax_agent import MinMaxAgent
-from agents.greedysearch_agent2 import GreedySearchAgent
+from agents.greedysearch_agent import GreedySearchAgent
 from arena.single_process.arena import Arena
 
 fight_pit = Arena()
@@ -13,7 +13,7 @@ goku = RandomAgent(distribution='first_buy')
 #gohan = RandomAgent(distribution='uniform')
 #goku = GreedyAgent(weight = 0.3)
 gohan = GreedyAgent(weight = 0.1)
-goku = GreedySearchAgent(name = "GS", depth = 6)
+goku = GreedySearchAgent(name = "GS", depth = 4)
 goku = MinMaxAgent(name = "MinMax", depth = 3)
 
 
@@ -22,13 +22,11 @@ goku = MinMaxAgent(name = "MinMax", depth = 3)
 # time_profile.dump_stats('optimization1.prof')
 
 
-n_games = 1000
+n_games = 10
 gohan = MinMaxAgent(name = "MinMax", weight = [100,2.5,1.5,1,0.1], depth = 3)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
-479/778
-12752/778
 
 goku = RandomAgent(distribution='uniform_on_types')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))

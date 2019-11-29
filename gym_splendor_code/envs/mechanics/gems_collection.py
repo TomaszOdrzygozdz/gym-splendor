@@ -119,10 +119,10 @@ class GemsCollection():
     def __copy__(self):
         return GemsCollection({gem_color : self.gems_dict[gem_color] for gem_color in GemColor})
 
-    def jsonize(self):
+    def to_dict(self):
         return [self.gems_dict[gem_color] for gem_color in GemColor]
 
-    def jsonize_neg(self):
+    def to_dict_neg(self):
         return [ -self.gems_dict[gem_color] for gem_color in GemColor]
 
     def get_colors_on_condition(self, cond):

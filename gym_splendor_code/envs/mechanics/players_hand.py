@@ -32,7 +32,7 @@ class PlayersHand:
         if discount is None:
             discount = self.discount()
         price_after_discount = card.price % discount
-        trade = [a - b for a, b in zip(price_after_discount.jsonize(), self.gems_possessed.jsonize())]
+        trade = [a - b for a, b in zip(price_after_discount.to_dict(), self.gems_possessed.to_dict())]
         return sum([max(a,0) for a in  trade[1:6]]) <= -trade[0]
 
     def min_gold_needed_to_buy_card(self,
@@ -51,14 +51,14 @@ class PlayersHand:
     def number_of_my_points(self) -> int:
         return sum([card.victory_points for card in self.cards_possessed]) + sum([noble.victory_points for noble in self.nobles_possessed])
 
-    def jsonize(self):
-        return {'noble_possessed_ids' : {x.jsonize() for x in self.nobles_possessed},
-                'cards_possessed_ids' : {x.jsonize() for x in self.cards_possessed},
-                'cards_reserved_ids' : {x.jsonize() for x in self.cards_reserved},
-                'gems_possessed' : self.gems_possessed.jsonize(),
+    def to_dict(self):
+        return {'noble_possessed_ids' : {x.to_dict() for x in self.nobles_possessed},
+                'cards_possessed_ids' : {x.to_dict() for x in self.cards_possessed},
+                'cards_reserved_ids' : {x.to_dict() for x in self.cards_reserved},
+                'gems_possessed' : self.gems_possessed.to_dict(),
                 'name': self.name}
 
-    def from_json(self, vector):
+    def from_dict(self, vector):
         self.name  = vector['name']
         gems = vector['gems_possessed']
         self.gems_possessed = self.gems_possessed +  GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],
