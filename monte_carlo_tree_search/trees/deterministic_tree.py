@@ -1,4 +1,5 @@
 # tree node
+from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
@@ -8,10 +9,12 @@ from monte_carlo_tree_search.value_accumulators.scalar_min_max_value_acc import 
 
 class DeterministicTreeNode(TreeNode):
 
-    def __init__(self, state: State, parent: 'MCTSTreeNode', parent_action: Action, reward: int, is_done: bool, winner_id: int)->None:
+    def __init__(self, observation: DeterministicObservation, parent: 'MCTSTreeNode', parent_action: Action, reward: int, is_done: bool, winner_id: int)->None:
         super().__init__(parent, parent_action, ScalarMeanMaxValueAccumulator(), )
-        self.state_as_dict = StateAsDict(state)
-        self.state = self.state_as_dict.to_state()
+        assert observation.name == 'deterministic', 'Wrong observation'
+        self.state = observation.recreate_state()
+        #self.observation = DeterministicObservation(self.state)
+        self.observation = observation
         self.perfect_value = None
         self.reward = reward
         self.is_done = is_done

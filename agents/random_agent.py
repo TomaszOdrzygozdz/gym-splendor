@@ -20,12 +20,8 @@ class RandomAgent(Agent):
         #We specify the name of the agent
         self.name = 'RandomAgent - ' + self.distribution + ' '
 
-    def choose_action(self, observation, previous_actions) -> Action:
 
-        #first we load observation to the private environment
-        self.env.load_observation_light(observation)
-        self.env.update_actions_light()
-
+    def choose_random_action(self):
         if len(self.env.action_space.list_of_actions):
             if self.distribution == 'uniform':
                 return random.choice(self.env.action_space.list_of_actions)
@@ -43,6 +39,14 @@ class RandomAgent(Agent):
         else:
             return None
 
+    def stochastic_choose_action(self, observation, previous_actions) -> Action:
+        assert observation.name == 'stochastic'
+        self.env.load_observation(observation)
+        self.env.update_actions_light()
+        return self.choose_random_action()
 
-    def deterministic_choose_action(self, state, previous_actions):
-        return self.choose_action(self.env.observation_space.state_to_observation(state), previous_actions)
+    def deterministic_choose_action(self, observation, previous_actions):
+        assert observation.name == 'deterministic'
+        self.env.load_observation(observation)
+        self.env.update_actions_light()
+        return self.choose_random_action()

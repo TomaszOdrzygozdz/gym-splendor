@@ -28,11 +28,14 @@ class Arena:
 
 
     def run_one_duel(self,
+                     mode: str,
                      list_of_agents: List[Agent],
                      starting_agent_id: int = 0,
-                     render_game: bool=False)-> GameStatisticsDuels:
+                     render_game: bool=False,
+                     mpi_communicator = None)-> GameStatisticsDuels:
         """Runs one game between two agents.
         :param:
+        mode: mode of the game (stochastic or deterministic)
         list_of_agents: List of agents to play, they will play in the order given by the list
         starting_agent_id:  Id of the agent who starts the game.
         show_game: If True, GUI will appear showing the game. """
@@ -46,41 +49,66 @@ class Arena:
         #set the initial agent id
         active_agent_id = starting_agent_id
         #set the initial observation
-        observation = self.env.show_observation()
+        observation = self.env.show_observation(mode)
         number_of_actions = 0
         results_dict = {}
         #Id if the player who first reaches number of points to win
         first_winner_id = None
         checked_all_players_after_first_winner = False
         previous_actions = [None]
+        action = None
 
         if render_game:
             self.env.render()
             time.sleep(GAME_INITIAL_DELAY)
 
+        if mpi_communicator is None:
+            local_main_process = True
+        if mpi_communicator is not None:
+            local_main_process = mpi_communicator.Get_rank() == 0
+            for agent in list_of_agents:
+                if agent.multi_process:
+                    agent.set_communicator(mpi_communicator)
 
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
-            action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
+            if local_main_process:
+                print('Action number = {}'.format(number_of_actions))
+            active_agent = list_of_agents[active_agent_id]
+            if active_agent.multi_process == True:
+                action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
+            if active_agent.multi_process == False and local_main_process:
+                action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
             previous_actions = [action]
-            observation, reward, is_done, info = self.env.step(action)
+            if local_main_process:
+                observation, reward, is_done, info = self.env.step(mode, action)
             if render_game:
                 self.env.render()
-            if is_done:
+
+
+            if is_done and local_main_process:
                 results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
                     OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id), int(reward == 1))
                 if first_winner_id is None:
                     first_winner_id = active_agent_id
                 checked_all_players_after_first_winner = active_agent_id == (first_winner_id-1)%len(list_of_agents)
+                #print('ALL MOVED = {}'.format(checked_all_players_after_first_winner))
+
             active_agent_id = (active_agent_id + 1) % len(list_of_agents)
             number_of_actions += 1
+            if mpi_communicator is not None:
+                is_done = mpi_communicator.bcast(is_done, root = 0)
+                checked_all_players_after_first_winner = mpi_communicator.bcast(checked_all_players_after_first_winner, root = 0)
 
-        one_game_statistics = GameStatisticsDuels(list_of_agents)
-        one_game_statistics.register_from_dict(results_dict)
+        if local_main_process:
+            one_game_statistics = GameStatisticsDuels(list_of_agents)
+            one_game_statistics.register_from_dict(results_dict)
 
-        return one_game_statistics
+        print(active_agent_id)
+        return one_game_statistics if local_main_process else None
 
 
     def run_many_duels(self,
+                       mode,
                        list_of_agents: List[Agent],
                        number_of_games: int,
                        shuffle_agents: bool = True,
@@ -99,7 +127,7 @@ class Arena:
         for game_id in games_ids_to_iterate:
             if shuffle_agents:
                 starting_agent_id = random.choice(range(len(list_of_agents)))
-            one_game_results = self.run_one_duel(list_of_agents, starting_agent_id)
+            one_game_results = self.run_one_duel(mode, list_of_agents, starting_agent_id)
             #update results:
             cumulative_results.register(one_game_results)
 

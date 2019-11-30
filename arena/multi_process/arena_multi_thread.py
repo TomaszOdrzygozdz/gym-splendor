@@ -20,7 +20,6 @@ main_thread = my_rank == 0
 
 class ArenaMultiThread:
 
-
     def __init__(self,
                  environment_id='gym_splendor_code:splendor-v0'):
 
@@ -37,6 +36,7 @@ class ArenaMultiThread:
             self.progress_bar.update()
 
     def one_group_vs_other_duels(self,
+                                 mode,
                                  list_of_agents1: List[Agent],
                                  list_of_agents2: List[Agent],
                                  games_per_duel: int,
@@ -62,7 +62,7 @@ class ArenaMultiThread:
             pair_to_duel = list_of_jobs[game_id*n_proc + my_rank]
             if shuffle:
                 starting_agent_id = random.choice(range(2))
-            one_game_results = local_arena.run_one_duel(list(pair_to_duel))
+            one_game_results = local_arena.run_one_duel(mode, list(pair_to_duel))
             local_results.register(one_game_results)
             if main_thread:
                 self.set_progress_bar((game_id+1)*n_proc)
@@ -76,8 +76,8 @@ class ArenaMultiThread:
 
             return cumulative_results
 
-    def run_many_games(self, list_of_agents, n_games):
-        return self.one_group_vs_other_duels([list_of_agents[0]], [list_of_agents[1]], games_per_duel=n_games)
+    def run_many_games(self, mode, list_of_agents, n_games):
+        return self.one_group_vs_other_duels(mode, [list_of_agents[0]], [list_of_agents[1]], games_per_duel=n_games)
 
-    def all_vs_all(self, list_of_agents, n_games):
-        return self.one_group_vs_other_duels(list_of_agents, list_of_agents, games_per_duel=n_games)
+    def all_vs_all(self, mode, list_of_agents, n_games):
+        return self.one_group_vs_other_duels(mode, list_of_agents, list_of_agents, games_per_duel=n_games)

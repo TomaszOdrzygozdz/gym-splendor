@@ -1,5 +1,8 @@
 import time
 from copy import deepcopy
+
+from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation, StochasticObservation, \
+    SplendorObservation
 from gym_splendor_code.envs.mechanics.game_settings import USE_TKINTER
 from gym import Env
 
@@ -70,7 +73,7 @@ class SplendorEnv(Env):
     #         with open(output_file, 'w') as json_file:
     #             json.dump(state, json_file)
 
-    def step(self, action: Action, ensure_correctness = False):
+    def step(self, mode, action: Action, return_observation=True, ensure_correctness = False):
         """
         Executes action on the environment. Action is performed on the current state of the game.
 
@@ -91,36 +94,36 @@ class SplendorEnv(Env):
         if action is not None:
             if ensure_correctness:
                 self.update_actions()
-                assert self.action_space.contains(action), '{} of type {} is not valid action'.format(action, type(action))
+                assert self.action_space.contains(action), '{} is not valid action'.format(action)
             action.execute(self.current_state_of_the_game)
-
         else:
             info = {'Warning' : 'There was no action.'}
         # We find the reward:
         reward = 0
+        winner_id = None
         if not self.is_done:
             if self.current_state_of_the_game.previous_players_hand().number_of_my_points() >= POINTS_TO_WIN:
                 reward = 1
+                winner_id = self.current_state_of_the_game.previous_player_id()
         if self.is_done:
             reward = -1
 
-        self.is_done_update(self.end_episode_mode)
+        self.is_done_update()
 
-        return self.observation_space.state_to_observation(self.current_state_of_the_game), reward, self.is_done, {}
+        if return_observation:
+            if mode == 'deterministic':
+                observation_to_show = DeterministicObservation(self.current_state_of_the_game)
+            if mode == 'stochastic':
+                observation_to_show = StochasticObservation(self.current_state_of_the_game)
+            return observation_to_show, reward, self.is_done, {'winner_id' : winner_id}
 
-    def is_done_update(self, end_episode_mode = 'instant_end'):
-        if end_episode_mode == 'instant_end':
-            if self.current_state_of_the_game.previous_players_hand().number_of_my_points() >= POINTS_TO_WIN:
-                self.is_done = True
-        if end_episode_mode == 'let_all_move':
-            #the episone can end only if some has reached enough points and last player has moved
-            if self.current_state_of_the_game.active_player_id == \
-                    len(self.current_state_of_the_game.list_of_players_hands) - 1:
-                #check if someone has reached enough points to win
-                for player_hand in self.current_state_of_the_game.list_of_players_hands:
-                    if player_hand.number_of_my_points() >= POINTS_TO_WIN:
-                        self.is_done = True
-                        break
+        if return_observation == False:
+            return None, reward, self.is_done, {'winner_id' : winner_id}
+
+
+    def is_done_update(self):
+        if self.current_state_of_the_game.previous_players_hand().number_of_my_points() >= POINTS_TO_WIN:
+            self.is_done = True
 
     def update_actions(self):
         self.action_space.update(self.current_state_of_the_game)
@@ -141,12 +144,9 @@ class SplendorEnv(Env):
         if self.gui is not None:
             self.gui.show_last_action(action)
 
-    def load_observation(self, observation):
-        self.current_state_of_the_game = self.observation_space.observation_to_state(observation)
-        self.vectorize_observation_space()
-
-    def load_observation_light(self, observation):
-        self.current_state_of_the_game = self.observation_space.observation_to_state(observation)
+    def load_observation(self, observation : SplendorObservation):
+        self.is_done = False
+        self.current_state_of_the_game = observation.recreate_state()
 
     def set_active_player(self, id: int)->None:
         self.current_state_of_the_game.active_player_id = id
@@ -175,9 +175,12 @@ class SplendorEnv(Env):
         self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
         self.update_actions()
 
-    def show_observation(self):
+    def show_observation(self, mode):
         self.update_actions()
-        return self.observation_space.state_to_observation(self.current_state_of_the_game)
+        if mode == 'deterministic':
+            return DeterministicObservation(self.current_state_of_the_game)
+        if mode == 'stochastic':
+            return StochasticObservation(self.current_state_of_the_game)
 
     def previous_player_id(self):
         return self.current_state_of_the_game.previous_player_id()
