@@ -5,7 +5,7 @@ from agents.random_agent import RandomAgent
 from mpi4py import MPI
 import matplotlib.pyplot as plt
 from arena.multi_process.arena_multi_thread import ArenaMultiThread
-
+import pickle
 
 comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
@@ -29,7 +29,7 @@ def run_baseline_comparison_v2(n_games = 10):
     agent11 = GreedySearchAgent(depth = 4, weight = [100, 2, 2, 1, 0.1])
     agent12 = GreedySearchAgent(depth = 5, breadth = 1, weight = [100, 2, 2, 1, 0.1])
     agent13 = RandomAgent(distribution = 'uniform')
-    agent14 = RandomAgent(distribution = 'uniform_by_types')
+    agent14 = RandomAgent(distribution = 'uniform_on_types')
     agent15 = RandomAgent(distribution = 'first_buy')
 
 
@@ -52,7 +52,8 @@ def run_baseline_comparison_v2(n_games = 10):
                       agent15]
 
     results = multi_arena.all_vs_all(list_of_agents, n_games)
-
+    with open("reports/results.pickle", ‘wb’) as f:
+        pickle.dump(results, f)
     if main_thread:
         print(' \n \n {}'.format(results.to_pandas()))
         print('\n \n \n')

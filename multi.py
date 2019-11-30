@@ -3,7 +3,6 @@ from agents.random_agent import RandomAgent
 from agents.simple_mcts_agent import SimpleMCTSAgent
 
 from mpi4py import MPI
-
 #from arena.many_vs_many import ManyVsManyStatistics
 from arena.deterministic_arena import DeterministicArena
 
@@ -50,9 +49,15 @@ resu = arek.run_one_duel(list_of_agents, 0, render_game=False)
 
 #if main_thread:
 #    print(resu)
+# results = multi_arena.all_vs_all(list_of_agents, n_games)
 
- results = multi_arena.all_vs_all(list_of_agents, n_games)
+from matplotlib  import pyplot as plt
+import pickle
+n_games = 5000
+with open('reports/results.pickle', 'rb') as f:
+    results = pickle.load(f)
 
+results
  if main_thread:
      print(' \n \n {}'.format(results.to_pandas()))
      print('\n \n \n')
@@ -61,29 +66,23 @@ resu = arek.run_one_duel(list_of_agents, 0, render_game=False)
      vic_points = results.to_pandas(param='victory_points').to_csv('victory_points.csv')
      rewards = results.to_pandas(param='reward').to_csv('reward.csv')
 
-     leader_board = LeaderBoard(list_of_agents)
-     #leader_board.load_from_file()
-     leader_board.register_from_games_statistics(results)
-     print(leader_board)
-     leader_board.save_to_file()
-
      plt.title('Average win rate over {} games per pair:'.format(2*n_games))
-     wins_pic = results.create_heatmap(param='wins', average=True, p1 = 10, p2 =2)
+     wins_pic = results.create_heatmap(param='wins', average=True, p1 = 15, p2 =1)
      plt.savefig('reports/wins.png')
      plt.clf()
 
      plt.title('Average reward over {} games per pair:'.format(2*n_games))
-     reward_pic = results.create_heatmap('reward', average=True, p1 = 10, p2 =2)
+     reward_pic = results.create_heatmap('reward', average=True, p1 = 15, p2 =1)
      plt.savefig('reports/reward.png')
      plt.clf()
 
      plt.title('Average victory points over {} games per pair:'.format(2*n_games))
-     vic_points_pic = results.create_heatmap('victory_points', average=True, p1 = 10, p2 =2)
+     vic_points_pic = results.create_heatmap('victory_points', average=True, p1 = 15, p2 =1)
      plt.savefig('reports/victory_points.png')
      plt.clf()
 
      plt.title('Average win rate over {} games per pair:'.format(2*n_games))
-     wins_pic = results.create_heatmap(param='games', average = True, p1 = 10, p2 =2, n_games = n_games)
+     wins_pic = results.create_heatmap(param='games', average = True, p1 = 15, p2 =1, n_games = n_games)
      plt.savefig('reports/games.png')
      plt.clf()
 

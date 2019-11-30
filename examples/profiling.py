@@ -15,8 +15,8 @@ fight_pit = Arena()
 
 n_games = 1000
 
-
-gohan = GreedyAgentBoost()
+gohan = GreedyAgentBoost(weight = [100,2,2,1,0.1])
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -29,6 +29,7 @@ print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle
 
 
 gohan = GreedyAgentBoost(weight = [100,2.5,1.5,1,0.1])
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -42,6 +43,7 @@ print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle
 
 
 gohan = MinMaxAgent(name = "MinMax", depth = 2)
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -54,6 +56,7 @@ print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle
 
 
 gohan = MinMaxAgent(name = "MinMax", depth = 3)
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -67,6 +70,7 @@ print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle
 
 
 gohan = MinMaxAgent(name = "MinMax", weight = [100,2.5,1.5,1,0.1], depth = 3)
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -79,6 +83,7 @@ print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle
 
 
 gohan = MinMaxAgent(name = "MinMax", decay =0.7, depth = 3)
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -92,6 +97,7 @@ print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle
 
 
 gohan = MinMaxAgent(name = "MinMax", decay = 1.2, depth = 3)
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -104,6 +110,7 @@ print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle
 
 
 gohan = GreedySearchAgent(name = "GreedySearch", depth = 3)
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -118,6 +125,7 @@ print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle
 
 
 gohan = GreedySearchAgent(name = "GreedySearch", weight = [100,2.5,1.5,1,0.1], depth = 3)
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -129,6 +137,7 @@ print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle
 
 
 gohan = GreedySearchAgent(name = "GreedySearch", depth = 5)
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
@@ -140,8 +149,8 @@ goku = RandomAgent(distribution = 'first_buy')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
 
 
-n_games = 1000
 gohan = GreedySearchAgent(name = "GreedySearch", depth = 4, breadth = 2)
+print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
