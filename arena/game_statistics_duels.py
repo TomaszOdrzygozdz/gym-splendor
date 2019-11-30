@@ -39,7 +39,7 @@ class GameStatisticsDuels:
         if len(results_dict.keys()) > 0:
             for i in range(2):
                 if len(list_agents_names) < 2:
-                    print(len(list_agents_names))
+                    assert len(list_agents_names) >= 2, results_dict
                 else:
                     self.data[(list_agents_names[i], list_agents_names[(i+1)%2])] = results_dict[list_agents_names[i]]
                     self.n_games_dict[(list_agents_names[i], list_agents_names[(i + 1) % 2])] += 1

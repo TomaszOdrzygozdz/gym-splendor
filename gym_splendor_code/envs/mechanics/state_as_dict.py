@@ -17,8 +17,6 @@ class StateAsDict:
     def __getitem__(self, item):
         return self.state_as_dict[item]
 
-    def clone(self):
-        return self.state_as_dict.copy()
 
     def __repr__(self):
         return self.state_as_dict.__repr__()

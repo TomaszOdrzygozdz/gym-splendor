@@ -1,6 +1,7 @@
 # from mpi4py import MPI
 from tqdm import tqdm
 
+from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.action import Action
 from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla import DeterministicVanillaMCTS
 from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
@@ -26,9 +27,9 @@ class DeterministicMCTSMultiProcess:
         self.iterations_done_so_far = 0
 
     #method needed only for main thread:
-    def create_root(self, state_or_observation):
+    def create_root(self, observation : DeterministicObservation):
         if self.main_process:
-            self.mcts.create_root(state_or_observation)
+            self.mcts.create_root(observation)
         else:
             pass
 
@@ -49,10 +50,10 @@ class DeterministicMCTSMultiProcess:
 
         for process_number in range(self.my_comm_size):
             if process_number < remaining:
-                states_for_i_th_process = {i*self.my_comm_size + process_number: not_terminal_children[i*self.my_comm_size + process_number].state_as_dict for i in range(0,childs_per_process + 1)}
+                states_for_i_th_process = {i*self.my_comm_size + process_number: not_terminal_children[i*self.my_comm_size + process_number].observation for i in range(0,childs_per_process + 1)}
                 states_to_rollout.append(states_for_i_th_process)
             if process_number >= remaining and process_number < n_child_to_rollout:
-                states_for_i_th_process = {i * self.my_comm_size + process_number: not_terminal_children[i * self.my_comm_size + process_number].state_as_dict for i in
+                states_for_i_th_process = {i * self.my_comm_size + process_number: not_terminal_children[i * self.my_comm_size + process_number].observation for i in
                                            range(0, childs_per_process)}
                 states_to_rollout.append(states_for_i_th_process)
             if process_number >= n_child_to_rollout:
@@ -108,7 +109,7 @@ class DeterministicMCTSMultiProcess:
         rollout_results_dict = {}
         if len(dict_of_states) > 0:
             for i in dict_of_states:
-                winner_id, value = self.mcts._rollout_from_state_as_dict(dict_of_states[i])
+                winner_id, value = self.mcts._rollout(dict_of_states[i])
                 rollout_results_dict[i] = (winner_id, value)
         return rollout_results_dict
 

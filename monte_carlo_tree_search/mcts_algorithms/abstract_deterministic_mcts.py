@@ -56,7 +56,7 @@ class MCTS:
             print('rollout repetition done')
             for _ in range(rollout_repetition):
                 print('before rollout')
-                winner_id, value = self._rollout(leaf)
+                winner_id, value = self._rollout(leaf.observation)
                 print('after rollout')
                 self._backpropagate(search_path, winner_id, value)
                 print('backpropagated')
@@ -64,8 +64,8 @@ class MCTS:
             self._expand_leaf(leaf)
             print('leaf expanded')
 
-    def run_simulation(self, number_of_passes:int=None):
+    def run_simulation(self, number_of_passes:int=None, rollout_repetition:int=1):
         assert self.root is not None, 'Root is None. Cannot run MCTS pass.'
         number_of_passes = self.iteration_limit if number_of_passes is None else number_of_passes
         for i in tqdm(range(number_of_passes)):
-            self.run_mcts_pass()
+            self.run_mcts_pass(rollout_repetition=rollout_repetition)

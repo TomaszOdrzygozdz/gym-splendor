@@ -41,7 +41,7 @@ class TreeVisualizer:
         # BFS
         kiu = [root]
         self.add_node_to_dict(root)
-        self.states_as_dicts += '<br>' + str(self.nodes_to_id[root]) + str(root.state_as_dict) + '<br><br><br>'
+        self.states_as_dicts += '<br>' + str(self.nodes_to_id[root]) + str(root.observation.observation_dict) + '<br><br><br>'
 
 
         while len(kiu) > 0:
@@ -55,7 +55,7 @@ class TreeVisualizer:
                     if child.value_acc.count() > 0 or self.show_unvisited_nodes:
                         kiu.append(child)
                         self.add_node_to_dict(child)
-                        self.states_as_dicts += str(self.nodes_to_id[child]) + ' --- ' + str(child.state_as_dict) + '<br><br><br>'
+                        self.states_as_dicts += str(self.nodes_to_id[child]) + ' --- ' + str(child.observation.observation_dict) + '<br><br><br>'
                         self.edges_str += self.edge_to_string(node_to_eval, child)
 
 

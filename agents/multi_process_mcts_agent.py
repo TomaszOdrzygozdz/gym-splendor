@@ -1,4 +1,5 @@
 from agents.abstract_agent import Agent
+from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_multi_process import DeterministicMCTSMultiProcess
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 
@@ -33,19 +34,21 @@ class MultiProcessMCTSAgent(Agent):
         self.mcts_initialized = True
         self.main_process = mpi_communicator.Get_rank() == 0
 
-    def deterministic_choose_action(self, state, previous_actions):
+    def deterministic_choose_action(self, observation : DeterministicObservation, previous_actions):
+
+        assert observation.name == 'deterministic', 'You must provide deterministic observation'
         print("Start deterministic")
         ignore_previous_action = False
         if not self.mcts_initialized:
             self.initialize_mcts(self.mpi_communicator)
-        print("MCTS initialized")
+            print("MCTS initialized")
         if not self.mcts_started:
             print(' STARTING MCTS')
-            self.mcts_algorithm.create_root(state)
-            print('STARTING STATE FOR MCTS = {}'.format(state.to_dict()))
-            print('CHECK REAL MCTS ROOT STATE = {}'.format(self.mcts_algorithm.return_root().state.to_dict()))
-            print('CHECK REAL MCTS ROOT STATE AS DICT = {}'.format(self.mcts_algorithm.return_root().state_as_dict))
-            print("STATE = {}".format(state.to_dict()))
+            self.mcts_algorithm.create_root(observation)
+            # print('STARTING STATE FOR MCTS = {}'.format(state.to_dict()))
+            # print('CHECK REAL MCTS ROOT STATE = {}'.format(self.mcts_algorithm.return_root().state.to_dict()))
+            # print('CHECK REAL MCTS ROOT STATE AS DICT = {}'.format(self.mcts_algorithm.return_root().state_as_dict))
+            # print("STATE = {}".format(state.to_dict()))
             self.mcts_started = True
             ignore_previous_action = True
 
@@ -56,23 +59,17 @@ class MultiProcessMCTSAgent(Agent):
                         self.mcts_algorithm.move_root(previous_actions[0])
                         print("root moved")
         rootek = self.mcts_algorithm.return_root()
-        if self.main_process:
-            if rootek.state.to_dict() != state.to_dict():
-                print('Dupa')
-                print('ROOTEK STATE = {} \n STATE = {}'.format(rootek.state.to_dict(), state.to_dict()))
-                assert False, 'COINS DO NOT MATCH'
-
-        if self.main_process:
-            #assert self.mcts_algorithm.return_root().state.board.gems_on_board == state.board.gems_on_board, 'Coins do not match'
-            if not self.mcts_algorithm.return_root().state.board.gems_on_board == state.board.gems_on_board:
-                print('a')
-                assert False
+        # if self.main_process:
+        #     if rootek.state.to_dict() != observation.observation_dict:
+        #         print('Dupa')
+        #         print('ROOTEK STATE = {} \n STATE = {}'.format(rootek.state.to_dict(), observation.observation_dict))
+        #         assert False, 'COINS DO NOT MATCH'
 
         root_is_terminal = None
         if self.main_process:
             root_is_terminal = self.mcts_algorithm.return_root().terminal
         root_is_terminal = self.mpi_communicator.bcast(root_is_terminal, root=0)
-        print('is root terminal?')
+        print('is root terminal? = {}'.format(root_is_terminal))
         if not root_is_terminal:
             self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition)
             if self.visualize and self.main_process:
