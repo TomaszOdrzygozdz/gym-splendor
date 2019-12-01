@@ -44,7 +44,6 @@ class DeterministicMCTSVanillaRollout(MCTS):
         self.root = None
 
     def create_root(self, observation: DeterministicObservation):
-        print(observation)
         self.original_root = DeterministicTreeNode(observation=observation, parent=None, parent_action=None, reward=0,
                                                    is_done=False, winner_id=None)
         self.root = self.original_root

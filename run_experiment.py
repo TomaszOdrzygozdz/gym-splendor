@@ -22,7 +22,7 @@ from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualiz
 #agent1 = GreedySearchAgent()
 agent1 = RandomAgent(distribution='uniform')
 #agent3 = RandomAgent(distribution='uniform_on_types')
-agent1a = GeneralMultiProcessMCTSAgent(100, 5, False, False,
+agent1a = GeneralMultiProcessMCTSAgent(10, 2, False, False,
                                         mcts = "rollout",
                                         param_1 = "random",
                                         param_2 = "uniform")
@@ -49,7 +49,7 @@ agent1e = GeneralMultiProcessMCTSAgent(100, 5, False, False,
 arena = MultiArena()
 
 t0 = time.time()
-result = arena.run_many_duels('deterministic', [agent1, agent1a], n_games=20, n_proc_per_agent=24)
+result = arena.run_many_duels('deterministic', [agent1, agent1a], n_games = 20, n_proc_per_agent=24)
 print(result)
 print("Time",time.time() - t0)
 

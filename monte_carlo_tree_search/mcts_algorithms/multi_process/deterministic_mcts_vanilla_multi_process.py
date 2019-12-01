@@ -1,5 +1,5 @@
 # from mpi4py import MPI
-from tqdm import tqdm
+#from tqdm import tqdm
 
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.action import Action
@@ -77,9 +77,7 @@ class DeterministicMCTSVanillaMultiProcess:
     def run_mcts_pass(self, iteration_limit, rollout_repetition):
 
         if self.main_process:
-            print('before tree traversal')
             leaf, search_path = self.mcts._tree_traversal()
-            print('before expand leaf')
             self.mcts._expand_leaf(leaf)
 
         iteration_limit_for_expand = iteration_limit - self.iterations_done_so_far
@@ -88,16 +86,14 @@ class DeterministicMCTSVanillaMultiProcess:
         jobs_to_do = None
         if self.main_process:
             terminal_children, states_to_rollout, jobs_to_do = self.prepare_list_of_states_to_rollout(leaf, iteration_limit_for_expand)
-            print('preparing jobs for rollut')
+
 
         jobs_done= self.mpi_communicator.bcast(jobs_to_do, root=0)
         my_nodes_to_rollout = self.mpi_communicator.scatter(states_to_rollout, root=0)
 
         for _ in range(rollout_repetition):
-            print('Rolloing out')
             my_results = self._rollout_many_nodes(my_nodes_to_rollout)
             combined_results = self.mpi_communicator.gather(my_results, root=0)
-            print('Combinig results')
             #if self.main_process:
             if self.main_process:
                 flattened_results = self.flatten_list_of_dicts(combined_results)

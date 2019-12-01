@@ -2,7 +2,7 @@ from agents.random_agent import RandomAgent
 from agents.greedy_agent_boost import GreedyAgentBoost
 
 from agents.minmax_agent import MinMaxAgent
-from agents.greedysearch_agent2 import GreedySearchAgent
+from agents.greedysearch_agent import GreedySearchAgent
 from arena.single_process.arena import Arena
 
 fight_pit = Arena()
@@ -13,7 +13,7 @@ fight_pit = Arena()
 # time_profile.dump_stats('optimization1.prof')
 
 
-n_games = 1000
+n_games = 10
 
 gohan = GreedyAgentBoost(weight = [100,2,2,1,0.1])
 print(gohan.name)

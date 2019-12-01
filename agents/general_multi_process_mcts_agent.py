@@ -47,7 +47,6 @@ class GeneralMultiProcessMCTSAgent(Agent):
     def deterministic_choose_action(self, observation : DeterministicObservation, previous_actions):
 
         assert observation.name == 'deterministic', 'You must provide deterministic observation'
-        print("Start deterministic")
         ignore_previous_action = False
         if not self.mcts_initialized:
             self.initialize_mcts(self.mpi_communicator)
@@ -67,7 +66,6 @@ class GeneralMultiProcessMCTSAgent(Agent):
                 if self.mcts_started and self.main_process:
                     if not self.mcts_algorithm.return_root().terminal:
                         self.mcts_algorithm.move_root(previous_actions[0])
-                        print("root moved")
         rootek = self.mcts_algorithm.return_root()
         # if self.main_process:
         #     if rootek.state.to_dict() != observation.observation_dict:
@@ -79,19 +77,19 @@ class GeneralMultiProcessMCTSAgent(Agent):
         if self.main_process:
             root_is_terminal = self.mcts_algorithm.return_root().terminal
         root_is_terminal = self.mpi_communicator.bcast(root_is_terminal, root=0)
-        print('is root terminal? = {}'.format(root_is_terminal))
+        #print('is root terminal? = {}'.format(root_is_terminal))
         if not root_is_terminal:
             self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition)
             if self.visualize and self.main_process:
                 self.visualizer.generate_html(self.mcts_algorithm.return_root(), 'renders\\action_{}.html'.format(self.actions_taken_so_far))
             best_action = self.mcts_algorithm.choose_action()
+            if best_action is not None:
+                self.mcts_algorithm.move_root(best_action)
+                self.actions_taken_so_far += 1
+                self.draw_final_tree()
 
-            self.mcts_algorithm.move_root(best_action)
-            self.actions_taken_so_far += 1
-            self.draw_final_tree()
-
-            if self.main_process:
-                print('STATE OF MCTS ROOT AFTER TAKING ACTION = {} \n ACTION DONE BY MCTS IS = {} '.format(self.mcts_algorithm.return_root().state.to_dict(), best_action))
+                #if self.main_process:
+                    #print('STATE OF MCTS ROOT AFTER TAKING ACTION = {} \n ACTION DONE BY MCTS IS = {} '.format(self.mcts_algorithm.return_root().state.to_dict(), best_action))
 
             return best_action
         else:

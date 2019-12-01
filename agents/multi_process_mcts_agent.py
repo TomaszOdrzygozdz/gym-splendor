@@ -75,13 +75,13 @@ class MultiProcessMCTSAgent(Agent):
             if self.visualize and self.main_process:
                 self.visualizer.generate_html(self.mcts_algorithm.return_root(), 'renders\\action_{}.html'.format(self.actions_taken_so_far))
             best_action = self.mcts_algorithm.choose_action()
+            if best_action is not None:
+                self.mcts_algorithm.move_root(best_action)
+                self.actions_taken_so_far += 1
+                self.draw_final_tree()
 
-            self.mcts_algorithm.move_root(best_action)
-            self.actions_taken_so_far += 1
-            self.draw_final_tree()
-
-            if self.main_process:
-                print('STATE OF MCTS ROOT AFTER TAKING ACTION = {} \n ACTION DONE BY MCTS IS = {} '.format(self.mcts_algorithm.return_root().state.to_dict(), best_action))
+                if self.main_process:
+                    print('STATE OF MCTS ROOT AFTER TAKING ACTION = {} \n ACTION DONE BY MCTS IS = {} '.format(self.mcts_algorithm.return_root().state.to_dict(), best_action))
 
             return best_action
         else:
