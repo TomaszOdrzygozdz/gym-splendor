@@ -26,9 +26,10 @@ class DeterministicMCTSVanillaMultiProcess:
                 param_1 = "random"
             mcts_algorithm = DeterministicMCTSVanillaRollout(iteration_limit = iteration_limit,
                                                                 rollout_policy = param_1,
-                                                                type = param_2)
+                                                                params = param_2)
         elif mcts == "evaluation":
-            mcts_algorithm = DeterministicMCTSVanillaEvaluation(iteration_limit = iteration_limit)
+            mcts_algorithm = DeterministicMCTSVanillaEvaluation(iteration_limit = iteration_limit,
+                                                                params = param_2)
 
 
         self.mpi_communicator = mpi_communicator

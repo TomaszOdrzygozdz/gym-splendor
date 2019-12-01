@@ -19,18 +19,18 @@ class DeterministicMCTSVanillaRollout(MCTS):
                  iteration_limit=None,
                  exploration_parameter = 1/math.sqrt(2),
                  rollout_policy = "random",
-                 type = None,
+                 params = None,
                  rollout_repetition = 10):
 
         if rollout_policy == "random":
-            if type is None:
-                type = "first_buy"
-            rollout = RandomRolloutPolicy(distribution = type)
+            if params is None:
+                params = "first_buy"
+            rollout = RandomRolloutPolicy(distribution = params)
 
         elif rollout_policy == "greedy":
-            if type is None:
-                type = [100, 2, 2, 1, 0.1]
-            rollout = GreedyRolloutPolicy(weight = type)
+            if params is None:
+                params = [100, 2, 2, 1, 0.1]
+            rollout = GreedyRolloutPolicy(weight = params)
 
 
         super().__init__(iteration_limit=iteration_limit,

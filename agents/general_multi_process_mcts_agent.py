@@ -37,6 +37,7 @@ class GeneralMultiProcessMCTSAgent(Agent):
     def initialize_mcts(self, mpi_communicator):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
         self.mcts_algorithm = DeterministicMCTSVanillaMultiProcess(mpi_communicator,
+                                                                    iteration_limit = self.iteration_limit,
                                                                     mcts = self.mcts,
                                                                     param_1 = self.param_1,
                                                                     param_2 = self.param_2)

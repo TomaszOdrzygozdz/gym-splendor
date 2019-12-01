@@ -16,20 +16,21 @@ from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
 class GreedySearchEvaluationPolicy(RolloutPolicy):
 
     def __init__(self,
-                    weight: list = [100,2,2,1,0.1],
-                    decay: float = 0.9,
-                    depth: int = 3,
-                    breadth: int  = 2,
-                    environment_id: str = 'gym_splendor_code:splendor-v0'):
+                params = None,
+                environment_id: str = 'gym_splendor_code:splendor-v0'):
         super().__init__()
-        self.weight = weight
-        #we create own gym-splendor enivronemt to have access to its functionality
-        #We specify the name of the agent
-        self.weight = weight
-        self.decay = decay
-        self.depth = depth
-        self.breadth = breadth
 
+        if params is None:
+            self.weight = [100,2,2,1,0.1]
+            self.decay = 0.9
+            self.depth = 3
+            self.breadth = 2
+        else:
+            self.weight = params[0]
+            self.decay = params[1]
+            self.depth = params[2]
+            self.breadth = params[3]
+            
         self.env = gym.make(environment_id)
         self.env_dict = {lvl : None for lvl in range(1, self.depth)}
 

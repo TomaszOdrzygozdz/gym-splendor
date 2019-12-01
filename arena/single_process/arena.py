@@ -79,7 +79,10 @@ class Arena:
             if active_agent.multi_process == False and local_main_process:
                 action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
             previous_actions = [action]
-            if local_main_process:
+            if action is None and is_done == False:
+                is_done = 0
+                reward = -1
+            if local_main_process and action is not None:
                 observation, reward, is_done, info = self.env.step(mode, action)
             if render_game:
                 self.env.render()
