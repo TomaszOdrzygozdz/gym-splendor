@@ -1,12 +1,12 @@
 from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
-from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_multi_process import DeterministicMCTSMultiProcess
+from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_greedy_multi_process import DeterministicMCTSGreedyMultiProcess
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 
 
 
 
-class MultiProcessMCTSAgent(Agent):
+class MultiProcessMCTSGreedyAgent(Agent):
 
     def __init__(self,
                  iteration_limit,
@@ -30,7 +30,7 @@ class MultiProcessMCTSAgent(Agent):
 
     def initialize_mcts(self, mpi_communicator):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
-        self.mcts_algorithm = DeterministicMCTSMultiProcess(mpi_communicator)
+        self.mcts_algorithm = DeterministicMCTSGreedyMultiProcess(mpi_communicator)
         self.mcts_initialized = True
         self.main_process = mpi_communicator.Get_rank() == 0
 

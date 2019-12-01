@@ -6,17 +6,17 @@ import numpy as np
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from monte_carlo_tree_search.mcts_algorithms.abstract_deterministic_mcts import MCTS
-from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRolloutPolicy
+from monte_carlo_tree_search.rollout_policies.greedy_search_evaluation_policy import GreedySearchEvaluationPolicy
 from monte_carlo_tree_search.score_computers.ucb1_score import UCB1Score
 from monte_carlo_tree_search.trees.abstract_tree import TreeNode
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 
-class DeterministicVanillaMCTS(MCTS):
+class DeterministicVanillaGSMCTS(MCTS):
     def __init__(self,
                  iteration_limit=None,
                  exploration_parameter = 1/math.sqrt(2),
-                 rollout_policy=RandomRolloutPolicy(distribution = "first_buy"),
+                 rollout_policy=GreedySearchEvaluationPolicy(),
                  rollout_repetition = 10):
 
 
@@ -45,17 +45,8 @@ class DeterministicVanillaMCTS(MCTS):
         is_done = False
         self.env.load_observation(observation)
         winner_id = None
-        while not is_done:
-            action = self.rollout_policy.choose_action(self.env.current_state_of_the_game)
-            if action is not None:
-                _, reward, is_done, info = self.env.step('deterministic',action, return_observation=False)
-                winner_id = info['winner_id']
-                value = reward
-            else:
-                winner_id = self.env.previous_player_id()
-                value = 0.1
-                break
-        return winner_id, value
+        state_evaluation = self.rollout_policy.eval_leaf(self.env.current_state_of_the_game)
+        return self.env.active_player_id(), state_evaluation
 
     def move_root(self, action):
         if self.root.expanded() == False:

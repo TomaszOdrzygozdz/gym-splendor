@@ -21,7 +21,7 @@ class RandomAgent(Agent):
         self.name = 'RandomAgent - ' + self.distribution + ' '
 
 
-    def choose_random_action(self):
+    def choose_act(self, mode):
         if len(self.env.action_space.list_of_actions):
             if self.distribution == 'uniform':
                 return random.choice(self.env.action_space.list_of_actions)
@@ -38,15 +38,3 @@ class RandomAgent(Agent):
 
         else:
             return None
-
-    def stochastic_choose_action(self, observation, previous_actions) -> Action:
-        assert observation.name == 'stochastic'
-        self.env.load_observation(observation)
-        self.env.update_actions_light()
-        return self.choose_random_action()
-
-    def deterministic_choose_action(self, observation, previous_actions):
-        assert observation.name == 'deterministic'
-        self.env.load_observation(observation)
-        self.env.update_actions_light()
-        return self.choose_random_action()

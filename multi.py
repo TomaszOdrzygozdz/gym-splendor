@@ -53,7 +53,7 @@ resu = arek.run_one_duel(list_of_agents, 0, render_game=False)
 
 from matplotlib  import pyplot as plt
 import pickle
-n_games = 5000
+n_games = 250
 with open('reports/results.pickle', 'rb') as f:
     results = pickle.load(f)
 
