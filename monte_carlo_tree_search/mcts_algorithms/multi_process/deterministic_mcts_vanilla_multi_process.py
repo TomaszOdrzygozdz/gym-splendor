@@ -3,27 +3,39 @@ from tqdm import tqdm
 
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.action import Action
-from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla_gs_evaluator import  DeterministicVanillaGSMCTS
-from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
+from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla_rollout import  DeterministicMCTSVanillaRollout
+from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla_evaluation import  DeterministicMCTSVanillaEvaluation
 
 # comm = MPI.COMM_WORLD
 # my_rank = MPI.COMM_WORLD.Get_rank()
 # main_thread = my_rank==0
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
-class DeterministicMCTSGSMultiProcess:
+class DeterministicMCTSVanillaMultiProcess:
     def __init__(self,
                  mpi_communicator,
                  iteration_limit: int = 1000,
-                 rollout_policy: RolloutPolicy = 0,
+                 mcts: str =  "rollout",
+                 param_1 = None,
+                 param_2 = None,
                  rollout_repetition: int = 0,
                  environment_id: str = 0) -> None:
+
+        if mcts == "rollout":
+            if param_1 == None:
+                param_1 = "random"
+            mcts_algorithm = DeterministicMCTSVanillaRollout(iteration_limit = iteration_limit,
+                                                                rollout_policy = param_1,
+                                                                type = param_2)
+        elif mcts == "evaluation":
+            mcts_algorithm = DeterministicMCTSVanillaEvaluation(iteration_limit = iteration_limit)
+
 
         self.mpi_communicator = mpi_communicator
         self.my_rank = self.mpi_communicator.Get_rank()
         self.my_comm_size = mpi_communicator.Get_size()
         self.main_process = self.my_rank == 0
-        self.mcts = DeterministicVanillaGSMCTS(iteration_limit=iteration_limit)
+        self.mcts = mcts_algorithm
         self.iterations_done_so_far = 0
 
     #method needed only for main thread:

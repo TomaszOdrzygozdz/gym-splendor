@@ -19,7 +19,7 @@ gohan = GreedyAgentBoost(weight = [100,2,2,1,0.1])
 print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
-print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
+print(fight_pit.run_many_duels("deterministic",[goku, gohan], number_of_games = n_games, shuffle_agents=True))
 
 goku = RandomAgent(distribution='uniform_on_types')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))

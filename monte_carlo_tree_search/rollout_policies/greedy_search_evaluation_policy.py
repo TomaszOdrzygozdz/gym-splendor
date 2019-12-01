@@ -35,14 +35,15 @@ class GreedySearchEvaluationPolicy(RolloutPolicy):
 
 
     def choose_action(self, state : State) -> Action:
-        numerator = self.depth - 1
-        self.env_dict[numerator] = StateAsDict(self.env.current_state_of_the_game)
-        self.restore_env()
+
+        self.env.update_actions_light()
         current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
 
         if len(self.env.action_space.list_of_actions)>0:
             actions = []
             points = []
+            numerator = self.depth - 1
+            self.env_dict[numerator] = StateAsDict(self.env.current_state_of_the_game)
             for action in self.env.action_space.list_of_actions:
                 ae = action.evaluate(self.env.current_state_of_the_game)
                 potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
@@ -62,7 +63,7 @@ class GreedySearchEvaluationPolicy(RolloutPolicy):
                     potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
                                                      self.weight[1] * ae["card"][2] + self.weight[2] *ae["nobles"] +\
                                                      self.weight[3] * ae["card"][0] + self.weight[4] * sum(ae["gems_flow"]))
-                    potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1)
+                    potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1, mode)
 
                     points_.append(potential_reward)
                     actions_.append(action)
@@ -80,14 +81,15 @@ class GreedySearchEvaluationPolicy(RolloutPolicy):
 
 
     def eval_leaf(self, state : State) -> float:
-        numerator = self.depth - 1
-        self.env_dict[numerator] = StateAsDict(self.env.current_state_of_the_game)
-        self.restore_env()
+        mode = "deterministic"
+        self.env.update_actions_light()
         current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
 
         if len(self.env.action_space.list_of_actions)>0:
             actions = []
             points = []
+            numerator = self.depth - 1
+            self.env_dict[numerator] = StateAsDict(self.env.current_state_of_the_game)
             for action in self.env.action_space.list_of_actions:
                 ae = action.evaluate(self.env.current_state_of_the_game)
                 potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
@@ -107,7 +109,7 @@ class GreedySearchEvaluationPolicy(RolloutPolicy):
                     potential_reward = (np.floor((current_points + ae["card"][2])/POINTS_TO_WIN) * self.weight[0] +\
                                                      self.weight[1] * ae["card"][2] + self.weight[2] *ae["nobles"] +\
                                                      self.weight[3] * ae["card"][0] + self.weight[4] * sum(ae["gems_flow"]))
-                    potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1)
+                    potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1, mode)
 
                     points_.append(potential_reward)
                     self.restore_env(numerator)

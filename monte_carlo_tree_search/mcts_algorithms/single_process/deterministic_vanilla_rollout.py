@@ -6,28 +6,40 @@ import numpy as np
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from monte_carlo_tree_search.mcts_algorithms.abstract_deterministic_mcts import MCTS
-from monte_carlo_tree_search.rollout_policies.greedy_search_evaluation_policy import GreedySearchEvaluationPolicy
+from monte_carlo_tree_search.rollout_policies.greedy_rollout import GreedyRolloutPolicy
+from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRolloutPolicy
+
 from monte_carlo_tree_search.score_computers.ucb1_score import UCB1Score
 from monte_carlo_tree_search.trees.abstract_tree import TreeNode
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 
-class DeterministicVanillaGSMCTS(MCTS):
+class DeterministicMCTSVanillaRollout(MCTS):
     def __init__(self,
                  iteration_limit=None,
                  exploration_parameter = 1/math.sqrt(2),
-                 rollout_policy=GreedySearchEvaluationPolicy(),
+                 rollout_policy = "random",
+                 type = None,
                  rollout_repetition = 10):
+
+        if rollout_policy == "random":
+            if type is None:
+                type = "first_buy"
+            rollout = RandomRolloutPolicy(distribution = type)
+
+        elif rollout_policy == "greedy":
+            if type is None:
+                type = [100, 2, 2, 1, 0.1]
+            rollout = GreedyRolloutPolicy(weight = type)
 
 
         super().__init__(iteration_limit=iteration_limit,
-                         rollout_policy= rollout_policy,
+                         rollout_policy= rollout,
                          rollout_repetition=rollout_repetition,
                          environment_id='splendor-v0')
 
 
         self.exploration_parameter = exploration_parameter
-        self.rollout_policy = rollout_policy
         self.score_evaluator = UCB1Score(self.exploration_parameter)
         self.root = None
 
@@ -45,8 +57,17 @@ class DeterministicVanillaGSMCTS(MCTS):
         is_done = False
         self.env.load_observation(observation)
         winner_id = None
-        state_evaluation = self.rollout_policy.eval_leaf(self.env.current_state_of_the_game)
-        return self.env.active_player_id(), state_evaluation
+        while not is_done:
+            action = self.rollout_policy.choose_action(self.env.current_state_of_the_game)
+            if action is not None:
+                _, reward, is_done, info = self.env.step('deterministic',action, return_observation=False)
+                winner_id = info['winner_id']
+                value = reward
+            else:
+                winner_id = self.env.previous_player_id()
+                value = 0.1
+                break
+        return winner_id, value
 
     def move_root(self, action):
         if self.root.expanded() == False:
