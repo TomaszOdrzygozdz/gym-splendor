@@ -36,8 +36,10 @@ class SplendorEnv(Env):
         self.update_actions()
         self.observation_space = SplendorObservationSpace(all_cards=self.all_cards, all_nobles=self.all_nobles)
         self.is_done = False
+        self.first_winner = None
         self.end_episode_mode = 'instant_end'
         self.gui = None
+
 
         #Create initial state of the game
 
@@ -96,29 +98,36 @@ class SplendorEnv(Env):
                 self.update_actions()
                 assert self.action_space.contains(action), '{} is not valid action'.format(action)
             action.execute(self.current_state_of_the_game)
-        else:
+
+        if action is None:
             info = {'Warning' : 'There was no action.'}
+            self.is_done = True
+            self.first_winner = self.current_state_of_the_game.previous_player_id()
         # We find the reward:
         reward = 0
-        winner_id = None
-        if not self.is_done:
-            if self.current_state_of_the_game.previous_players_hand().number_of_my_points() >= POINTS_TO_WIN:
-                reward = 1
-                winner_id = self.current_state_of_the_game.previous_player_id()
-        if self.is_done:
-            reward = -1
 
-        self.is_done_update()
+        if self.first_winner is not None:
+            if self.current_state_of_the_game.previous_player_id() == self.first_winner:
+                reward = 1
+            if self.current_state_of_the_game.previous_player_id() != self.first_winner:
+                reward = -1
+
+        if self.first_winner is None:
+            if not self.is_done:
+                if self.current_state_of_the_game.previous_players_hand().number_of_my_points() >= POINTS_TO_WIN:
+                    reward = 1
+                    self.first_winner = self.current_state_of_the_game.previous_player_id()
+                    self.is_done = True
 
         if return_observation:
             if mode == 'deterministic':
                 observation_to_show = DeterministicObservation(self.current_state_of_the_game)
             if mode == 'stochastic':
                 observation_to_show = StochasticObservation(self.current_state_of_the_game)
-            return observation_to_show, reward, self.is_done, {'winner_id' : winner_id}
+            return observation_to_show, reward, self.is_done, {'winner_id' : self.first_winner}
 
         if return_observation == False:
-            return None, reward, self.is_done, {'winner_id' : winner_id}
+            return None, reward, self.is_done, {'winner_id' : self.first_winner}
 
 
     def is_done_update(self):
@@ -146,6 +155,7 @@ class SplendorEnv(Env):
 
     def load_observation(self, observation : SplendorObservation):
         self.is_done = False
+        self.first_winner = None
         self.current_state_of_the_game = observation.recreate_state()
 
     def set_active_player(self, id: int)->None:
@@ -172,6 +182,7 @@ class SplendorEnv(Env):
 
     def reset(self):
         self.is_done = False
+        self.first_winner = None
         self.current_state_of_the_game = State(all_cards=self.all_cards, all_nobles=self.all_nobles)
         self.update_actions()
 

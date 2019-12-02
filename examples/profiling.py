@@ -3,7 +3,7 @@ from agents.greedy_agent_boost import GreedyAgentBoost
 
 from agents.minmax_agent import MinMaxAgent
 from agents.greedysearch_agent import GreedySearchAgent
-from arena.single_process.arena import Arena
+from arena.arena import Arena
 
 fight_pit = Arena()
 

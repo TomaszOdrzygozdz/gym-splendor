@@ -38,13 +38,10 @@ class MultiProcessMCTSAgent(Agent):
     def deterministic_choose_action(self, observation : DeterministicObservation, previous_actions):
 
         assert observation.name == 'deterministic', 'You must provide deterministic observation'
-        print("Start deterministic")
         ignore_previous_action = False
         if not self.mcts_initialized:
             self.initialize_mcts(self.mpi_communicator)
-            print("MCTS initialized")
         if not self.mcts_started:
-            print(' STARTING MCTS')
             self.mcts_algorithm.create_root(observation)
             # print('STARTING STATE FOR MCTS = {}'.format(state.to_dict()))
             # print('CHECK REAL MCTS ROOT STATE = {}'.format(self.mcts_algorithm.return_root().state.to_dict()))
@@ -58,8 +55,7 @@ class MultiProcessMCTSAgent(Agent):
                 if self.mcts_started and self.main_process:
                     if not self.mcts_algorithm.return_root().terminal:
                         self.mcts_algorithm.move_root(previous_actions[0])
-                        print("root moved")
-        rootek = self.mcts_algorithm.return_root()
+      #  rootek = self.mcts_algorithm.return_root()
         # if self.main_process:
         #     if rootek.state.to_dict() != observation.observation_dict:
         #         print('Dupa')
@@ -70,7 +66,7 @@ class MultiProcessMCTSAgent(Agent):
         if self.main_process:
             root_is_terminal = self.mcts_algorithm.return_root().terminal
         root_is_terminal = self.mpi_communicator.bcast(root_is_terminal, root=0)
-        print('is root terminal? = {}'.format(root_is_terminal))
+       # print('is root terminal? = {}'.format(root_is_terminal))
         if not root_is_terminal:
             self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition)
             if self.visualize and self.main_process:
@@ -91,10 +87,11 @@ class MultiProcessMCTSAgent(Agent):
 
     def finish_game(self):
         '''When game is finished we need to clear out tree.'''
-        self.mcts_started = False
-        self.actions_taken_so_far = 0
-        self.previous_root_state = None
-        self.previous_game_state = None
-        self.actions_taken_so_far = 0
+        if self.main_process:
+            self.mcts_started = False
+            self.actions_taken_so_far = 0
+            self.previous_root_state = None
+            self.previous_game_state = None
+            self.actions_taken_so_far = 0
 
 

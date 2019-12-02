@@ -70,7 +70,7 @@ class Arena:
                 if agent.multi_process:
                     agent.set_communicator(mpi_communicator)
 
-        while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
+        while  number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
             #if local_main_process:
                 #print('Action number = {}'.format(number_of_actions))
             active_agent = list_of_agents[active_agent_id]
@@ -79,21 +79,21 @@ class Arena:
             if active_agent.multi_process == False and local_main_process:
                 action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
             previous_actions = [action]
-            if action is None and not is_done :
-                results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
-                    OneAgentStatistics(-1, self.env.points_of_player_by_id(active_agent_id), 0)
-                results_dict[list_of_agents[(active_agent_id + 1) % len(list_of_agents)].my_name_with_id()] = \
-                    OneAgentStatistics(1, self.env.points_of_player_by_id((active_agent_id + 1) % len(list_of_agents)), 0)
-                break
+
             if local_main_process:
                 observation, reward, is_done, info = self.env.step(mode, action)
+                winner_id = info['winner_id']
             if render_game:
                 self.env.render()
 
-
             if is_done and local_main_process:
                 results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
-                    OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id), int(reward == 1))
+                    OneAgentStatistics(reward, self.env.points_of_player_by_id(active_agent_id),
+                                       int(winner_id == active_agent_id))
+                previous_agent_id = (active_agent_id-1)%len(list_of_agents)
+                results_dict[list_of_agents[previous_agent_id].my_name_with_id()] = \
+                    OneAgentStatistics(reward*(-1), self.env.points_of_player_by_id(previous_agent_id),
+                                   int(previous_agent_id == winner_id))
                 if first_winner_id is None:
                     first_winner_id = active_agent_id
                 checked_all_players_after_first_winner = active_agent_id == (first_winner_id-1)%len(list_of_agents)
@@ -103,7 +103,6 @@ class Arena:
             number_of_actions += 1
             if mpi_communicator is not None:
                 is_done = mpi_communicator.bcast(is_done, root = 0)
-                checked_all_players_after_first_winner = mpi_communicator.bcast(checked_all_players_after_first_winner, root = 0)
 
         if local_main_process:
             self.env.reset()

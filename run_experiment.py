@@ -4,20 +4,10 @@
 #run_baseline_comparison_v3(10)
 import time
 
-from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
 from agents.general_multi_process_mcts_agent import GeneralMultiProcessMCTSAgent
 from agents.random_agent import RandomAgent
 
-from agents.greedy_agent_boost import GreedyAgentBoost
-from agents.greedysearch_agent import GreedySearchAgent
-from agents.minmax_agent import MinMaxAgent
-from arena.multi_process.arena_multi_thread import ArenaMultiThread
-from arena.multi_process.multi_arena import MultiArena
-from arena.single_process.arena import Arena
-from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
-from gym_splendor_code.envs.mechanics.state import State
-import cProfile
-from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
+from arena.multi_arena import MultiArena
 
 #agent1 = GreedySearchAgent()
 agent1 = RandomAgent(distribution='uniform')

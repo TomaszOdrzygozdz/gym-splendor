@@ -1,10 +1,7 @@
-from agents.greedy_agent_boost import GreedyAgentBoost
-from agents.greedysearch_agent2 import GreedySearchAgent
-from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
 from mpi4py import MPI
 import matplotlib.pyplot as plt
-from arena.multi_process.arena_multi_thread import ArenaMultiThread
+from arena.arena_multi_thread import ArenaMultiThread
 
 
 comm = MPI.COMM_WORLD

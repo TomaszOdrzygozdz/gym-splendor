@@ -55,6 +55,7 @@ class DeterministicVanillaMCTS(MCTS):
                 winner_id = self.env.previous_player_id()
                 value = 0.1
                 break
+
         return winner_id, value
 
     def move_root(self, action):

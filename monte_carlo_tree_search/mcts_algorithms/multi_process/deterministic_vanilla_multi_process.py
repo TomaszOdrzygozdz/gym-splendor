@@ -88,7 +88,6 @@ class DeterministicMCTSMultiProcess:
         #colloect values for terminal children:
         if self.main_process:
             for terminal_child in terminal_children:
-                print('TERMINAL CHILDS EVALUATION')
                 for _ in range(rollout_repetition):
                     value = 0
                     winner_id = leaf.winner_id
@@ -97,7 +96,6 @@ class DeterministicMCTSMultiProcess:
                         local_search_path = search_path + [terminal_child]
                         self.mcts._backpropagate(local_search_path, winner_id, value)
 
-        print('MCTS PASS DONE')
         return jobs_done
 
     def _rollout_many_nodes(self, dict_of_states):

@@ -9,7 +9,7 @@ if USE_TQDM:
 
 
 from agents.abstract_agent import Agent
-from arena.single_process.arena import Arena
+from arena.arena import Arena
 from arena.game_statistics_duels import GameStatisticsDuels
 
 comm = MPI.COMM_WORLD

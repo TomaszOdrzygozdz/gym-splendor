@@ -2,7 +2,7 @@ from agents.random_agent import RandomAgent
 from agents.minmax_agent import MinMaxAgent
 from agents.greedysearch_agent2 import GreedySearchAgent
 
-from arena.single_process.arena import Arena
+from arena.arena import Arena
 
 environment_id = 'gym_splendor_code:splendor-v1'
 fight_pit = Arena(environment_id)

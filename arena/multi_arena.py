@@ -1,18 +1,13 @@
 import random
-from itertools import product
 from typing import List
 
 import gym
 
 from agents.abstract_agent import Agent
 from arena.game_statistics_duels import GameStatisticsDuels
-from arena.one_agent_statistics import OneAgentStatistics
-from arena.single_process.arena import Arena
-from gym_splendor_code.envs.graphics.graphics_settings import GAME_INITIAL_DELAY
-from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
+from arena.arena import Arena
 
 from mpi4py import MPI
-import time
 
 comm = MPI.COMM_WORLD
 n_proc = MPI.COMM_WORLD.Get_size()

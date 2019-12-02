@@ -1,7 +1,7 @@
 from mpi4py import MPI
 from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
 from agents.random_agent import RandomAgent
-from arena.multi_process.multi_arena import DeterministicMultiProcessArena
+from arena.multi_arena import DeterministicMultiProcessArena
 
 comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
