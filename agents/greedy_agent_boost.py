@@ -9,7 +9,7 @@ class GreedyAgentBoost(Agent):
 
     def __init__(self,
                 name: str = "Greedy",
-                weight: list = []):
+                weight: list = [100,2,2,1,0.1]):
 
 
         super().__init__()
@@ -20,11 +20,9 @@ class GreedyAgentBoost(Agent):
         self.weight = weight
         self.normalize_weight()
 
-    def choose_action(self, observation, previous_actions) -> Action:
+    def choose_act(self, mode) -> Action:
 
         #first we load observation to the private environment
-        self.env.load_observation_light(observation)
-        self.env.update_actions_light()
         current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
 
         if len(self.env.action_space.list_of_actions):

@@ -12,35 +12,17 @@ my_rank = MPI.COMM_WORLD.Get_rank()
 main_thread = my_rank == 0
 
 
-def run_baseline_comparison_v3(n_games = 5):
+def run_baseline_comparison_v5(n_games = 2500):
 
-    experiment_name = 'baseline_comparison_v3'
+    experiment_name = 'baseline_comparison_v5'
 
-    agent1 = GreedyAgentBoost(weight = [100, 1.5, 2.5, 1, 0.1])
-    agent2 = GreedyAgentBoost(weight = [0.99953495, 0.02010871, 0.02010487, 0.01095619, 0.00113329])
-    agent3 = GreedyAgentBoost(weight = [100, 2, 2, 1, 0.1])
-    agent4 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1], depth = 2)
-    agent5 = MinMaxAgent(weight = [100, 2, 2, 1, 0.1])
-    agent6 = MinMaxAgent(weight = [100, 1.5, 2.5, 1, 0.1])
-    agent7 = GreedySearchAgent(depth = 3, breadth = 1, weight = [100, 2, 2, 1, 0.1])
-    agent8 = GreedySearchAgent(depth = 3, weight = [100, 2, 2, 1, 0.1])
-    agent9 = GreedySearchAgent(depth = 4, weight = [100, 2, 2, 1, 0.1])
     agent10 = RandomAgent(distribution = 'uniform')
-    agent11 = RandomAgent(distribution = 'uniform_by_types')
+    agent11 = RandomAgent(distribution = 'uniform_on_types')
     agent12 = RandomAgent(distribution = 'first_buy')
 
 
     multi_arena = ArenaMultiThread()
-    list_of_agents = [agent1,
-                      agent2,
-                      agent3,
-                      agent4,
-                      agent5,
-                      agent6,
-                      agent7,
-                      agent8,
-                      agent9,
-                      agent10,
+    list_of_agents = [agent10,
                       agent11,
                       agent12]
 
@@ -61,21 +43,23 @@ def run_baseline_comparison_v3(n_games = 5):
         #leader_board.save_to_file()
 
         plt.title('Average win rate over {} games per pair:'.format(2*n_games))
-        wins_pic = results.create_heatmap(param='wins', average=True)
+        wins_pic = results.create_heatmap(param='wins', average=True, p2 =2)
         plt.savefig('reports/wins.png')
         plt.clf()
 
         plt.title('Average reward over {} games per pair:'.format(2*n_games))
-        reward_pic = results.create_heatmap('reward', average=True)
+        reward_pic = results.create_heatmap('reward', average=True, p2 =2)
         plt.savefig('reports/reward.png')
         plt.clf()
 
         plt.title('Average victory points over {} games per pair:'.format(2*n_games))
-        vic_points_pic = results.create_heatmap('victory_points', average=True)
+        vic_points_pic = results.create_heatmap('victory_points', average=True, p2 =2)
         plt.savefig('reports/victory_points.png')
         plt.clf()
 
         plt.title('Average games played over {} games per pair:'.format(2*n_games))
-        vic_points_pic = results.create_heatmap('games', average=True, n_games = n_games)
+        vic_points_pic = results.create_heatmap('games', average=True, n_games = n_games, p2 = 2)
         plt.savefig('reports/games.png')
         plt.clf()
+
+run_baseline_comparison_v5()

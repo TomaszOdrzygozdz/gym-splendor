@@ -71,14 +71,20 @@ class Arena:
                     agent.set_communicator(mpi_communicator)
 
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not (is_done and checked_all_players_after_first_winner):
-            if local_main_process:
-                print('Action number = {}'.format(number_of_actions))
+            #if local_main_process:
+                #print('Action number = {}'.format(number_of_actions))
             active_agent = list_of_agents[active_agent_id]
             if active_agent.multi_process == True:
                 action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
             if active_agent.multi_process == False and local_main_process:
                 action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
             previous_actions = [action]
+            if action is None and not is_done :
+                results_dict[list_of_agents[active_agent_id].my_name_with_id()] = \
+                    OneAgentStatistics(-1, self.env.points_of_player_by_id(active_agent_id), 0)
+                results_dict[list_of_agents[(active_agent_id + 1) % len(list_of_agents)].my_name_with_id()] = \
+                    OneAgentStatistics(1, self.env.points_of_player_by_id((active_agent_id + 1) % len(list_of_agents)), 0)
+                break
             if local_main_process:
                 observation, reward, is_done, info = self.env.step(mode, action)
             if render_game:
@@ -100,10 +106,11 @@ class Arena:
                 checked_all_players_after_first_winner = mpi_communicator.bcast(checked_all_players_after_first_winner, root = 0)
 
         if local_main_process:
+            self.env.reset()
             one_game_statistics = GameStatisticsDuels(list_of_agents)
             one_game_statistics.register_from_dict(results_dict)
 
-        print(active_agent_id)
+
         return one_game_statistics if local_main_process else None
 
 

@@ -1,6 +1,7 @@
-Starting at Fri Nov 29 00:19:51 CET 2019
-Running on hosts: p[1784,1786-1787,1792-1793]
+Starting at Fri Nov 29 23:41:36 CET 2019
+Running on hosts: p1308
 Running on Dir: /net/people/plgmszmidt95/splendor/gym-splendor
-Running on 5 nodes.
-Running on 120 processors.
+Running on 1 nodes.
+Running on 24 processors.
 Current working directory is /net/people/plgmszmidt95/splendor/gym-splendor
+Job finished at Fri Nov 29 23:41:50 CET 2019

@@ -69,26 +69,26 @@ class GameStatisticsDuels:
             data_to_record = {'wins': self.data[pair].wins,
                               'reward': self.data[pair].reward,
                               'victory_points': self.data[pair].victory_points,
-                              'games': 2 * self.data[pair].wins - self.data[pair].reward}
+                              'games': self.n_games_dict[pair]}
 
             entry = data_to_record[param]
 
             if average and self.n_games_dict[pair] > 0 and param != "games":
-                entry = round(float(entry/self.n_games_dict[pair]),2)
+                entry = round(float(entry/self.n_games_dict[pair]), 5)
             elif average and self.n_games_dict[pair] > 0 and param == "games":
-                entry = round(float(entry/n_games/2),2)
+                entry = round(float(entry/n_games/2), 5)
             data_frame.loc[self.crop_name(pair[0]), self.crop_name(pair[1])] = entry
 
         data_frame.sort_index(inplace=True)
         return data_frame
 
-    def create_heatmap(self, param='wins', average: bool = True, p1 = 16, p2 = 1, n_games = 1000):
+    def create_heatmap(self, param='wins', average: bool = True, p1 = 15, p2 = 2, n_games = 1000):
         data_frame = self.to_pandas(param, average, n_games = n_games)
         data_frame.sort_index(inplace=True, ascending = False)
         data_frame = data_frame.reindex(sorted(data_frame.columns), axis=1)
         plt.figure(figsize=(p1, p1))
         sns.set(font_scale=p2)
-        return sns.heatmap(data_frame, annot=True)
+        return sns.heatmap(data_frame, annot=True, fmt='g')
 
     def __repr__(self):
         str_to_return = '\n {} games taken: \n'.format(self.number_of_games)

@@ -5,28 +5,73 @@
 import time
 
 from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
+from agents.general_multi_process_mcts_agent import GeneralMultiProcessMCTSAgent
 from agents.random_agent import RandomAgent
+
+from agents.greedy_agent_boost import GreedyAgentBoost
+from agents.greedysearch_agent import GreedySearchAgent
+from agents.minmax_agent import MinMaxAgent
 from arena.multi_process.arena_multi_thread import ArenaMultiThread
 from arena.multi_process.multi_arena import MultiArena
 from arena.single_process.arena import Arena
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.state import State
-from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla import DeterministicVanillaMCTS
+import cProfile
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 
+#agent1 = GreedySearchAgent()
 agent1 = RandomAgent(distribution='uniform')
-agent2 = RandomAgent(distribution='first_buy')
-agent3 = RandomAgent(distribution='uniform_on_types')
-agent4 = MultiProcessMCTSAgent(100, 5, False, False)
+#agent3 = RandomAgent(distribution='uniform_on_types')
+agent1a = GeneralMultiProcessMCTSAgent(10, 2, False, False,
+                                        mcts = "rollout",
+                                        param_1 = "random",
+                                        param_2 = "uniform")
 
+agent1b = GeneralMultiProcessMCTSAgent(100, 5, False, False,
+                                        mcts = "rollout",
+                                        param_1 = "random",
+                                        param_2 = "first_buy")
 
-import cProfile
+agent1c = GeneralMultiProcessMCTSAgent(100, 5, False, False,
+                                        mcts = "rollout",
+                                        param_1 = "greedy")
 
+agent1d = GeneralMultiProcessMCTSAgent(100, 5, False, False,
+                                        mcts = "evaluation",
+                                        param_2 = [[100,2,2,1,0.1], 0.9, 3, 2])
 
+agent1e = GeneralMultiProcessMCTSAgent(100, 5, False, False,
+                                        mcts = "evaluation",
+                                        param_2 = [[100,2,2,1,0.1], 0.9, 4, 1])
+                                        #param_1 = "random"/ "greedy" :global method
+                                        #param_2 = "first_buy", etc / "weight", "depth", "breadth, "decay", ... : parameter or list of paramters
 
-duper = MultiArena()
-fuf = duper.run_many_duels('deterministic', [agent2, agent4], n_games=1, n_proc_per_agent=4)
-print(fuf)
+arena = MultiArena()
+
+t0 = time.time()
+result = arena.run_many_duels('deterministic', [agent1, agent1a], n_games = 20, n_proc_per_agent=24)
+print(result)
+print("Time",time.time() - t0)
+
+t0 = time.time()
+result = arena.run_many_duels('deterministic', [agent1, agent1b], n_games=20, n_proc_per_agent=24)
+print(result)
+print("Time",time.time() - t0)
+
+t0 = time.time()
+result = arena.run_many_duels('deterministic', [agent1, agent1c], n_games=20, n_proc_per_agent=24)
+print(result)
+print("Time",time.time() - t0)
+
+t0 = time.time()
+result = arena.run_many_duels('deterministic', [agent1, agent1d], n_games=20, n_proc_per_agent=24)
+print(result)
+print("Time",time.time() - t0)
+
+t0 = time.time()
+result = arena.run_many_duels('deterministic', [agent1, agent1e], n_games=20, n_proc_per_agent=24)
+print(result)
+print("Time",time.time() - t0)
 
 #bumek.run('duper.run_many_duels(\'deterministic\',[agent2, agent4], n_games=1, n_proc_per_agent=1)')
 #bumek.dump_stats('stats.prof')
