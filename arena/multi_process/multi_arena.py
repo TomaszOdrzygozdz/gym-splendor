@@ -172,7 +172,8 @@ class MultiArena:
             one_game_results = local_arena.run_one_duel(mode, list_of_agents, mpi_communicator=new_communicator)
             if local_main:
                 local_results.register(one_game_results)
-
+            for agent in list_of_agents:
+                agent.finish_game()
 
         #Gather all results:
         combined_results_list = comm.gather(local_results, root=0)

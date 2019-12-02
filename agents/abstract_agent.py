@@ -46,12 +46,20 @@ class Agent:
             raise ValueError
 
     @abstractmethod
-    def stochastic_choose_action(self, observation: StochasticObservation, previous_actions : List):
+    def choose_act(self):
         raise NotImplementedError
 
-    @abstractmethod
-    def deterministic_choose_action(self, observation : DeterministicObservation, previous_actions : List[Action]):
-        raise NotImplementedError
+    def stochastic_choose_action(self, observation, previous_actions) -> Action:
+        assert observation.name == 'stochastic'
+        self.env.load_observation(observation)
+        self.env.update_actions_light()
+        return self.choose_act(mode = "stochastic")
+
+    def deterministic_choose_action(self, observation, previous_actions):
+        assert observation.name == 'deterministic'
+        self.env.load_observation(observation)
+        self.env.update_actions_light()
+        return self.choose_act(mode = "deterministic")
 
     def __repr__(self):
         return self.name

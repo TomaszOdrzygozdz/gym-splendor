@@ -2,7 +2,7 @@
 ## Nazwa zlecenia
 #SBATCH -J SplendorAgentsArena
 ## Liczba alokowanych wezlow
-#SBATCH -N 5
+#SBATCH -N 1
 ## Liczba zadan per wezel (domyslnie jest to liczba alokowanych rdzeni na wezle)
 #SBATCH --ntasks-per-node=24
 ## Ilosc pamieci przypadajacej na jeden rdzen obliczeniowy (domyslnie 5GB na rdzen)

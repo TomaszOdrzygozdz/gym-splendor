@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
@@ -6,17 +7,18 @@ from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_reservations
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_buys
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_trades
-from monte_carlo_tree_search.rolluot_policy import RolloutPolicy
+from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
+from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
+import gym
 
-
-class RandomRolloutPolicy(RolloutPolicy):
+class GreedyRolloutPolicy(RolloutPolicy):
 
     def __init__(self,
-                    weight: list = [100,2,2,1.0.1]):
+                    weight: list = [100,2,2,1,0.1]):
         super().__init__('greedy')
         self.weight = weight
 
-    def choose_action(self, observation, previous_actions) -> Action:
+    def choose_action(self, state : State) -> Action:
         actions_by_type = {'buy' : generate_all_legal_buys(state), 'trade' : generate_all_legal_trades(state),
                        'reserve': generate_all_legal_reservations(state)}
 
