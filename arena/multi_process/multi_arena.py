@@ -141,6 +141,10 @@ class MultiArena:
         if main_process:
             print(colors)
 
+        #set agents colors:
+        for agent in list_of_agents:
+            agent.set_color(my_color)
+
         #create communicators:
         new_communicator = comm.Split(my_color)
 

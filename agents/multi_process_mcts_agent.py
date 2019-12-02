@@ -23,10 +23,10 @@ class MultiProcessMCTSAgent(Agent):
         self.rollout_repetition = rollout_repetition
         if self.visualize:
             self.visualizer = TreeVisualizer(show_unvisited_nodes=show_unvisited_nodes)
-
         self.previous_root_state = None
         self.previous_game_state = None
         self.actions_taken_so_far = 0
+        self.color = 0
 
     def initialize_mcts(self, mpi_communicator):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
@@ -73,15 +73,12 @@ class MultiProcessMCTSAgent(Agent):
         if not root_is_terminal:
             self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition)
             if self.visualize and self.main_process:
-                self.visualizer.generate_html(self.mcts_algorithm.return_root(), 'renders\\action_{}.html'.format(self.actions_taken_so_far))
+                self.visualizer.generate_html(self.mcts_algorithm.return_root(), 'renders\\color_{}_action_{}.html'.format(self.color, self.actions_taken_so_far))
             best_action = self.mcts_algorithm.choose_action()
 
             self.mcts_algorithm.move_root(best_action)
             self.actions_taken_so_far += 1
             self.draw_final_tree()
-
-            if self.main_process:
-                print('STATE OF MCTS ROOT AFTER TAKING ACTION = {} \n ACTION DONE BY MCTS IS = {} '.format(self.mcts_algorithm.return_root().state.to_dict(), best_action))
 
             return best_action
         else:
@@ -89,7 +86,7 @@ class MultiProcessMCTSAgent(Agent):
 
     def draw_final_tree(self):
         if self.visualize and self.main_process:
-            self.visualizer.generate_html(self.mcts_algorithm.original_root(), 'renders\\full_game.html')
+            self.visualizer.generate_html(self.mcts_algorithm.original_root(), 'renders\\color_{}_full_game.html'.format(self.color))
 
     def finish_game(self):
         '''When game is finished we need to clear out tree.'''

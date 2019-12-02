@@ -17,7 +17,7 @@ from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualiz
 agent1 = RandomAgent(distribution='uniform')
 agent2 = RandomAgent(distribution='first_buy')
 agent3 = RandomAgent(distribution='uniform_on_types')
-agent4 = MultiProcessMCTSAgent(100, 5, False, False)
+agent4 = MultiProcessMCTSAgent(10, 5, True, False)
 
 
 import cProfile
@@ -25,7 +25,7 @@ import cProfile
 
 
 duper = MultiArena()
-fuf = duper.run_many_duels('deterministic', [agent2, agent4], n_games=1, n_proc_per_agent=4)
+fuf = duper.run_many_duels('deterministic', [agent2, agent4], n_games=2, n_proc_per_agent=2)
 print(fuf)
 
 #bumek.run('duper.run_many_duels(\'deterministic\',[agent2, agent4], n_games=1, n_proc_per_agent=1)')
