@@ -17,6 +17,11 @@ class GreedyRolloutPolicy(RolloutPolicy):
                     weight: list = [100,2,2,1,0.1]):
         super().__init__('greedy')
         self.weight = weight
+        self.normalize_weight()
+
+    def normalize_weight(self):
+        if np.linalg.norm(self.weight) > 0:
+            self.weight = self.weight/np.linalg.norm(self.weight)
 
     def choose_action(self, state : State) -> Action:
         actions_by_type = {'buy' : generate_all_legal_buys(state), 'trade' : generate_all_legal_trades(state),
