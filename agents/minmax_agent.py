@@ -70,12 +70,14 @@ class MinMaxAgent(Agent):
 
     def set_file_for_data_collection(self, file):
         self.output_csv = file
+        with open(self.output_csv, 'a') as fd:
+            self.state_action_eval_dict.to_csv(fd, header=True)
 
     def dump_action_scores(self, clean_dict = True):
         with open(self.output_csv, 'a') as fd:
-            fd.write(self.state_action_eval_dict)
+            self.state_action_eval_dict.to_csv(fd, header=False)
         if clean_dict:
-            self.state_action_eval_dict = DataFrame(columns=('state', 'action', 'evaluation'))
+            self.state_action_eval_dict = pd.DataFrame(columns=('state', 'action', 'evaluation'))
 
 
 
