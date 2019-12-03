@@ -1,5 +1,8 @@
 # from mpi4py import MPI
-# from tqdm import tqdm
+from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
+
+if USE_TQDM:
+    from tqdm import tqdm
 
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.action import Action
@@ -137,7 +140,8 @@ class DeterministicMCTSMultiProcess:
 
     def create_progress_bar(self, lenght):
         if self.main_process:
-            self.progress_bar = tqdm(total=lenght, postfix=None)
+            if USE_TQDM:
+                self.progress_bar = tqdm(total=lenght, postfix=None)
 
     def set_progress_bar(self, value):
         if self.main_process:
