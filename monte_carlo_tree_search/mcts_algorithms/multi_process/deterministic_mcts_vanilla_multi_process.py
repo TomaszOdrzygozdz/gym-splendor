@@ -18,6 +18,7 @@ class DeterministicMCTSVanillaMultiProcess:
                  mcts: str =  "rollout",
                  param_1 = None,
                  param_2 = None,
+                 adjust_iterations = False,
                  rollout_repetition: int = 0,
                  environment_id: str = 0) -> None:
 
@@ -30,7 +31,7 @@ class DeterministicMCTSVanillaMultiProcess:
         elif mcts == "evaluation":
             mcts_algorithm = DeterministicMCTSVanillaEvaluation(iteration_limit = iteration_limit,
                                                                 params = param_2)
-
+        self.adjust_iterations = adjust_iterations
 
         self.mpi_communicator = mpi_communicator
         self.my_rank = self.mpi_communicator.Get_rank()
@@ -54,6 +55,8 @@ class DeterministicMCTSVanillaMultiProcess:
         not_terminal_children = [child for child in children if child.terminal == False]
         terminal_children = [child for child in children if child.terminal == True]
 
+        if self.adjust_iterations:
+            iteration_limit = len(not_terminal_children)
 
         n_child_to_rollout = min(len(not_terminal_children), iteration_limit)
         childs_per_process = int(n_child_to_rollout/ self.my_comm_size)

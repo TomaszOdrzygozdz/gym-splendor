@@ -15,7 +15,8 @@ class GeneralMultiProcessMCTSAgent(Agent):
                  show_unvisited_nodes = False,
                  mcts = "rollout",
                  param_1 = None,
-                 param_2 = None):
+                 param_2 = None,
+                 adjust_iterations = False):
 
         super().__init__(multi_process=True)
         self.iteration_limit = iteration_limit
@@ -33,6 +34,7 @@ class GeneralMultiProcessMCTSAgent(Agent):
         self.mcts = mcts
         self.param_1 = param_1
         self.param_2 = param_2
+        self.adjust_iterations = adjust_iterations
 
     def initialize_mcts(self, mpi_communicator):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
@@ -40,7 +42,8 @@ class GeneralMultiProcessMCTSAgent(Agent):
                                                                     iteration_limit = self.iteration_limit,
                                                                     mcts = self.mcts,
                                                                     param_1 = self.param_1,
-                                                                    param_2 = self.param_2)
+                                                                    param_2 = self.param_2,
+                                                                    adjust_iterations = self.adjust_iterations)
         self.mcts_initialized = True
         self.main_process = mpi_communicator.Get_rank() == 0
 

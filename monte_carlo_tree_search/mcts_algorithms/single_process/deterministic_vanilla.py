@@ -19,7 +19,7 @@ class DeterministicVanillaMCTS(MCTS):
                  rollout_policy=RandomRolloutPolicy(distribution = "first_buy"),
                  rollout_repetition = 10):
 
-        
+
         super().__init__(iteration_limit=iteration_limit,
                          rollout_policy= rollout_policy,
                          rollout_repetition = 1,
@@ -32,7 +32,7 @@ class DeterministicVanillaMCTS(MCTS):
         self.root = None
 
     def create_root(self, observation: DeterministicObservation):
-        #print(observation)
+        
         self.original_root = DeterministicTreeNode(observation=observation, parent=None, parent_action=None, reward=0,
                                                    is_done=False, winner_id=None)
         self.root = self.original_root
@@ -55,7 +55,6 @@ class DeterministicVanillaMCTS(MCTS):
                 winner_id = self.env.previous_player_id()
                 value = 0.1
                 break
-
         return winner_id, value
 
     def move_root(self, action):
@@ -94,11 +93,10 @@ class DeterministicVanillaMCTS(MCTS):
         if len(children_values):
             best_child_index = np.argmax(children_values)
             if len(children_values) < len(node.children):
-                pass
-                #print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n')
+                print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n')
             return node.children[best_child_index], node.actions[best_child_index]
         else:
-            #print(print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n'))
+            print(print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n'))
             return None, None
 
 
