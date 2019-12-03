@@ -2,8 +2,7 @@ from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_multi_process import DeterministicMCTSMultiProcess
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
-from renders.render_paths import RENDER_DIR
-import os
+
 
 
 
@@ -28,7 +27,6 @@ class MultiProcessMCTSAgent(Agent):
         self.previous_root_state = None
         self.previous_game_state = None
         self.actions_taken_so_far = 0
-        self.color = 0
 
     def initialize_mcts(self, mpi_communicator):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
@@ -39,10 +37,13 @@ class MultiProcessMCTSAgent(Agent):
     def deterministic_choose_action(self, observation : DeterministicObservation, previous_actions):
 
         assert observation.name == 'deterministic', 'You must provide deterministic observation'
+        print("Start deterministic")
         ignore_previous_action = False
         if not self.mcts_initialized:
             self.initialize_mcts(self.mpi_communicator)
+            print("MCTS initialized")
         if not self.mcts_started:
+            print(' STARTING MCTS')
             self.mcts_algorithm.create_root(observation)
             # print('STARTING STATE FOR MCTS = {}'.format(state.to_dict()))
             # print('CHECK REAL MCTS ROOT STATE = {}'.format(self.mcts_algorithm.return_root().state.to_dict()))
@@ -56,7 +57,8 @@ class MultiProcessMCTSAgent(Agent):
                 if self.mcts_started and self.main_process:
                     if not self.mcts_algorithm.return_root().terminal:
                         self.mcts_algorithm.move_root(previous_actions[0])
-      #  rootek = self.mcts_algorithm.return_root()
+                        #print("root moved")
+        rootek = self.mcts_algorithm.return_root()
         # if self.main_process:
         #     if rootek.state.to_dict() != observation.observation_dict:
         #         print('Dupa')
@@ -67,17 +69,19 @@ class MultiProcessMCTSAgent(Agent):
         if self.main_process:
             root_is_terminal = self.mcts_algorithm.return_root().terminal
         root_is_terminal = self.mpi_communicator.bcast(root_is_terminal, root=0)
-       # print('is root terminal? = {}'.format(root_is_terminal))
+        print('is root terminal? = {}'.format(root_is_terminal))
         if not root_is_terminal:
             self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition)
             if self.visualize and self.main_process:
-                RENDER_FILE_ACTION = os.path.join(RENDER_DIR, 'color_{}_action_{}.html'.format(self.color, self.actions_taken_so_far))
-                self.visualizer.generate_html(self.mcts_algorithm.return_root(), RENDER_FILE_ACTION)
+                self.visualizer.generate_html(self.mcts_algorithm.return_root(), 'renders\\action_{}.html'.format(self.actions_taken_so_far))
             best_action = self.mcts_algorithm.choose_action()
             if best_action is not None:
                 self.mcts_algorithm.move_root(best_action)
                 self.actions_taken_so_far += 1
                 self.draw_final_tree()
+
+                if self.main_process:
+                    print('STATE OF MCTS ROOT AFTER TAKING ACTION = {} \n ACTION DONE BY MCTS IS = {} '.format(self.mcts_algorithm.return_root().state.to_dict(), best_action))
 
             return best_action
         else:
@@ -85,16 +89,12 @@ class MultiProcessMCTSAgent(Agent):
 
     def draw_final_tree(self):
         if self.visualize and self.main_process:
-            RENDER_FILE = os.path.join(RENDER_DIR, 'color_{}_full_game.html'.format(self.color))
-            self.visualizer.generate_html(self.mcts_algorithm.original_root(), RENDER_FILE)
+            self.visualizer.generate_html(self.mcts_algorithm.original_root(), 'renders\\full_game.html')
 
     def finish_game(self):
         '''When game is finished we need to clear out tree.'''
-        if self.main_process:
-            self.mcts_started = False
-            self.actions_taken_so_far = 0
-            self.previous_root_state = None
-            self.previous_game_state = None
-            self.actions_taken_so_far = 0
-
-
+        self.mcts_started = False
+        self.actions_taken_so_far = 0
+        self.previous_root_state = None
+        self.previous_game_state = None
+        self.actions_taken_so_far = 0

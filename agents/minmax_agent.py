@@ -1,6 +1,6 @@
 import random
 import numpy as np
-
+import pandas as pd
 from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
@@ -26,6 +26,7 @@ class MinMaxAgent(Agent):
         self.decay = decay
         self.depth = depth
         self.action_to_avoid = -100
+        self.state_action_eval_dict = pd.DataFrame(columns=('state', 'action', 'evaluation'))
 
         self.env_dict = {lvl : None for lvl in range(1, self.depth)}
 
@@ -34,11 +35,11 @@ class MinMaxAgent(Agent):
         #first we load observation to the private environment
         current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()
 
-        if len(self.env.action_space.list_of_actions)>0:
+        if len(self.env.action_space.list_of_actions) > 0:
             actions = []
             potential_reward_max = self.action_to_avoid
             numerator = self.depth - 1
-
+            primary_state = StateAsDict(self.env.current_state_of_the_game)
             self.env_dict[numerator] = StateAsDict(self.env.current_state_of_the_game)
             for action in self.env.action_space.list_of_actions:
                 ae = action.evaluate(self.env.current_state_of_the_game)
@@ -48,6 +49,9 @@ class MinMaxAgent(Agent):
 
                 potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1, mode)
                 self.restore_env(numerator)
+                self.state_action_eval_dict = self.state_action_eval_dict.append({'state' : primary_state,
+                                                    'action' : action.to_dict(),
+                                                    'evaluation' : potential_reward}, ignore_index=True)
 
                 if potential_reward > potential_reward_max:
                     potential_reward_max = potential_reward
@@ -63,6 +67,16 @@ class MinMaxAgent(Agent):
 
         else:
             return None
+
+    def set_file_for_data_collection(self, file):
+        self.output_csv = file
+
+    def dump_action_scores(self, clean_dict = True):
+        with open(self.output_csv, 'a') as fd:
+            fd.write(self.state_action_eval_dict)
+        if clean_dict:
+            self.state_action_eval_dict = DataFrame(columns=('state', 'action', 'evaluation'))
+
 
 
     def deep_evaluation(self, action, numerator, mode):

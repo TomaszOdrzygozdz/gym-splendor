@@ -13,7 +13,7 @@ fight_pit = Arena()
 # time_profile.dump_stats('optimization1.prof')
 
 
-n_games = 10
+n_games = 2
 
 gohan = GreedyAgentBoost(weight = [100,2,2,1,0.1])
 print(gohan.name)
@@ -46,7 +46,11 @@ gohan = MinMaxAgent(name = "MinMax", depth = 2)
 print(gohan.name)
 
 goku = RandomAgent(distribution='uniform')
-print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
+print(fight_pit.run_many_duels("deterministic", [goku, gohan], number_of_games = 2, shuffle_agents=True))
+
+gohan.state_action_eval_dict
+
+
 
 goku = RandomAgent(distribution='uniform_on_types')
 print(fight_pit.run_many_duels([goku, gohan], number_of_games = n_games, shuffle_agents=True))
