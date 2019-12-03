@@ -2,7 +2,8 @@ from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_multi_process import DeterministicMCTSMultiProcess
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
-
+from renders.render_paths import RENDER_DIR
+import os
 
 
 
@@ -70,7 +71,8 @@ class MultiProcessMCTSAgent(Agent):
         if not root_is_terminal:
             self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition)
             if self.visualize and self.main_process:
-                self.visualizer.generate_html(self.mcts_algorithm.return_root(), 'renders\\color_{}_action_{}.html'.format(self.color, self.actions_taken_so_far))
+                RENDER_FILE_ACTION = os.path.join(RENDER_DIR, 'color_{}_action_{}.html'.format(self.color, self.actions_taken_so_far))
+                self.visualizer.generate_html(self.mcts_algorithm.return_root(), RENDER_FILE_ACTION)
             best_action = self.mcts_algorithm.choose_action()
             if best_action is not None:
                 self.mcts_algorithm.move_root(best_action)
@@ -83,7 +85,8 @@ class MultiProcessMCTSAgent(Agent):
 
     def draw_final_tree(self):
         if self.visualize and self.main_process:
-            self.visualizer.generate_html(self.mcts_algorithm.original_root(), 'renders\\color_{}_full_game.html'.format(self.color))
+            RENDER_FILE = os.path.join(RENDER_DIR, 'color_{}_full_game.html'.format(self.color))
+            self.visualizer.generate_html(self.mcts_algorithm.original_root(), RENDER_FILE)
 
     def finish_game(self):
         '''When game is finished we need to clear out tree.'''

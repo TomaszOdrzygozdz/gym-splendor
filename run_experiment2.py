@@ -13,12 +13,12 @@ main_process = my_rank==0
 agent1 = RandomAgent(distribution='uniform')
 agent2 = RandomAgent(distribution='uniform')
 agent3 = RandomAgent(distribution='first_buy')
-agent4 = MultiProcessMCTSAgent(150, 10, True)
-agent5 = MultiProcessMCTSAgent(3, 5, True)
-agent6 = GeneralMultiProcessMCTSAgent(10, 2, True, False,
-                                        mcts = "rollout",
-                                        param_1 = "random",
-                                        param_2 = "uniform")
+agent4 = MultiProcessMCTSAgent(200, 10, True)
+# agent5 = MultiProcessMCTSAgent(3, 5, True)
+# agent6 = GeneralMultiProcessMCTSAgent(10, 2, True, False,
+#                                         mcts = "rollout",
+#                                         param_1 = "random",
+#                                         param_2 = "uniform")
 
 
 arek = MultiArena()
