@@ -32,7 +32,7 @@ class DeterministicVanillaMCTS(MCTS):
         self.root = None
 
     def create_root(self, observation: DeterministicObservation):
-        print(observation)
+        #print(observation)
         self.original_root = DeterministicTreeNode(observation=observation, parent=None, parent_action=None, reward=0,
                                                    is_done=False, winner_id=None)
         self.root = self.original_root
@@ -94,10 +94,11 @@ class DeterministicVanillaMCTS(MCTS):
         if len(children_values):
             best_child_index = np.argmax(children_values)
             if len(children_values) < len(node.children):
-                print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n')
+                pass
+                #print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n')
             return node.children[best_child_index], node.actions[best_child_index]
         else:
-            print(print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n'))
+            #print(print('\n WARNING: MCTS has not evaluated all possible moves. Choosing from a subset. \n'))
             return None, None
 
 

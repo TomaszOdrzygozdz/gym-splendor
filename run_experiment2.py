@@ -13,7 +13,7 @@ main_process = my_rank==0
 agent1 = RandomAgent(distribution='uniform')
 agent2 = RandomAgent(distribution='uniform')
 agent3 = RandomAgent(distribution='first_buy')
-agent4 = MultiProcessMCTSAgent(200, 10, True)
+agent4 = MultiProcessMCTSAgent(150, 10, True)
 # agent5 = MultiProcessMCTSAgent(3, 5, True)
 # agent6 = GeneralMultiProcessMCTSAgent(10, 2, True, False,
 #                                         mcts = "rollout",
@@ -23,6 +23,6 @@ agent4 = MultiProcessMCTSAgent(200, 10, True)
 
 arek = MultiArena()
 
-fuf = arek.run_many_duels('deterministic', [agent4, agent3], n_games=1, n_proc_per_agent=24)
+fuf = arek.run_many_duels('deterministic', [agent4, agent3], n_games=10, n_proc_per_agent=24)
 if main_process:
     print(fuf)
