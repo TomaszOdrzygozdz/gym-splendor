@@ -2,6 +2,9 @@
 #from experiments.baseline_comparison.baseline_comparison_v3 import run_baseline_comparison_v3
 
 #run_baseline_comparison_v3(10)
+from mpi4py import MPI
+my_rank = MPI.COMM_WORLD.Get_rank()
+main_process = my_rank==0
 import time
 
 from agents.general_multi_process_mcts_agent import GeneralMultiProcessMCTSAgent
@@ -12,7 +15,7 @@ from arena.multi_arena import MultiArena
 #agent1 = GreedySearchAgent()
 agent1 = RandomAgent(distribution='uniform')
 #agent3 = RandomAgent(distribution='uniform_on_types')
-agent1a = GeneralMultiProcessMCTSAgent(10, 2, False, False,
+agent1a = GeneralMultiProcessMCTSAgent(10, 2, True, False,
                                         mcts = "rollout",
                                         param_1 = "random",
                                         param_2 = "uniform")
@@ -39,44 +42,50 @@ agent1e = GeneralMultiProcessMCTSAgent(100, 5, False, False,
 arena = MultiArena()
 
 t0 = time.time()
-result = arena.run_many_duels('deterministic', [agent1, agent1a], n_games = 20, n_proc_per_agent=24)
-print(result)
-print("Time",time.time() - t0)
+result = arena.run_many_duels('deterministic', [agent1, agent1a], n_games = 1, n_proc_per_agent=24)
+if main_process:
+    print(result)
+    print("Time",time.time() - t0)
+
 
 t0 = time.time()
-result = arena.run_many_duels('deterministic', [agent1, agent1b], n_games=20, n_proc_per_agent=24)
-print(result)
-print("Time",time.time() - t0)
+result = arena.run_many_duels('deterministic', [agent1, agent1b], n_games=1, n_proc_per_agent=24)
+if main_process:
+    print(result)
+    print("Time",time.time() - t0)
 
 t0 = time.time()
-result = arena.run_many_duels('deterministic', [agent1, agent1c], n_games=20, n_proc_per_agent=24)
-print(result)
-print("Time",time.time() - t0)
+result = arena.run_many_duels('deterministic', [agent1, agent1c], n_games=1, n_proc_per_agent=24)
+if main_process:
+    print(result)
+    print("Time",time.time() - t0)
 
+#
 t0 = time.time()
-result = arena.run_many_duels('deterministic', [agent1, agent1d], n_games=20, n_proc_per_agent=24)
-print(result)
-print("Time",time.time() - t0)
-
-t0 = time.time()
-result = arena.run_many_duels('deterministic', [agent1, agent1e], n_games=20, n_proc_per_agent=24)
-print(result)
-print("Time",time.time() - t0)
-
-#bumek.run('duper.run_many_duels(\'deterministic\',[agent2, agent4], n_games=1, n_proc_per_agent=1)')
-#bumek.dump_stats('stats.prof')
-#duper.run_many_duels('deterministic',[agent2, agent4], n_games=1, n_proc_per_agent=10)
-
-# profek = cProfile.Profile()
-# tm = time.time()
-# bubu = DeterministicVanillaMCTS(150)
-# stanek = State()
-# bubu.create_root(DeterministicObservation(stanek))
-# bubu.run_simulation(100)
-# # profek.run('bubu.run_simulation(10)')
-# # profek.dump_stats('stats.prof')
-# #
-# # print('Time taken = {}'.format(time.time() - tm))
-# #
-# fufu = TreeVisualizer(show_unvisited_nodes=False)
-# fufu.generate_html(bubu.root, 'TUKAN.html')
+result = arena.run_many_duels('deterministic', [agent1, agent1d], n_games=1, n_proc_per_agent=24)
+if main_process:
+    print(result)
+    print("Time",time.time() - t0)
+# t0 = time.time()
+# result = arena.run_many_duels('deterministic', [agent1, agent1e], n_games=1, n_proc_per_agent=24)
+# if main_process:
+#     print(result)
+#     print("Time",time.time() - t0)
+#
+# #bumek.run('duper.run_many_duels(\'deterministic\',[agent2, agent4], n_games=1, n_proc_per_agent=1)')
+# #bumek.dump_stats('stats.prof')
+# #duper.run_many_duels('deterministic',[agent2, agent4], n_games=1, n_proc_per_agent=10)
+#
+# # profek = cProfile.Profile()
+# # tm = time.time()
+# # bubu = DeterministicVanillaMCTS(150)
+# # stanek = State()
+# # bubu.create_root(DeterministicObservation(stanek))
+# # bubu.run_simulation(100)
+# # # profek.run('bubu.run_simulation(10)')
+# # # profek.dump_stats('stats.prof')
+# # #
+# # # print('Time taken = {}'.format(time.time() - tm))
+# # #
+# # fufu = TreeVisualizer(show_unvisited_nodes=False)
+# # fufu.generate_html(bubu.root, 'TUKAN.html')

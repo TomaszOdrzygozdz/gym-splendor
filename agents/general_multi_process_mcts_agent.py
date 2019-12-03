@@ -67,11 +67,7 @@ class GeneralMultiProcessMCTSAgent(Agent):
                     if not self.mcts_algorithm.return_root().terminal:
                         self.mcts_algorithm.move_root(previous_actions[0])
         rootek = self.mcts_algorithm.return_root()
-        # if self.main_process:
-        #     if rootek.state.to_dict() != observation.observation_dict:
-        #         print('Dupa')
-        #         print('ROOTEK STATE = {} \n STATE = {}'.format(rootek.state.to_dict(), observation.observation_dict))
-        #         assert False, 'COINS DO NOT MATCH'
+
 
         root_is_terminal = None
         if self.main_process:
