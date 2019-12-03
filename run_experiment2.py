@@ -23,6 +23,6 @@ agent6 = GeneralMultiProcessMCTSAgent(10, 2, True, False,
 
 arek = MultiArena()
 
-fuf = arek.run_many_duels('deterministic', [agent4, agent3], n_games=1, n_proc_per_agent=10)
+fuf = arek.run_many_duels('deterministic', [agent4, agent3], n_games=1, n_proc_per_agent=24)
 if main_process:
     print(fuf)

@@ -1,6 +1,11 @@
 """This code generates interactive HTML file with MCTS Tree Visualized"""
+import os
+
 from monte_carlo_tree_search.trees.abstract_tree import TreeNode
 
+DATA_DIR = os.path.dirname(os.path.abspath(__file__))
+PREAMBLE_FILE = os.path.join(DATA_DIR, 'preamble')
+POSTAMBLE_FILE = os.path.join(DATA_DIR, 'postamble')
 
 class TreeVisualizer:
 
@@ -65,9 +70,9 @@ class TreeVisualizer:
         return 'edges.push({' +'from: {}, to: {}'.format(self.nodes_to_id[node1], self.nodes_to_id[node2])+ ',label: \"' + edge_caption + '\", ' +  'font: { align: "middle" } }); \n'
 
     def combine_html(self, tree_code, file_name):
-        with open('monte_carlo_tree_search\\tree_visualizer\preamble', 'r') as file:
+        with open(PREAMBLE_FILE, 'r') as file:
             preamble = file.read()
-        with open('monte_carlo_tree_search\\tree_visualizer\postamble', 'r') as file:
+        with open(POSTAMBLE_FILE, 'r') as file:
             postamble = file.read()
 
         combined = preamble + self.nodes_str + self.edges_str + self.level_str + postamble + self.states_as_dicts + '</body></html>'
