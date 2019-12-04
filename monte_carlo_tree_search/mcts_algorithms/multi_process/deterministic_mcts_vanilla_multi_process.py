@@ -18,6 +18,7 @@ class DeterministicMCTSVanillaMultiProcess:
                  mcts: str =  "rollout",
                  param_1 = None,
                  param_2 = None,
+                 exploration_parameter = exploration_parameter,
                  adjust_iterations = False,
                  rollout_repetition: int = 0,
                  environment_id: str = 0) -> None:
@@ -27,7 +28,8 @@ class DeterministicMCTSVanillaMultiProcess:
                 param_1 = "random"
             mcts_algorithm = DeterministicMCTSVanillaRollout(iteration_limit = iteration_limit,
                                                                 rollout_policy = param_1,
-                                                                params = param_2)
+                                                                params = param_2,
+                                                                exploration_parameter = exploration_parameter)
         elif mcts == "evaluation":
             mcts_algorithm = DeterministicMCTSVanillaEvaluation(iteration_limit = iteration_limit,
                                                                 params = param_2)

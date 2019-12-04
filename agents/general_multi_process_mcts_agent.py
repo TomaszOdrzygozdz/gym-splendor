@@ -2,6 +2,7 @@ from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_mcts_vanilla_multi_process import DeterministicMCTSVanillaMultiProcess
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
+import math
 
 
 
@@ -16,7 +17,8 @@ class GeneralMultiProcessMCTSAgent(Agent):
                  mcts = "rollout",
                  param_1 = None,
                  param_2 = None,
-                 adjust_iterations = False):
+                 adjust_iterations = False,
+                 exploration_parameter = 1/math.sqrt(2)):
 
         super().__init__(multi_process=True)
         self.iteration_limit = iteration_limit

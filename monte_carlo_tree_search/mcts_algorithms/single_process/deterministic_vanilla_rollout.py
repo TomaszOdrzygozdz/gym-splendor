@@ -30,6 +30,7 @@ class DeterministicMCTSVanillaRollout(MCTS):
         elif rollout_policy == "greedy":
             if params is None:
                 params = [100, 2, 2, 1, 0.1]
+                
             rollout = GreedyRolloutPolicy(weight = params)
 
 
