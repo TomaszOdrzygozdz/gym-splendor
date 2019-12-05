@@ -29,19 +29,17 @@ class SplendorWrapperEnv(SplendorEnv):
         self.observation_space_vec = output
         print(self.observation_space_vec)
 
-    def vectorize_action_space(self):
-        act = self.action_space_to_dict()
-        self.action_space_vec = []
+    def vectorize_action_space(self, action_as_dict):
 
-        for i in act:
-            if i["action_type"] == "buy":
-                action = [1,0,0]
-            elif i["action_type"] == "reserve":
-                action = [0,1,0]
-            else:
-                action = [0,0,1]
+        if action_as_dict["action_type"] == "buy":
+            action = [1,0,0]
+        elif action_as_dict["action_type"] == "reserve":
+            action = [0,1,0]
+        else:
+            action = [0,0,1]
 
-            action.extend([1 if y in {i["card"]} else 0 for y in np.arange(CARDS_IN_DECK)])
-            action.extend(i["gems_flow"])
+        action.extend([1 if y in {action_as_dict["card"]} else 0 for y in np.arange(CARDS_IN_DECK)])
+        action.extend(action_as_dict["gems_flow"])
+        return action
 
-            self.action_space_vec.append(action)
+

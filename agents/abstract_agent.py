@@ -46,7 +46,7 @@ class Agent:
             raise ValueError
 
     @abstractmethod
-    def choose_act(self):
+    def choose_act(self, mode):
         raise NotImplementedError
 
     def stochastic_choose_action(self, observation, previous_actions) -> Action:

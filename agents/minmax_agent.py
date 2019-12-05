@@ -1,11 +1,13 @@
 import random
 import numpy as np
+import pandas as pd
 
 from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
+from nn_models.vectorization import vectorize_state, vectorize_action
 
 
 class MinMaxAgent(Agent):
@@ -14,7 +16,8 @@ class MinMaxAgent(Agent):
                 name: str = "MinMax",
                 weight: list = [100,2,2,1,0.1],
                 decay: float = 0.9,
-                depth: int = 3):
+                depth: int = 3,
+                collect_stats: bool=False):
 
         super().__init__()
 
@@ -27,6 +30,11 @@ class MinMaxAgent(Agent):
         self.depth = depth
         self.action_to_avoid = -100
 
+        self.collect_stats = collect_stats
+        if self.collect_stats:
+            self.stats_dataframe = pd.DataFrame(columns=('state', 'action', 'evaluation'))
+            self.stats_dataframe_vectorized = pd.DataFrame(columns=('state_vector', 'action_vector', 'evaluation'))
+
         self.env_dict = {lvl : None for lvl in range(1, self.depth)}
 
     def choose_act(self, mode) -> Action:
@@ -38,7 +46,7 @@ class MinMaxAgent(Agent):
             actions = []
             potential_reward_max = self.action_to_avoid
             numerator = self.depth - 1
-
+            primary_state = StateAsDict(self.env.current_state_of_the_game)
             self.env_dict[numerator] = StateAsDict(self.env.current_state_of_the_game)
             for action in self.env.action_space.list_of_actions:
                 ae = action.evaluate(self.env.current_state_of_the_game)
@@ -48,6 +56,15 @@ class MinMaxAgent(Agent):
 
                 potential_reward -= self.decay * self.deep_evaluation(action, numerator - 1, mode)
                 self.restore_env(numerator)
+
+                if self.collect_stats:
+                    self.stats_dataframe = self.stats_dataframe.append({'state' : primary_state,
+                                                    'action' : action.to_dict(),
+                                                    'evaluation' : potential_reward}, ignore_index=True)
+                    self.stats_dataframe_vectorized = self.stats_dataframe_vectorized .append({'state_vector': vectorize_state(primary_state),
+                                                                        'action_vector': vectorize_action(action),
+                                                                        'evaluation': potential_reward},
+                                                                       ignore_index=True)
 
                 if potential_reward > potential_reward_max:
                     potential_reward_max = potential_reward
@@ -121,3 +138,13 @@ class MinMaxAgent(Agent):
     def normalize_weight(self):
         if np.linalg.norm(self.weight) > 0:
             self.weight = self.weight/np.linalg.norm(self.weight)
+
+    def dump_action_scores(self, file_name, clean_dict = True):
+        if self.collect_stats:
+            self.stats_dataframe.to_csv(file_name + '_raw.csv', header=True)
+            self.stats_dataframe_vectorized.to_csv(file_name + '_vectorized.csv', header=True)
+            if clean_dict:
+                self.stats_dataframe = pd.DataFrame(columns=('state', 'action', 'evaluation'))
+                self.stats_dataframe_vectorized = pd.DataFrame(columns=('state_vector', 'action_vector', 'evaluation'))
+
+
