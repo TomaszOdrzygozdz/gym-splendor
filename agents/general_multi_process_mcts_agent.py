@@ -1,6 +1,6 @@
 from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
-from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_mcts_vanilla_multi_process import DeterministicMCTSVanillaMultiProcess
+from monte_carlo_tree_search.archive.deterministic_mcts_vanilla_multi_process import DeterministicMCTSVanillaMultiProcess
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 
 
