@@ -17,6 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from gym_splendor_code.envs.mechanics.action import Action
+from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions
 from gym_splendor_code.envs.mechanics.enums import GemColor
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
@@ -111,6 +112,21 @@ class DenseModel:
             q_values_predicted = self.network.predict(X)
             index_of_best_action = np.argmax(q_values_predicted)
             return list_of_actions[index_of_best_action]
+        else:
+            return None
+
+    def get_q_value_of_list(self, state_as_dict : StateAsDict, list_of_actions: List[Action]):
+        assert self.network is not None, 'You must create network first.'
+        self.set_corrent_session()
+        X = []
+        if len(list_of_actions) > 0:
+            vector_of_state = vectorize_state(state_as_dict)
+            for action in list_of_actions:
+                state_action_concat = vector_of_state + vectorize_action(action)
+                X.append(state_action_concat)
+            X = np.array(X)
+            q_values_predicted = self.network.predict(X)
+            return q_values_predicted
         else:
             return None
 

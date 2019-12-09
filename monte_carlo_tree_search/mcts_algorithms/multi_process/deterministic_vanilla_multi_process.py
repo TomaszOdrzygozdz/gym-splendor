@@ -1,5 +1,7 @@
 # from mpi4py import MPI
 from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
+from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
+from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRolloutPolicy
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 if USE_TQDM:
@@ -7,7 +9,7 @@ if USE_TQDM:
 
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.action import Action
-from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla import DeterministicVanillaMCTS
+from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla import DeterministicMCTS
 from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
 
 # comm = MPI.COMM_WORLD
@@ -18,7 +20,8 @@ class DeterministicMCTSMultiProcess:
     def __init__(self,
                  mpi_communicator,
                  iteration_limit: int = 1000,
-                 rollout_policy: RolloutPolicy = 0,
+                 rollout_policy: RolloutPolicy = RandomRolloutPolicy(distribution='first_buy'),
+                 evaluation_policy: EvaluationPolicy = None,
                  rollout_repetition: int = 0,
                  environment_id: str = 0) -> None:
 
@@ -26,7 +29,8 @@ class DeterministicMCTSMultiProcess:
         self.my_rank = self.mpi_communicator.Get_rank()
         self.my_comm_size = mpi_communicator.Get_size()
         self.main_process = self.my_rank == 0
-        self.mcts = DeterministicVanillaMCTS(iteration_limit=iteration_limit)
+        self.mcts = DeterministicMCTS(iteration_limit=iteration_limit, rollout_policy=rollout_policy,
+                                      evaluation_policy=evaluation_policy, rollout_repetition=rollout_repetition)
         self.iterations_done_so_far = 0
 
     #method needed only for main thread:
@@ -64,7 +68,7 @@ class DeterministicMCTSMultiProcess:
 
         return terminal_children, states_to_rollout, n_child_to_rollout
 
-    def run_mcts_pass(self, iteration_limit, rollout_repetition):
+    def run_mcts_pass_rollout(self, iteration_limit, rollout_repetition):
 
         if self.main_process:
             leaf, search_path = self.mcts._tree_traversal()
@@ -100,6 +104,14 @@ class DeterministicMCTSMultiProcess:
                         self.mcts._backpropagate(local_search_path, winner_id, value)
 
         return jobs_done
+
+    def run_mcts_pass_evaluation(self):
+        pass
+
+    def run_mcts_pass(self, iteration_limit, rollout_repetition):
+        if self.mcts.tree_mode == 'rollout':
+            return self.run_mcts_pass_rollout(iteration_limit=iteration_limit, rollout_repetition=rollout_repetition)
+
 
     def _rollout_many_nodes(self, dict_of_states):
         rollout_results_dict = {}
@@ -149,9 +161,6 @@ class DeterministicMCTSMultiProcess:
             self.progress_bar.update()
 
     def run_simulation(self, iteration_limit, rollout_repetition):
-
-        # if self.main_process:
-        #     self.create_progress_bar(iteration_limit)
 
         iterations_done_so_far = 0
         while iterations_done_so_far < iteration_limit:

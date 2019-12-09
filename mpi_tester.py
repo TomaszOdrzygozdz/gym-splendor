@@ -3,7 +3,7 @@ import random
 from mpi4py import MPI
 from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
 from agents.random_agent import RandomAgent
-from agents.simple_mcts_agent import SimpleMCTSAgent
+from archive.simple_mcts_agent import SimpleMCTSAgent
 from arena.multi_arena import MultiProcessSingleDuelArena
 
 comm = MPI.COMM_WORLD
