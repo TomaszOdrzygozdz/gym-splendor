@@ -12,16 +12,18 @@ from monte_carlo_tree_search.trees.abstract_tree import TreeNode
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 
-class DeterministicVanillaMCTS(MCTS):
+class DeterministicMCTS(MCTS):
     def __init__(self,
                  iteration_limit=None,
                  exploration_parameter = 1/math.sqrt(2),
-                 rollout_policy=RandomRolloutPolicy(distribution = "first_buy"),
+                 rollout_policy=None,
+                 evaluation_policy=None,
                  rollout_repetition = 10):
 
         
         super().__init__(iteration_limit=iteration_limit,
                          rollout_policy= rollout_policy,
+                         evaluation_policy=evaluation_policy,
                          rollout_repetition = 1,
                          environment_id='splendor-v0')
 
@@ -32,17 +34,22 @@ class DeterministicVanillaMCTS(MCTS):
         self.root = None
 
     def create_root(self, observation: DeterministicObservation):
-        #print(observation)
-        self.original_root = DeterministicTreeNode(observation=observation, parent=None, parent_action=None, reward=0,
-                                                   is_done=False, winner_id=None)
+        self.original_root = DeterministicTreeNode(observation, parent=None, parent_action=None, reward=0, is_done=False,winner_id=None)
         self.root = self.original_root
 
     def change_root(self, node):
         self.root = node
 
+    def return_root(self):
+        return self.root
+
+    def return_original_root(self):
+        return self.original_root
+
     def _rollout(self, observation: DeterministicObservation):
         value = 0
         is_done = False
+        assert observation is not None, 'Observation is None'
         self.env.load_observation(observation)
         winner_id = None
         while not is_done:
@@ -83,6 +90,21 @@ class DeterministicVanillaMCTS(MCTS):
                 leaf.action_to_children_dict[action.__repr__()] = new_child
                 leaf.children.append(new_child)
 
+    def _expand_leaf_with_eval(self, leaf: DeterministicTreeNode):
+        if not leaf.expanded():
+            leaf.generate_actions()
+            leaf.check_if_terminal()
+            if leaf.actions:
+                predicted_q_values = self.evaluation_policy.evaluate_all_action(leaf.state(), leaf.actions)
+            for action_id, action in enumerate(leaf.actions):
+                self.env.load_observation(leaf.observation)
+                child_state_observation, reward, is_done, info = self.env.step('deterministic', action)
+                winner_id = info['winner_id']
+                new_child = DeterministicTreeNode(child_state_observation, leaf, action, reward, is_done, winner_id)
+                leaf.action_to_children_dict[action.__repr__()] = new_child
+                leaf.children.append(new_child)
+                new_child.value_acc.add(predicted_q_values[action_id])
+
     def _select_child(self, node):
         children_ratings = [self.score_evaluator.compute_score(child, node) for child in node.children]
         child_to_choose_index = np.argmax(children_ratings)
@@ -111,6 +133,13 @@ class DeterministicVanillaMCTS(MCTS):
                     node.value_acc.add(value)
             else:
                 node.value_acc.add(0)
+
+    def _backpropagate_evaluation(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
+        for node in search_path:
+            if node.active_player_id() == evaluated_player_id:
+                node.value_acc.add(-value)
+            else:
+                node.value_acc.add(value)
 
     def choose_action(self):
         _, best_action = self._select_best_child()

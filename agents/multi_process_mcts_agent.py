@@ -5,8 +5,6 @@ from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualiz
 from renders.render_paths import RENDER_DIR
 import os
 
-
-
 class MultiProcessMCTSAgent(Agent):
 
     def __init__(self,
@@ -44,10 +42,6 @@ class MultiProcessMCTSAgent(Agent):
             self.initialize_mcts(self.mpi_communicator)
         if not self.mcts_started:
             self.mcts_algorithm.create_root(observation)
-            # print('STARTING STATE FOR MCTS = {}'.format(state.to_dict()))
-            # print('CHECK REAL MCTS ROOT STATE = {}'.format(self.mcts_algorithm.return_root().state.to_dict()))
-            # print('CHECK REAL MCTS ROOT STATE AS DICT = {}'.format(self.mcts_algorithm.return_root().state_as_dict))
-            # print("STATE = {}".format(state.to_dict()))
             self.mcts_started = True
             ignore_previous_action = True
 
@@ -56,18 +50,11 @@ class MultiProcessMCTSAgent(Agent):
                 if self.mcts_started and self.main_process:
                     if not self.mcts_algorithm.return_root().terminal:
                         self.mcts_algorithm.move_root(previous_actions[0])
-      #  rootek = self.mcts_algorithm.return_root()
-        # if self.main_process:
-        #     if rootek.state.to_dict() != observation.observation_dict:
-        #         print('Dupa')
-        #         print('ROOTEK STATE = {} \n STATE = {}'.format(rootek.state.to_dict(), observation.observation_dict))
-        #         assert False, 'COINS DO NOT MATCH'
 
         root_is_terminal = None
         if self.main_process:
             root_is_terminal = self.mcts_algorithm.return_root().terminal
         root_is_terminal = self.mpi_communicator.bcast(root_is_terminal, root=0)
-       # print('is root terminal? = {}'.format(root_is_terminal))
         if not root_is_terminal:
             self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition)
             if self.visualize and self.main_process:

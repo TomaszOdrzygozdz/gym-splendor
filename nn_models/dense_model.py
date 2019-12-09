@@ -17,6 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from gym_splendor_code.envs.mechanics.action import Action
+from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions
 from gym_splendor_code.envs.mechanics.enums import GemColor
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
@@ -32,7 +33,7 @@ class DenseModel:
     def set_corrent_session(self):
         K.set_session(self.session)
 
-    def create_network(self, input_size : int = 597, layers_list : List[int] = [400, 400, 400]) -> None:
+    def create_network(self, input_size : int = 597, layers_list : List[int] = [600, 600, 600, 600]) -> None:
         '''
         This method creates network with a specific architecture
         :return:
@@ -58,7 +59,7 @@ class DenseModel:
         self.network.summary()
         self.session.run(tf.global_variables_initializer())
 
-    def train_model(self, data_file_name, weights_file_name):
+    def train_model(self, data_file_name, output_weights_file_name, epochs):
 
         assert self.network is not None, 'You must create network before training'
         self.set_corrent_session()
@@ -76,13 +77,13 @@ class DenseModel:
         X = np.array(X)
         Y = np.array(Y)
 
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.20)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.05)
 
 
-        self.network.fit(X_train, Y_train, batch_size=None, epochs=2, verbose=1)
+        self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=1)
         score = self.network.evaluate(X_test, Y_test, verbose=2)
         print('Training score = {}'.format(score))
-        self.network.save_weights(weights_file_name)
+        self.network.save_weights(output_weights_file_name)
 
     def load_weights(self, weights_file):
         assert self.network is not None, 'You must create network before loading weights.'
@@ -111,6 +112,21 @@ class DenseModel:
             q_values_predicted = self.network.predict(X)
             index_of_best_action = np.argmax(q_values_predicted)
             return list_of_actions[index_of_best_action]
+        else:
+            return None
+
+    def get_q_value_of_list(self, state_as_dict : StateAsDict, list_of_actions: List[Action]):
+        assert self.network is not None, 'You must create network first.'
+        self.set_corrent_session()
+        X = []
+        if len(list_of_actions) > 0:
+            vector_of_state = vectorize_state(state_as_dict)
+            for action in list_of_actions:
+                state_action_concat = vector_of_state + vectorize_action(action)
+                X.append(state_action_concat)
+            X = np.array(X)
+            q_values_predicted = self.network.predict(X)
+            return q_values_predicted
         else:
             return None
 
