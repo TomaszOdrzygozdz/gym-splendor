@@ -1,5 +1,6 @@
 # from mpi4py import MPI
 from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
+from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 if USE_TQDM:
     from tqdm import tqdm
@@ -12,7 +13,6 @@ from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import Rol
 # comm = MPI.COMM_WORLD
 # my_rank = MPI.COMM_WORLD.Get_rank()
 # main_thread = my_rank==0
-from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 class DeterministicMCTSMultiProcess:
     def __init__(self,
@@ -163,3 +163,5 @@ class DeterministicMCTSMultiProcess:
 
     def return_root(self):
         return self.mcts.root
+
+

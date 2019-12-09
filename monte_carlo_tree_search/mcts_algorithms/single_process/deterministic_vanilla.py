@@ -32,9 +32,7 @@ class DeterministicVanillaMCTS(MCTS):
         self.root = None
 
     def create_root(self, observation: DeterministicObservation):
-        #print(observation)
-        self.original_root = DeterministicTreeNode(observation=observation, parent=None, parent_action=None, reward=0,
-                                                   is_done=False, winner_id=None)
+        self.original_root = DeterministicTreeNode(observation, parent=None, parent_action=None, reward=0, is_done=False,winner_id=None)
         self.root = self.original_root
 
     def change_root(self, node):
@@ -43,6 +41,7 @@ class DeterministicVanillaMCTS(MCTS):
     def _rollout(self, observation: DeterministicObservation):
         value = 0
         is_done = False
+        assert observation is not None, 'Observation is None'
         self.env.load_observation(observation)
         winner_id = None
         while not is_done:
