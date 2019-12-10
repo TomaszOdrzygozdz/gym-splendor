@@ -8,7 +8,7 @@ from gym_splendor_code.envs.mechanics.action_space_generator import generate_all
 from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
 
 
-class RandomRolloutPolicy(RolloutPolicy):
+class RandomRollout(RolloutPolicy):
 
     def __init__(self, distribution: str = 'uniform_on_types'):
         super().__init__('random')

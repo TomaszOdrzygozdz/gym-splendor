@@ -5,9 +5,9 @@ import numpy as np
 
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from monte_carlo_tree_search.mcts_algorithms.abstract_deterministic_mcts import MCTS
+from monte_carlo_tree_search.mcts_algorithms.abstract_mcts import MCTS
 from monte_carlo_tree_search.rollout_policies.greedy_rollout import GreedyRolloutPolicy
-from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRolloutPolicy
+from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
 
 from monte_carlo_tree_search.score_computers.ucb1_score import UCB1Score
 from monte_carlo_tree_search.trees.abstract_tree import TreeNode
@@ -25,7 +25,7 @@ class DeterministicMCTSVanillaRollout(MCTS):
         if rollout_policy == "random":
             if params is None:
                 params = "first_buy"
-            rollout = RandomRolloutPolicy(distribution = params)
+            rollout = RandomRollout(distribution = params)
 
         elif rollout_policy == "greedy":
             if params is None:

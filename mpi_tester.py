@@ -26,7 +26,7 @@ result = arek.run_one_duel_multi_process_deterministic(comm, [agent3, agent1])
 if main_process:
     print(result)
 
-#fufu = DeterministicMCTSMultiProcess(comm)
+#fufu = MultiMCTS(comm)
 
 #fufu.create_root(State())
 
@@ -51,7 +51,7 @@ if main_process:
 # my_color = my_rank % 2
 # NEW_COMM = MPI.COMM_WORLD.Split(my_color)
 #
-# fuf = DeterministicMCTSMultiProcess(comm)
+# fuf = MultiMCTS(comm)
 # #fuf.execute()
 #
 # dup = fuf.give_random_number()
@@ -61,7 +61,7 @@ if main_process:
 # if main_process:
 #     print(tutu)
 #
-# fuf = DeterministicMCTSMultiProcess(NEW_COMM)
+# fuf = MultiMCTS(NEW_COMM)
 # stanek = State()
 # fuf.create_root(stanek)
 #

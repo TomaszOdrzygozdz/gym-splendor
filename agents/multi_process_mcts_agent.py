@@ -1,6 +1,8 @@
 from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
-from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_multi_process import DeterministicMCTSMultiProcess
+from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
+from monte_carlo_tree_search.mcts_algorithms.multi_process.multi_mcts import MultiMCTS
+from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
 from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualizer
 from renders.render_paths import RENDER_DIR
 import os
@@ -9,11 +11,15 @@ class MultiProcessMCTSAgent(Agent):
 
     def __init__(self,
                  iteration_limit,
-                 rollout_repetition,
+                 rollout_policy: RolloutPolicy = None,
+                 evaluation_policy: EvaluationPolicy = None,
+                 rollout_repetition = 1,
                  create_visualizer: bool=True,
                  show_unvisited_nodes = False):
 
         super().__init__(multi_process=True)
+        self.rollout_policy = rollout_policy
+        self.evaluation_policy = evaluation_policy
         self.iteration_limit = iteration_limit
         self.mcts_started = False
         self.mcts_initialized = False
@@ -30,7 +36,9 @@ class MultiProcessMCTSAgent(Agent):
 
     def initialize_mcts(self, mpi_communicator):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
-        self.mcts_algorithm = DeterministicMCTSMultiProcess(mpi_communicator)
+        self.mcts_algorithm = MultiMCTS(mpi_communicator, rollout_repetition=self.rollout_repetition,
+                                        rollout_policy=self.rollout_policy,
+                                        evaluation_policy=self.evaluation_policy)
         self.mcts_initialized = True
         self.main_process = mpi_communicator.Get_rank() == 0
 

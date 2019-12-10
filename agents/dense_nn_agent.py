@@ -20,4 +20,3 @@ class DenseNNAgent(Agent):
         list_of_actions = self.env.action_space.list_of_actions
         return self.model.choose_best_action(current_state_as_dict, list_of_actions)
 
-    

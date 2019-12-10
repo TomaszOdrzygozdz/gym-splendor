@@ -12,7 +12,7 @@ class DeterministicTreeNode(TreeNode):
     def __init__(self, observation: DeterministicObservation, parent: 'MCTSTreeNode', parent_action: Action, reward: int, is_done: bool, winner_id: int)->None:
         super().__init__(parent, parent_action, ScalarMeanMaxValueAccumulator(), )
         assert observation.name == 'deterministic', 'Wrong observation'
-        self.state = observation.recreate_state()
+        self.state_recreated = False
         #self.observation = DeterministicObservation(self.state)
         self.observation = observation
         self.perfect_value = None
@@ -27,7 +27,13 @@ class DeterministicTreeNode(TreeNode):
             self.terminal = True
 
     def active_player_id(self):
+        self.recreate_state()
         return self.state.active_player_id
+
+    def recreate_state(self):
+        if not self.state_recreated:
+            self.state = self.observation.recreate_state()
+            self.state_recreated = True
 
     def check_if_terminal(self):
         #Node can be terminal in two ways
@@ -42,14 +48,17 @@ class DeterministicTreeNode(TreeNode):
             pass
 
     def generate_actions(self):
+        self.recreate_state()
         if len(self.actions) == 0:
             self.actions = generate_all_legal_actions(self.state)
         self.check_if_terminal()
 
     def state(self):
+        self.recreate_state()
         return self.state
 
     def expanded(self):
+        self.recreate_state()
         if self.terminal:
             return True
         else:

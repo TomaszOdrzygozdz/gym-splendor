@@ -2,15 +2,15 @@ import time
 
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.state import State
-from monte_carlo_tree_search.mcts_algorithms.multi_process.deterministic_vanilla_multi_process import \
-    DeterministicMCTSMultiProcess
+from monte_carlo_tree_search.mcts_algorithms.multi_process.multi_mcts import \
+    MultiMCTS
 
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
 main_process = my_rank==0
 
-mc = DeterministicMCTSMultiProcess(comm)
+mc = MultiMCTS(comm)
 
 stan = State()
 obs = DeterministicObservation(stan)

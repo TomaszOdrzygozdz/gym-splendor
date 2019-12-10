@@ -1,11 +1,16 @@
-import random
+import os
+from gym_splendor_code.envs.mechanics.game_settings import USE_TENSORFLOW_GPU
+from monte_carlo_tree_search.mcts_settings import REWARDS_FOR_HAVING_NO_LEGAL_ACTIONS
 
-import keras
+if not USE_TENSORFLOW_GPU:
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 import tensorflow as tf
+import keras
 import json
 from keras.models import Model
-from keras.models import load_model
-from keras.layers import Input, Dense, Dropout
+from keras.layers import Input, Dense, Dropout, warnings
 from keras import backend as K
 
 import pandas as pd
@@ -19,14 +24,18 @@ from sklearn.preprocessing import StandardScaler
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions
 from gym_splendor_code.envs.mechanics.enums import GemColor
+
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from nn_models.vectorization import vectorize_state, vectorize_action
 
 
+
+
 class DenseModel:
 
     def __init__(self):
+
         self.session = tf.Session()
         self.network = None
 
@@ -78,8 +87,6 @@ class DenseModel:
         Y = np.array(Y)
 
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.05)
-
-
         self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=1)
         score = self.network.evaluate(X_test, Y_test, verbose=2)
         print('Training score = {}'.format(score))
@@ -100,22 +107,22 @@ class DenseModel:
 
     def choose_best_action(self, state_as_dict : StateAsDict, list_of_actions: List[Action]) -> Action:
         assert self.network is not None, 'You must create network first.'
-        self.set_corrent_session()
-        X = []
         if len(list_of_actions) > 0:
-            vector_of_state = vectorize_state(state_as_dict)
-            for action in list_of_actions:
-                state_action_concat = vector_of_state + vectorize_action(action)
-                X.append(state_action_concat)
-            X = np.array(X)
-
-            q_values_predicted = self.network.predict(X)
+            q_values_predicted = self.evaluate_list(state_as_dict, list_of_actions)
             index_of_best_action = np.argmax(q_values_predicted)
             return list_of_actions[index_of_best_action]
         else:
             return None
 
-    def get_q_value_of_list(self, state_as_dict : StateAsDict, list_of_actions: List[Action]):
+    def get_max_q_value(self, state_as_dict : StateAsDict, list_of_actions: List[Action]) -> Action:
+        assert self.network is not None, 'You must create network first.'
+        if len(list_of_actions) > 0:
+            q_values_predicted = self.evaluate_list(state_as_dict, list_of_actions)
+            return np.argmax(q_values_predicted)
+        else:
+            return REWARDS_FOR_HAVING_NO_LEGAL_ACTIONS
+
+    def evaluate_list(self, state_as_dict : StateAsDict, list_of_actions: List[Action]):
         assert self.network is not None, 'You must create network first.'
         self.set_corrent_session()
         X = []
@@ -129,4 +136,3 @@ class DenseModel:
             return q_values_predicted
         else:
             return None
-

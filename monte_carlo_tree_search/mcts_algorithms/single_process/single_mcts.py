@@ -5,14 +5,14 @@ import numpy as np
 
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from monte_carlo_tree_search.mcts_algorithms.abstract_deterministic_mcts import MCTS
-from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRolloutPolicy
+from monte_carlo_tree_search.mcts_algorithms.abstract_mcts import MCTS
+from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
 from monte_carlo_tree_search.score_computers.ucb1_score import UCB1Score
 from monte_carlo_tree_search.trees.abstract_tree import TreeNode
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 
-class DeterministicMCTS(MCTS):
+class SingleMCTS(MCTS):
     def __init__(self,
                  iteration_limit=None,
                  exploration_parameter = 1/math.sqrt(2),
@@ -65,6 +65,11 @@ class DeterministicMCTS(MCTS):
 
         return winner_id, value
 
+    def _evaluate(self, observation: DeterministicObservation):
+        self.env.load_observation(observation)
+        evaluated_player_id = self.env.current_state_of_the_game.active_player_id
+        return evaluated_player_id, self.evaluation_policy.evaluate_state(self.env.current_state_of_the_game)
+
     def move_root(self, action):
         if self.root.expanded() == False:
             self._expand_leaf(self.root)
@@ -90,20 +95,22 @@ class DeterministicMCTS(MCTS):
                 leaf.action_to_children_dict[action.__repr__()] = new_child
                 leaf.children.append(new_child)
 
-    def _expand_leaf_with_eval(self, leaf: DeterministicTreeNode):
-        if not leaf.expanded():
-            leaf.generate_actions()
-            leaf.check_if_terminal()
-            if leaf.actions:
-                predicted_q_values = self.evaluation_policy.evaluate_all_action(leaf.state(), leaf.actions)
-            for action_id, action in enumerate(leaf.actions):
-                self.env.load_observation(leaf.observation)
-                child_state_observation, reward, is_done, info = self.env.step('deterministic', action)
-                winner_id = info['winner_id']
-                new_child = DeterministicTreeNode(child_state_observation, leaf, action, reward, is_done, winner_id)
-                leaf.action_to_children_dict[action.__repr__()] = new_child
-                leaf.children.append(new_child)
-                new_child.value_acc.add(predicted_q_values[action_id])
+    # def _expand_leaf_with_eval(self, leaf: DeterministicTreeNode):
+    #     if not leaf.expanded():
+    #         leaf.generate_actions()
+    #         leaf.check_if_terminal()
+    #         evaluated_player = leaf.state.active_player_id
+    #         if leaf.actions:
+    #             predicted_q_values = self.evaluation_policy.evaluate_all_actions(leaf.state, leaf.actions)
+    #         for action_id, action in enumerate(leaf.actions):
+    #             self.env.load_observation(leaf.observation)
+    #             child_state_observation, reward, is_done, info = self.env.step('deterministic', action)
+    #             winner_id = info['winner_id']
+    #             new_child = DeterministicTreeNode(child_state_observation, leaf, action, reward, is_done, winner_id)
+    #             leaf.action_to_children_dict[action.__repr__()] = new_child
+    #             leaf.children.append(new_child)
+    #             new_child.value_acc.add(predicted_q_values[action_id])
+    #         return evaluated_player, predicted_q_values
 
     def _select_child(self, node):
         children_ratings = [self.score_evaluator.compute_score(child, node) for child in node.children]
@@ -135,6 +142,7 @@ class DeterministicMCTS(MCTS):
                 node.value_acc.add(0)
 
     def _backpropagate_evaluation(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
+        assert evaluated_player_id is not None, 'Provide id of evaluated player'
         for node in search_path:
             if node.active_player_id() == evaluated_player_id:
                 node.value_acc.add(-value)

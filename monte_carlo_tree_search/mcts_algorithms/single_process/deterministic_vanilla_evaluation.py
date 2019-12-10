@@ -5,7 +5,7 @@ import numpy as np
 
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from monte_carlo_tree_search.mcts_algorithms.abstract_deterministic_mcts import MCTS
+from monte_carlo_tree_search.mcts_algorithms.abstract_mcts import MCTS
 from monte_carlo_tree_search.rollout_policies.greedy_search_evaluation_policy import GreedySearchEvaluationPolicy
 from monte_carlo_tree_search.score_computers.ucb1_score import UCB1Score
 from monte_carlo_tree_search.trees.abstract_tree import TreeNode

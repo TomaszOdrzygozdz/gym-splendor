@@ -1,7 +1,7 @@
 # from mpi4py import MPI
 from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
 from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
-from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRolloutPolicy
+from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 
 if USE_TQDM:
@@ -9,18 +9,18 @@ if USE_TQDM:
 
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.action import Action
-from monte_carlo_tree_search.mcts_algorithms.single_process.deterministic_vanilla import DeterministicMCTS
+from monte_carlo_tree_search.mcts_algorithms.single_process.single_mcts import SingleMCTS
 from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
 
 # comm = MPI.COMM_WORLD
 # my_rank = MPI.COMM_WORLD.Get_rank()
 # main_thread = my_rank==0
 
-class DeterministicMCTSMultiProcess:
+class MultiMCTS:
     def __init__(self,
                  mpi_communicator,
                  iteration_limit: int = 1000,
-                 rollout_policy: RolloutPolicy = RandomRolloutPolicy(distribution='first_buy'),
+                 rollout_policy: RolloutPolicy = RandomRollout(distribution='first_buy'),
                  evaluation_policy: EvaluationPolicy = None,
                  rollout_repetition: int = 0,
                  environment_id: str = 0) -> None:
@@ -29,8 +29,8 @@ class DeterministicMCTSMultiProcess:
         self.my_rank = self.mpi_communicator.Get_rank()
         self.my_comm_size = mpi_communicator.Get_size()
         self.main_process = self.my_rank == 0
-        self.mcts = DeterministicMCTS(iteration_limit=iteration_limit, rollout_policy=rollout_policy,
-                                      evaluation_policy=evaluation_policy, rollout_repetition=rollout_repetition)
+        self.mcts = SingleMCTS(iteration_limit=iteration_limit, rollout_policy=rollout_policy,
+                               evaluation_policy=evaluation_policy, rollout_repetition=rollout_repetition)
         self.iterations_done_so_far = 0
 
     #method needed only for main thread:
@@ -68,7 +68,7 @@ class DeterministicMCTSMultiProcess:
 
         return terminal_children, states_to_rollout, n_child_to_rollout
 
-    def run_mcts_pass_rollout(self, iteration_limit, rollout_repetition):
+    def run_mcts_pass(self, iteration_limit, rollout_repetition):
 
         if self.main_process:
             leaf, search_path = self.mcts._tree_traversal()
@@ -85,12 +85,19 @@ class DeterministicMCTSMultiProcess:
         my_nodes_to_rollout = self.mpi_communicator.scatter(states_to_rollout, root=0)
 
         for _ in range(rollout_repetition):
-            my_results = self._rollout_many_nodes(my_nodes_to_rollout)
+            if self.mcts.tree_mode == 'rollout':
+                my_results = self._rollout_many_nodes(my_nodes_to_rollout)
+            if self.mcts.tree_mode == 'evaluation':
+                my_results = self._evaluate_many_nodes(my_nodes_to_rollout)
+
             combined_results = self.mpi_communicator.gather(my_results, root=0)
             #if self.main_process:
             if self.main_process:
                 flattened_results = self.flatten_list_of_dicts(combined_results)
-                self._backpropagate_many_results(search_path, flattened_results)
+                if self.mcts.tree_mode == 'rollout':
+                    self._backpropagate_many_results(search_path, flattened_results)
+                if self.mcts.tree_mode == 'evaluation':
+                    self._backpropagate_many_results(search_path, flattened_results)
 
         #colloect values for terminal children:
         if self.main_process:
@@ -102,16 +109,7 @@ class DeterministicMCTSMultiProcess:
                         value = leaf.perfect_value
                         local_search_path = search_path + [terminal_child]
                         self.mcts._backpropagate(local_search_path, winner_id, value)
-
         return jobs_done
-
-    def run_mcts_pass_evaluation(self):
-        pass
-
-    def run_mcts_pass(self, iteration_limit, rollout_repetition):
-        if self.mcts.tree_mode == 'rollout':
-            return self.run_mcts_pass_rollout(iteration_limit=iteration_limit, rollout_repetition=rollout_repetition)
-
 
     def _rollout_many_nodes(self, dict_of_states):
         rollout_results_dict = {}
@@ -121,12 +119,24 @@ class DeterministicMCTSMultiProcess:
                 rollout_results_dict[i] = (winner_id, value)
         return rollout_results_dict
 
+    def _evaluate_many_nodes(self, dict_of_states):
+        evaluation_results_dict = {}
+        if len(dict_of_states) > 0:
+            for i in dict_of_states:
+                evaluated_player_id, value = self.mcts._evaluate(dict_of_states[i])
+                evaluation_results_dict[i] = (evaluated_player_id, value)
+        return evaluation_results_dict
+
     def _backpropagate_many_results(self, search_path, rollout_results):
         for i in rollout_results:
             this_child = search_path[-1].children[i]
             this_particular_search_path = search_path + [this_child]
-            winner_id, value = rollout_results[i]
-            self.mcts._backpropagate(this_particular_search_path, winner_id, value)
+            if self.mcts.tree_mode == 'rollout':
+                winner_id, value = rollout_results[i]
+                self.mcts._backpropagate(this_particular_search_path, winner_id, value)
+            if self.mcts.tree_mode == 'evaluation':
+                evaluated_player_id, value = rollout_results[i]
+                self.mcts._backpropagate_evaluation(this_particular_search_path, evaluated_player_id, value)
 
 
     def flatten_list_of_dicts(self, list_of_dicts):
