@@ -9,13 +9,13 @@ from monte_carlo_tree_search.value_accumulators.scalar_min_max_value_acc import 
 
 class DeterministicTreeNode(TreeNode):
 
-    def __init__(self, observation: DeterministicObservation, parent: 'MCTSTreeNode', parent_action: Action, reward: int, is_done: bool, winner_id: int)->None:
-        super().__init__(parent, parent_action, ScalarMeanMaxValueAccumulator(), )
+    def __init__(self, observation: DeterministicObservation, parent: 'MCTSTreeNode', parent_action: Action,
+                 reward: int, is_done: bool, winner_id: int)->None:
+        super().__init__(parent, parent_action, ScalarMeanMaxValueAccumulator())
         assert observation.name == 'deterministic', 'Wrong observation'
         self.state_recreated = False
         #self.observation = DeterministicObservation(self.state)
         self.observation = observation
-        self.perfect_value = None
         self.reward = reward
         self.is_done = is_done
         self.winner_id = winner_id
@@ -24,7 +24,10 @@ class DeterministicTreeNode(TreeNode):
             self.solved = True
         if self.is_done:
             self.perfect_value = reward
+            self.value_acc.set_constant_value_for_terminal_node(perfect_value=reward)
+            self.value_acc.add(reward)
             self.terminal = True
+
 
     def active_player_id(self):
         self.recreate_state()
@@ -53,7 +56,7 @@ class DeterministicTreeNode(TreeNode):
             self.actions = generate_all_legal_actions(self.state)
         self.check_if_terminal()
 
-    def state(self):
+    def return_state(self):
         self.recreate_state()
         return self.state
 

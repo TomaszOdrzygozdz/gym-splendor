@@ -17,6 +17,7 @@ class TreeNode:
         self.action_to_children_dict = {}
         self.children = []
         self.value_acc = value_acc
+        self.perfect_value = None
         if parent is None:
             self.generation = 0
         else:

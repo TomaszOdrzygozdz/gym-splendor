@@ -10,17 +10,17 @@ from nn_models.value_dense_model import ValueDenseModel
 
 class ValueEvaluator(EvaluationPolicy):
 
-    def __init__(self):
+    def __init__(self, weights_file : str):
 
         self.model = ValueDenseModel()
         self.model.create_network()
-        self.model.load_weights('E:\ML_research\gym_splendor\\nn_models\weights\\value_random_rollout_960.h5')
-
-    # def evaluate_state(self, state, action : Action):
-    #     #active player evaluation
-    #     return self.model.get_q_value(StateAsDict(state), action)
+        if weights_file is not None:
+            self.model.load_weights(weights_file=weights_file)
 
     def evaluate_state(self, state : State) -> float:
         #generate all legal actions in the given state
         return self.model.get_value(StateAsDict(state))
+
+    def evaluate_vector(self, vector_of_state):
+        return self.model.get_value_of_vector(vector_of_state)
 

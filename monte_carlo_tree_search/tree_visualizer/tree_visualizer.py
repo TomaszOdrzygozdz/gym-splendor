@@ -34,7 +34,7 @@ class TreeVisualizer:
     def node_to_string(self, node: TreeNode):
         value_to_show = node.value_acc.get()
         value_to_show = round(value_to_show, 2) if value_to_show is not None else value_to_show
-        return 'nodes.push(' + '{' + 'id: {}, label: \"Id: {} \\n V: {} \\n C: {} \"'.format(self.nodes_to_id[node], self.nodes_to_id[node],
+        return 'nodes.push(' + '{' + ' id: {}, label: \"Id: {} \\n V: {} \\n C: {} \"'.format(self.nodes_to_id[node], self.nodes_to_id[node],
                                                                                             value_to_show,
                                                                                             node.value_acc.count()) + '}); \n'
 

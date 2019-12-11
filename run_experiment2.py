@@ -33,9 +33,9 @@ time_s = time.time()
 
 #wyn = pro.run('arek.run_many_duels(\'deterministic\', [agent3, agent4], n_games=1, n_proc_per_agent=10)')
 #wyn.dump_stats('stat.prof')
-#fuf = arek.run_many_duels('deterministic', [agent1, agentG], n_games=2, n_proc_per_agent=1)
-fuf = 0
-arek.run_multi_process_self_play('deterministic', agent4, render_game=False)
+fuf = arek.run_many_duels('deterministic', [agent1, agent4], n_games=1, n_proc_per_agent=10)
+
+#arek.run_multi_process_self_play('deterministic', agent4, render_game=False)
 
 if main_process:
     print(fuf)

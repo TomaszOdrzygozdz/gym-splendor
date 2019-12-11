@@ -15,7 +15,7 @@ from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNo
 class SingleMCTS(MCTS):
     def __init__(self,
                  iteration_limit=None,
-                 exploration_parameter = 1/math.sqrt(2),
+                 exploration_parameter = 1/math.sqrt(6),
                  rollout_policy=None,
                  evaluation_policy=None,
                  rollout_repetition = 10):

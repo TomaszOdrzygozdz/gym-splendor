@@ -69,17 +69,27 @@ class ValueDenseModel:
         self.network.summary()
         self.session.run(tf.global_variables_initializer())
 
-    def train_model(self, data_file_name, output_weights_file_name, epochs):
+    def train_model(self, data_file_name=None, data_frame=None, output_weights_file_name=None, epochs=5):
 
         assert self.network is not None, 'You must create network before training'
         self.set_corrent_session()
 
-        data = pd.read_csv(data_file_name)
         X = []
         Y = []
 
-        for i, row in data.iterrows():
-                state_vector = json.loads(row[1])
+        if data_frame is None:
+            assert data_file_name is not None
+            data = pd.read_csv(data_file_name)
+            for i, row in data.iterrows():
+                    state_vector = json.loads(row[1])
+                    evaluation = row[-1]
+                    X.append(state_vector)
+                    Y.append(evaluation)
+
+        if data_frame is not None:
+            data = data_frame
+            for i, row in data.iterrows():
+                state_vector = row[0]
                 evaluation = row[-1]
                 X.append(state_vector)
                 Y.append(evaluation)
@@ -91,12 +101,17 @@ class ValueDenseModel:
         self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=1)
         score = self.network.evaluate(X_test, Y_test, verbose=2)
         print('Training score = {}'.format(score))
-        self.network.save_weights(output_weights_file_name)
+        if output_weights_file_name is not None:
+            self.network.save_weights(output_weights_file_name)
 
     def load_weights(self, weights_file):
         assert self.network is not None, 'You must create network before loading weights.'
         self.set_corrent_session()
         self.network.load_weights(weights_file)
+
+    def save_weights(self, output_weights_file_name):
+        self.set_corrent_session()
+        self.network.save_weights(output_weights_file_name)
 
     def get_value(self, state_as_dict: StateAsDict) -> float:
         assert self.network is not None, 'You must create network first.'
@@ -104,3 +119,8 @@ class ValueDenseModel:
         vector_of_state = vectorize_state(state_as_dict)
         input_vec = np.array(vector_of_state)
         return self.network.predict(x=input_vec.reshape(1, 498))[0][0]
+
+    def get_value_of_vector(self, vector_of_state)->float:
+        assert self.network is not None, 'You must create network first.'
+        self.set_corrent_session()
+        return self.network.predict(x=vector_of_state.reshape(1, 498))[0][0]
