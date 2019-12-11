@@ -162,6 +162,8 @@ class Arena:
             one_game_statistics = GameStatisticsDuels(list_of_agents)
             one_game_statistics.register_from_dict(results_dict)
 
+        for agent in list_of_agents:
+            agent.finish_game()
 
         return one_game_statistics if local_main_process else None
 

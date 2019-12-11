@@ -21,7 +21,6 @@ class MultiArena:
         self.env_initialized = False
         self.name = 'Multi Process Arena'
 
-
     def initialize_env(self, environment_id: str = 'gym_splendor_code:splendor-deterministic-v0'):
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
@@ -83,8 +82,6 @@ class MultiArena:
             one_game_results = local_arena.run_one_duel(mode, list_of_agents, mpi_communicator=new_communicator)
             if local_main:
                 local_results.register(one_game_results)
-            for agent in list_of_agents:
-                agent.finish_game()
 
         #Gather all results:
         combined_results_list = comm.gather(local_results, root=0)

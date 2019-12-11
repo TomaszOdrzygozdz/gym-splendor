@@ -20,7 +20,7 @@ agent1 = RandomAgent(distribution='first_buy')
 agent2 = MinMaxAgent(collect_stats=False)
 agent3 = GreedyAgentBoost()
 agent4 = GreedySearchAgent()
-agent_mcts = MultiProcessMCTSAgent(2, rollout_policy=RandomRollout(), rollout_repetition=1, create_visualizer=True)
+agent_mcts = MultiProcessMCTSAgent(960, rollout_policy=RandomRollout(), rollout_repetition=10, create_visualizer=True)
 
 
 arek = MultiArena()
@@ -31,19 +31,19 @@ for rep in range(n_repetition):
     arek.run_many_duels('deterministic', [agent_mcts, agent1], n_games=1, n_proc_per_agent=400)
     if main_process:
         data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
-        data_collector.dump_data('against_random_{}_'.format(n_repetition))
+        data_collector.dump_data('against_random_{}_'.format(rep))
 
     arek.run_many_duels('deterministic', [agent_mcts, agent2], n_games=1, n_proc_per_agent=400)
     if main_process:
         data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
-        data_collector.dump_data('against_minmax_{}_'.format(n_repetition))
+        data_collector.dump_data('against_minmax_{}_'.format(rep))
 
     arek.run_many_duels('deterministic', [agent_mcts, agent3], n_games=1, n_proc_per_agent=400)
     if main_process:
         data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
-        data_collector.dump_data('against_greedy_boost_{}_'.format(n_repetition))
+        data_collector.dump_data('against_greedy_boost_{}_'.format(rep))
 
     arek.run_many_duels('deterministic', [agent_mcts, agent2], n_games=1, n_proc_per_agent=400)
     if main_process:
         data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
-        data_collector.dump_data('against_greedy_search_{}_'.format(n_repetition))
+        data_collector.dump_data('against_greedy_search_{}_'.format(rep))
