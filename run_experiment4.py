@@ -29,17 +29,21 @@ n_repetition = 1
 
 for rep in range(n_repetition):
     arek.run_many_duels('deterministic', [agent_mcts, agent1], n_games=1, n_proc_per_agent=400)
-    data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
-    data_collector.dump_data('against_random_{}_'.format(n_repetition))
+    if main_process:
+        data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
+        data_collector.dump_data('against_random_{}_'.format(n_repetition))
 
     arek.run_many_duels('deterministic', [agent_mcts, agent2], n_games=1, n_proc_per_agent=400)
-    data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
-    data_collector.dump_data('against_minmax_{}_'.format(n_repetition))
+    if main_process:
+        data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
+        data_collector.dump_data('against_minmax_{}_'.format(n_repetition))
 
     arek.run_many_duels('deterministic', [agent_mcts, agent3], n_games=1, n_proc_per_agent=400)
-    data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
-    data_collector.dump_data('against_greedy_boost_{}_'.format(n_repetition))
+    if main_process:
+        data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
+        data_collector.dump_data('against_greedy_boost_{}_'.format(n_repetition))
 
     arek.run_many_duels('deterministic', [agent_mcts, agent2], n_games=1, n_proc_per_agent=400)
-    data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
-    data_collector.dump_data('against_greedy_search_{}_'.format(n_repetition))
+    if main_process:
+        data_collector = TreeDataCollector(agent_mcts.mcts_algorithm.original_root())
+        data_collector.dump_data('against_greedy_search_{}_'.format(n_repetition))

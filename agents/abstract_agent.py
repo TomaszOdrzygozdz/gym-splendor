@@ -33,6 +33,8 @@ class Agent:
             Agent.agents_created += 1
             self.id = Agent.agents_created
 
+        self.self_play_mode = False
+
     @abstractmethod
     def choose_action(self, observation : SplendorObservation, previous_actions : List[Action]):
         """This method chooses one action to take, based on the provided observation. This method should not have
@@ -76,3 +78,9 @@ class Agent:
 
     def set_color(self, color):
         self.color = color
+
+    def set_self_play_mode(self):
+        self.self_play_mode = True
+
+    def unset_self_play_mode(self):
+        self.self_play_mode = False

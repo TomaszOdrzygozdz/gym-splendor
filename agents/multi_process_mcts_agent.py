@@ -33,6 +33,7 @@ class MultiProcessMCTSAgent(Agent):
         self.previous_game_state = None
         self.actions_taken_so_far = 0
         self.color = 0
+        self.self_play_mode = False
 
     def initialize_mcts(self, mpi_communicator):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
@@ -53,11 +54,12 @@ class MultiProcessMCTSAgent(Agent):
             self.mcts_started = True
             ignore_previous_action = True
 
-        if not ignore_previous_action and self.main_process:
-            if previous_actions[0] is not None and self.main_process:
-                if self.mcts_started and self.main_process:
-                    if not self.mcts_algorithm.return_root().terminal:
-                        self.mcts_algorithm.move_root(previous_actions[0])
+        if not self.self_play_mode:
+            if not ignore_previous_action and self.main_process:
+                if previous_actions[0] is not None and self.main_process:
+                    if self.mcts_started and self.main_process:
+                        if not self.mcts_algorithm.return_root().terminal:
+                            self.mcts_algorithm.move_root(previous_actions[0])
 
         root_is_terminal = None
         if self.main_process:

@@ -26,6 +26,59 @@ class Arena:
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
 
+    def run_self_play(self, mode: str,
+                      agent: Agent,
+                      render_game=False,
+                      mpi_communicator = None):
+
+        self.env.reset()
+        self.env.set_active_player(0)
+        # set players names:
+        is_done = False
+        # set the initial agent id
+        # set the initial observation
+        observation = self.env.show_observation(mode)
+        number_of_actions = 0
+        results_dict = {}
+        # Id if the player who first reaches number of points to win
+        previous_actions = [None]
+        action = None
+
+        agent.set_self_play_mode()
+
+        if mpi_communicator is None:
+            local_main_process = True
+        if mpi_communicator is not None:
+            local_main_process = mpi_communicator.Get_rank() == 0
+            if agent.multi_process:
+                agent.set_communicator(mpi_communicator)
+
+        if render_game and local_main_process:
+            self.env.render()
+            time.sleep(GAME_INITIAL_DELAY)
+
+        while number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
+            if agent.multi_process == True:
+                action = agent.choose_action(observation, previous_actions)
+            if agent.multi_process == False and local_main_process:
+                action = agent.choose_action(observation, previous_actions)
+            previous_actions = [action]
+
+            if local_main_process:
+                observation, reward, is_done, info = self.env.step(mode, action)
+                winner_id = info['winner_id']
+            if render_game:
+                self.env.render()
+
+            number_of_actions += 1
+            if mpi_communicator is not None:
+                is_done = mpi_communicator.bcast(is_done, root=0)
+
+        if local_main_process:
+            self.env.reset()
+        print('Game done')
+
+
 
     def run_one_duel(self,
                      mode: str,
@@ -58,10 +111,6 @@ class Arena:
         previous_actions = [None]
         action = None
 
-        if render_game:
-            self.env.render()
-            time.sleep(GAME_INITIAL_DELAY)
-
         if mpi_communicator is None:
             local_main_process = True
         if mpi_communicator is not None:
@@ -69,6 +118,10 @@ class Arena:
             for agent in list_of_agents:
                 if agent.multi_process:
                     agent.set_communicator(mpi_communicator)
+
+        if render_game and local_main_process:
+            self.env.render()
+            time.sleep(GAME_INITIAL_DELAY)
 
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
             #if local_main_process:
