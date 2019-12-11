@@ -145,9 +145,9 @@ class SingleMCTS(MCTS):
         assert evaluated_player_id is not None, 'Provide id of evaluated player'
         for node in search_path:
             if node.active_player_id() == evaluated_player_id:
-                node.value_acc.add(-value)
-            else:
                 node.value_acc.add(value)
+            else:
+                node.value_acc.add(-value)
 
     def choose_action(self):
         _, best_action = self._select_best_child()

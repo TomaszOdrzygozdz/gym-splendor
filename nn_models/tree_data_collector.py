@@ -23,8 +23,6 @@ class TreeDataCollector:
 
         while len(kiu) > 0:
             # take first:
-            print(kiu)
-
             node_to_eval = kiu.pop(0)
             if node_to_eval.value_acc.count() > 0:
                 for child in node_to_eval.children:
