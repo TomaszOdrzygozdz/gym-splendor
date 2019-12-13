@@ -58,25 +58,25 @@ class MultiMCTS:
 
         if choose_best is not None and iteration_limit > 1:
             k_max = max(int(n_child_to_rollout*choose_best),1)
-            #read nodes evaluations:
-            nodes_list = []
-            nodes_values_list = []
+            if k_max > 1:
+                #read nodes evaluations:
+                nodes_list = []
+                nodes_values_list = []
 
-            for node in not_terminal_children:
-                if node.value_acc.get() is not None:
-                    nodes_list.append(node)
-                    nodes_values_list.append(node.value_acc.get())
+                for node in not_terminal_children:
+                    if node.value_acc.get() is not None:
+                        nodes_list.append(node)
+                        nodes_values_list.append(node.value_acc.get())
 
-            print(nodes_values_list)
-            max_ind = list(np.argpartition(nodes_values_list, k_max)[-k_max:])
-            max_nodes_list = []
-            max_values = []
-            for idx in max_ind:
-                max_nodes_list.append(nodes_list[idx])
-                max_values.append(nodes_values_list[idx])
-            not_terminal_children = max_nodes_list
-            n_child_to_rollout = len(max_nodes_list)
-            childs_per_process = int(n_child_to_rollout / self.my_comm_size)
+                max_ind = list(np.argpartition(nodes_values_list, k_max)[-k_max:])
+                max_nodes_list = []
+                max_values = []
+                for idx in max_ind:
+                    max_nodes_list.append(nodes_list[idx])
+                    max_values.append(nodes_values_list[idx])
+                not_terminal_children = max_nodes_list
+                n_child_to_rollout = len(max_nodes_list)
+                childs_per_process = int(n_child_to_rollout / self.my_comm_size)
 
         remaining = n_child_to_rollout % self.my_comm_size
 
@@ -140,7 +140,7 @@ class MultiMCTS:
         #if self.main_process:
         if self.main_process:
             flattened_results = self.flatten_list_of_dicts(combined_results)
-            if self.mcts.tree_mode == 'rollout' or self.mcts.tree_mode == 'evaluation':
+            if self.mcts.tree_mode == 'rollout' or self.mcts.tree_mode == 'combined':
                 self._backpropagate_many_results('rollout', search_path, flattened_results)
 
         #colloect values for terminal children:
@@ -172,19 +172,16 @@ class MultiMCTS:
                 evaluation_results_dict[i] = (evaluated_player_id, value)
         return evaluation_results_dict
 
-    def _backpropagate_many_results(self, mode, search_path, rollout_results):
+    def _backpropagate_many_results(self, backprop_mode, search_path, rollout_results):
         for i in rollout_results:
             this_child = search_path[-1].children[i]
             this_particular_search_path = search_path + [this_child]
-            if mode == 'rollout':
+            if backprop_mode == 'rollout':
                 winner_id, value = rollout_results[i]
                 self.mcts._backpropagate(this_particular_search_path, winner_id, value)
-            if mode == 'evaluation':
+            if backprop_mode == 'evaluation':
                 evaluated_player_id, value = rollout_results[i]
                 self.mcts._backpropagate_evaluation(this_particular_search_path, evaluated_player_id, value)
-            else:
-                assert False
-
 
     def flatten_list_of_dicts(self, list_of_dicts):
         combined_dict = {}

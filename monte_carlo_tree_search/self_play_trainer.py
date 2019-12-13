@@ -1,39 +1,88 @@
+import gym
 from mpi4py import MPI
 import pandas as pd
 import numpy as np
 
+from agents.abstract_agent import Agent
 from agents.multi_process_mcts_agent import MultiMCTSAgent
 from agents.random_agent import RandomAgent
 from arena.multi_arena import MultiArena
+from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
 from monte_carlo_tree_search.evaluation_policies.value_evaluator_nn import ValueEvaluator
 from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
 from nn_models.tree_data_collector import TreeDataCollector
 
+comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
 main_process = my_rank==0
 
 class SelfPlayTrainer:
 
-    def __init__(self, mode, iteration_limit, choose_best):
+    def __init__(self, mode, iteration_limit, rollout_repetition, choose_best):
         assert mode == 'dqn', 'You must provide mode of training'
         self.iteration_limit = iteration_limit
+        self.rollout_repetition = rollout_repetition
         self.local_arena = MultiArena()
         self.data_collector = TreeDataCollector()
         self.opponent = RandomAgent(distribution='first_buy')
         self.choose_best = choose_best
+        self.env = gym.make('splendor-v0')
 
     def prepare_training(self, weights_file:str = None):
         self.eval_policy = evaluation_policy = ValueEvaluator(weights_file)
         self.mcts_agent = MultiMCTSAgent(iteration_limit=self.iteration_limit,
-                                         evaluation_policy = self.eval_policy, rollout_policy=RandomRollout(), only_best=self.choose_best)
+                                         evaluation_policy = self.eval_policy, rollout_policy=RandomRollout(),
+                                         rollout_repetition=self.rollout_repetition,
+                                         only_best=self.choose_best)
 
-    def one_train_iteration(self, alpha=0.1, epochs = 2):
+
+
+    def run_self_play(self, mode: str = 'deterministic'):
+
+        self.env.reset()
+        self.env.set_active_player(0)
+        # set players names:
+        is_done = False
+        # set the initial agent id
+        # set the initial observation
+        observation = self.env.show_observation(mode)
+        number_of_actions = 0
+        results_dict = {}
+        # Id if the player who first reaches number of points to win
+        previous_actions = [None]
+        action = None
+
+        self.mcts_agent.set_self_play_mode()
+        self.mcts_agent.set_communicator(comm)
+
+
+        while number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
+            action = self.mcts_agent.choose_action(observation, previous_actions)
+            previous_actions = [action]
+            self.train_network_iteration()
+            #data collection and training:
+
+            if main_process:
+                observation, reward, is_done, info = self.env.step(mode, action)
+                winner_id = info['winner_id']
+
+            number_of_actions += 1
+            is_done = comm.bcast(is_done, root=0)
+
+        if main_process:
+            self.env.reset()
+
+        self.mcts_agent.unset_self_play_mode()
+        self.mcts_agent.finish_game()
+        print('Self-game done')
+
+    def train_network_iteration(self, alpha=0.1, epochs = 2):
 
         #run self play:
-        self.local_arena.run_multi_process_self_play('deterministic', self.mcts_agent, render_game=False)
+        # self.local_arena.run_multi_process_self_play('deterministic', self.mcts_agent, render_game=False)
         #collect data
         if main_process:
-            self.data_collector.setup_rooot(self.mcts_agent.mcts_algorithm.original_root())
+            self.data_collector.setup_rooot(self.mcts_agent.mcts_algorithm.return_root())
             data_collected = self.data_collector.generate_dqn_data()
             #evaluate_data with old network:
             eval_by_old_network_values = []
@@ -50,19 +99,21 @@ class SelfPlayTrainer:
             data_collected['eval_to_learn'] = pd.Series(eval_to_learn)
             self.eval_policy.model.train_model(data_frame=data_collected)
 
+    def return_agent(self):
+        return self.mcts_agent
+
     def full_training(self, n_repetitions, alpha, epochs):
+
         self.prepare_training()
         for i in range(n_repetitions):
-            self.one_train_iteration(alpha=alpha, epochs=epochs)
-            self.eval_policy.model.save_weights('E:\ML_research\gym_splendor\monte_carlo_tree_search\self_play_data\weights_{}_.h5'.format(i))
-            if i%2 == 0:
-                #run test game
-                self.mcts_agent.unset_self_play_mode()
-                results = self.local_arena.run_many_duels('deterministic', [self.mcts_agent, self.opponent], 2, 200)
-                if main_process:
-                    print(results)
-                    text_file = open('results_{}.txt'.format(i), "w")
-                    text_file.write(results.__repr__())
-                    text_file.close()
+            if main_process:
+                print('Game number = {}'.format(i))
+            self.run_self_play('deterministic')
+            agent_to_test = self.mcts_agent
+            arena = MultiArena()
+            arena.run_many_duels('deterministic', [agent_to_test, RandomAgent(distribution='uniform')], 2, 24)
+            if main_process:
+                self.eval_policy.model.save_weights('Weights_i = {}.h5'.format(i))
+
 
 

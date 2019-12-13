@@ -8,7 +8,7 @@ from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollou
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
 
-ag = MultiMCTSAgent(iteration_limit=3, only_best=0.1, rollout_policy=RandomRollout(), evaluation_policy=ValueEvaluator(weights_file=None),
+ag = MultiMCTSAgent(iteration_limit=5, only_best=0.1, rollout_policy=RandomRollout(), evaluation_policy=ValueEvaluator(weights_file=None),
                     rollout_repetition=2, create_visualizer=True, show_unvisited_nodes=False)
 
 

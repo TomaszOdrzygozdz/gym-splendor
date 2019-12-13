@@ -32,8 +32,8 @@ class TreeVisualizer:
         self.__init__(show_unvisited_nodes=self.show_unvisited_nodes)
 
     def node_to_string(self, node: TreeNode):
-        value_to_show = node.value_acc.get()
-        value_to_show = round(value_to_show, 2) if value_to_show is not None else value_to_show
+        value_to_show_raw = node.value_acc.get()
+        value_to_show = round(value_to_show_raw, 2) if value_to_show_raw is not None else value_to_show_raw
         return 'nodes.push(' + '{' + ' id: {}, label: \"Id: {} \\n V: {} \\n C: {} \"'.format(self.nodes_to_id[node], self.nodes_to_id[node],
                                                                                             value_to_show,
                                                                                             node.value_acc.count()) + '}); \n'

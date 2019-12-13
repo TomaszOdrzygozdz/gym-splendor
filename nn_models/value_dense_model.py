@@ -98,8 +98,8 @@ class ValueDenseModel:
         Y = np.array(Y)
 
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.05)
-        self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=1)
-        score = self.network.evaluate(X_test, Y_test, verbose=2)
+        self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=0)
+        score = self.network.evaluate(X_test, Y_test, verbose=0)
         print('Training score = {}'.format(score))
         if output_weights_file_name is not None:
             self.network.save_weights(output_weights_file_name)
