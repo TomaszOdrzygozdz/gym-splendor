@@ -53,10 +53,10 @@ class MultiMCTS:
 
         n_child_to_rollout = min(len(not_terminal_children), iteration_limit)
         childs_per_process = int(n_child_to_rollout/ self.my_comm_size)
-        remaining = n_child_to_rollout%self.my_comm_size
+
         states_to_rollout = []
 
-        if choose_best is not None:
+        if choose_best is not None and iteration_limit > 1:
             k_max = max(int(n_child_to_rollout*choose_best),1)
             #read nodes evaluations:
             nodes_list = []
@@ -76,6 +76,9 @@ class MultiMCTS:
                 max_values.append(nodes_values_list[idx])
             not_terminal_children = max_nodes_list
             n_child_to_rollout = len(max_nodes_list)
+            childs_per_process = int(n_child_to_rollout / self.my_comm_size)
+
+        remaining = n_child_to_rollout % self.my_comm_size
 
         for process_number in range(self.my_comm_size):
             if process_number < remaining:
@@ -103,7 +106,7 @@ class MultiMCTS:
         states_to_rollout = None
         jobs_to_do = None
         if self.main_process:
-            terminal_children, states_to_rollout, jobs_to_do = self.prepare_list_of_states_to_rollout(leaf, iteration_limit_for_expand)
+            terminal_children, states_to_rollout, jobs_to_do = self.prepare_list_of_states_to_rollout(leaf, iteration_limit_for_expand, choose_best=None)
 
         jobs_done= self.mpi_communicator.bcast(jobs_to_do, root=0)
         my_nodes_to_rollout = self.mpi_communicator.scatter(states_to_rollout, root=0)
@@ -150,11 +153,6 @@ class MultiMCTS:
                         value = leaf.perfect_value
                         local_search_path = search_path + [terminal_child]
                         self.mcts._backpropagate('rollout', local_search_path, winner_id, value)
-
-
-        if self.mcts.tree_mode == 'combined':
-            terminal_children, states_to_rollout, jobs_to_do = self.prepare_list_of_states_to_rollout(leaf, iteration_limit_for_expand, only_best=0.2)
-            #rolllout those children
 
         return jobs_done
 

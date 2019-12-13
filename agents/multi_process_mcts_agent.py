@@ -39,7 +39,7 @@ class MultiMCTSAgent(Agent):
 
     def initialize_mcts(self, mpi_communicator):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
-        self.mcts_algorithm = MultiMCTS(mpi_communicator, rollout_repetition=self.rollout_repetition,
+        self.mcts_algorithm = MultiMCTS(self.mpi_communicator, rollout_repetition=self.rollout_repetition,
                                         rollout_policy=self.rollout_policy,
                                         evaluation_policy=self.evaluation_policy)
         self.mcts_initialized = True
