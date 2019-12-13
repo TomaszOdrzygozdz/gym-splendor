@@ -2,7 +2,7 @@ import time
 
 from mpi4py import MPI
 
-from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
+from agents.multi_process_mcts_agent import MultiMCTSAgent
 from agents.random_agent import RandomAgent
 from arena.multi_arena import MultiArena
 from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
@@ -14,10 +14,10 @@ agent1 = RandomAgent(distribution='first_buy')
 agent1a = RandomAgent(distribution='first_buy')
 #agentG = GreedyAgentBoost()
 #agent2 = DenseNNAgent(weights_file='E:\ML_research\gym_splendor\\nn_models\weights\minmax_480_games.h5')
-#agent3 = MultiProcessMCTSAgent(250, evaluation_policy=ValueEvaluator(), create_visualizer=True)
-agent4 = MultiProcessMCTSAgent(5, rollout_policy=RandomRollout(distribution='first_buy'), rollout_repetition=2, create_visualizer=True)
+#agent3 = MultiMCTSAgent(250, evaluation_policy=ValueEvaluator(), create_visualizer=True)
+agent4 = MultiMCTSAgent(5, rollout_policy=RandomRollout(distribution='first_buy'), rollout_repetition=2, create_visualizer=True)
 
-# agent5 = MultiProcessMCTSAgent(3, 5, True)
+# agent5 = MultiMCTSAgent(3, 5, True)
 # agent6 = GeneralMultiProcessMCTSAgent(10, 2, True, False,
 #                                         mcts = "rollout",
 #                                         param_1 = "random",

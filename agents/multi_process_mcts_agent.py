@@ -7,10 +7,11 @@ from monte_carlo_tree_search.tree_visualizer.tree_visualizer import TreeVisualiz
 from renders.render_paths import RENDER_DIR
 import os
 
-class MultiProcessMCTSAgent(Agent):
+class MultiMCTSAgent(Agent):
 
     def __init__(self,
                  iteration_limit,
+                 only_best,
                  rollout_policy: RolloutPolicy = None,
                  evaluation_policy: EvaluationPolicy = None,
                  rollout_repetition = 1,
@@ -23,6 +24,7 @@ class MultiProcessMCTSAgent(Agent):
         self.iteration_limit = iteration_limit
         self.mcts_started = False
         self.mcts_initialized = False
+        self.only_best = only_best
         self.name = 'Multi Process MCTS'
         self.visualize = create_visualizer
         self.rollout_repetition = rollout_repetition
@@ -66,7 +68,7 @@ class MultiProcessMCTSAgent(Agent):
             root_is_terminal = self.mcts_algorithm.return_root().terminal
         root_is_terminal = self.mpi_communicator.bcast(root_is_terminal, root=0)
         if not root_is_terminal:
-            self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition)
+            self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition, self.only_best)
             if self.visualize and self.main_process:
                 RENDER_FILE_ACTION = os.path.join(RENDER_DIR, 'color_{}_action_{}.html'.format(self.color, self.actions_taken_so_far))
                 self.visualizer.generate_html(self.mcts_algorithm.return_root(), RENDER_FILE_ACTION)

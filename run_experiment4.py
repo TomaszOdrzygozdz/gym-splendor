@@ -1,6 +1,6 @@
 import os
 
-from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
+from agents.multi_process_mcts_agent import MultiMCTSAgent
 from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
 from nn_models.tree_data_collector import TreeDataCollector
 
@@ -20,7 +20,7 @@ agent1 = RandomAgent(distribution='first_buy')
 agent2 = MinMaxAgent(collect_stats=False)
 agent3 = GreedyAgentBoost()
 agent4 = GreedySearchAgent()
-agent_mcts = MultiProcessMCTSAgent(960, rollout_policy=RandomRollout(), rollout_repetition=10, create_visualizer=True)
+agent_mcts = MultiMCTSAgent(960, rollout_policy=RandomRollout(), rollout_repetition=10, create_visualizer=True)
 
 
 arek = MultiArena()

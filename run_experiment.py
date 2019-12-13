@@ -1,6 +1,6 @@
 import time
 
-from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
+from agents.multi_process_mcts_agent import MultiMCTSAgent
 from agents.general_multi_process_mcts_agent import GeneralMultiProcessMCTSAgent
 from agents.random_agent import RandomAgent
 

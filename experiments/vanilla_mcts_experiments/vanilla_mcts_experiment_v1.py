@@ -1,5 +1,5 @@
 from mpi4py import MPI
-from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
+from agents.multi_process_mcts_agent import MultiMCTSAgent
 from agents.random_agent import RandomAgent
 from arena.multi_arena import DeterministicMultiProcessArena
 
@@ -11,7 +11,7 @@ def run():
     agent1 = RandomAgent(mpi_communicator=comm)
     agent2 = RandomAgent(mpi_communicator=comm)
     #
-    agent3  = MultiProcessMCTSAgent(1, 5, True, False)
+    agent3  = MultiMCTSAgent(1, 5, True, False)
 
     # random.randint.seed(100)
     arek = DeterministicMultiProcessArena()

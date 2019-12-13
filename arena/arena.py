@@ -76,7 +76,9 @@ class Arena:
 
         if local_main_process:
             self.env.reset()
-        print('Game done')
+
+        agent.unset_self_play_mode()
+        print('Self-game done')
 
 
 

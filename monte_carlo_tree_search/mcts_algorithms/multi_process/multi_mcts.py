@@ -1,4 +1,7 @@
 # from mpi4py import MPI
+
+import numpy as np
+
 from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
 from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
 from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
@@ -41,19 +44,38 @@ class MultiMCTS:
             pass
 
 
-    def prepare_list_of_states_to_rollout(self, leaf: DeterministicTreeNode, iteration_limit: int):
+    def prepare_list_of_states_to_rollout(self, leaf: DeterministicTreeNode, iteration_limit: int, choose_best=None):
         assert leaf.expanded(), 'Leaf is not yet expanded'
 
         children = leaf.children
         not_terminal_children = [child for child in children if child.terminal == False]
         terminal_children = [child for child in children if child.terminal == True]
 
-
         n_child_to_rollout = min(len(not_terminal_children), iteration_limit)
         childs_per_process = int(n_child_to_rollout/ self.my_comm_size)
         remaining = n_child_to_rollout%self.my_comm_size
         states_to_rollout = []
 
+        if choose_best is not None:
+            k_max = max(int(n_child_to_rollout*choose_best),1)
+            #read nodes evaluations:
+            nodes_list = []
+            nodes_values_list = []
+
+            for node in not_terminal_children:
+                if node.value_acc.get() is not None:
+                    nodes_list.append(node)
+                    nodes_values_list.append(node.value_acc.get())
+
+            print(nodes_values_list)
+            max_ind = list(np.argpartition(nodes_values_list, k_max)[-k_max:])
+            max_nodes_list = []
+            max_values = []
+            for idx in max_ind:
+                max_nodes_list.append(nodes_list[idx])
+                max_values.append(nodes_values_list[idx])
+            not_terminal_children = max_nodes_list
+            n_child_to_rollout = len(max_nodes_list)
 
         for process_number in range(self.my_comm_size):
             if process_number < remaining:
@@ -66,9 +88,11 @@ class MultiMCTS:
             if process_number >= n_child_to_rollout:
                 states_to_rollout.append({})
 
+
         return terminal_children, states_to_rollout, n_child_to_rollout
 
-    def run_mcts_pass(self, iteration_limit, rollout_repetition):
+
+    def run_mcts_pass(self, iteration_limit, rollout_repetition, choose_best):
 
         if self.main_process:
             leaf, search_path = self.mcts._tree_traversal()
@@ -84,20 +108,37 @@ class MultiMCTS:
         jobs_done= self.mpi_communicator.bcast(jobs_to_do, root=0)
         my_nodes_to_rollout = self.mpi_communicator.scatter(states_to_rollout, root=0)
 
-        for _ in range(rollout_repetition):
-            if self.mcts.tree_mode == 'rollout':
-                my_results = self._rollout_many_nodes(my_nodes_to_rollout)
-            if self.mcts.tree_mode == 'evaluation':
-                my_results = self._evaluate_many_nodes(my_nodes_to_rollout)
-
+        #first eval nodes
+        if self.mcts.tree_mode == 'evaluation' or self.mcts.tree_mode == 'combined':
+            my_results = self._evaluate_many_nodes(my_nodes_to_rollout)
             combined_results = self.mpi_communicator.gather(my_results, root=0)
-            #if self.main_process:
             if self.main_process:
                 flattened_results = self.flatten_list_of_dicts(combined_results)
-                if self.mcts.tree_mode == 'rollout':
-                    self._backpropagate_many_results(search_path, flattened_results)
-                if self.mcts.tree_mode == 'evaluation':
-                    self._backpropagate_many_results(search_path, flattened_results)
+                if self.mcts.tree_mode == 'evaluation' or self.mcts.tree_mode == 'combined':
+                    self._backpropagate_many_results('evaluation', search_path, flattened_results)
+
+        #now rollout nodes:
+        if self.mcts.tree_mode == 'rollout':
+            for _ in range(rollout_repetition):
+                my_results = self._rollout_many_nodes(my_nodes_to_rollout)
+
+        if self.mcts.tree_mode == 'combined':
+            if self.main_process:
+                _, states_to_rollout, jobs_to_do = self.prepare_list_of_states_to_rollout(leaf,
+                                                                                                          iteration_limit_for_expand,
+                                                                                                          choose_best=choose_best)
+            jobs_done = self.mpi_communicator.bcast(jobs_to_do, root=0)
+            my_nodes_to_rollout = self.mpi_communicator.scatter(states_to_rollout, root=0)
+            for _ in range(rollout_repetition):
+                my_results = self._rollout_many_nodes(my_nodes_to_rollout)
+
+
+        combined_results = self.mpi_communicator.gather(my_results, root=0)
+        #if self.main_process:
+        if self.main_process:
+            flattened_results = self.flatten_list_of_dicts(combined_results)
+            if self.mcts.tree_mode == 'rollout' or self.mcts.tree_mode == 'evaluation':
+                self._backpropagate_many_results('rollout', search_path, flattened_results)
 
         #colloect values for terminal children:
         if self.main_process:
@@ -108,7 +149,13 @@ class MultiMCTS:
                     if leaf.perfect_value is not None:
                         value = leaf.perfect_value
                         local_search_path = search_path + [terminal_child]
-                        self.mcts._backpropagate(local_search_path, winner_id, value)
+                        self.mcts._backpropagate('rollout', local_search_path, winner_id, value)
+
+
+        if self.mcts.tree_mode == 'combined':
+            terminal_children, states_to_rollout, jobs_to_do = self.prepare_list_of_states_to_rollout(leaf, iteration_limit_for_expand, only_best=0.2)
+            #rolllout those children
+
         return jobs_done
 
     def _rollout_many_nodes(self, dict_of_states):
@@ -127,16 +174,18 @@ class MultiMCTS:
                 evaluation_results_dict[i] = (evaluated_player_id, value)
         return evaluation_results_dict
 
-    def _backpropagate_many_results(self, search_path, rollout_results):
+    def _backpropagate_many_results(self, mode, search_path, rollout_results):
         for i in rollout_results:
             this_child = search_path[-1].children[i]
             this_particular_search_path = search_path + [this_child]
-            if self.mcts.tree_mode == 'rollout':
+            if mode == 'rollout':
                 winner_id, value = rollout_results[i]
                 self.mcts._backpropagate(this_particular_search_path, winner_id, value)
-            if self.mcts.tree_mode == 'evaluation':
+            if mode == 'evaluation':
                 evaluated_player_id, value = rollout_results[i]
                 self.mcts._backpropagate_evaluation(this_particular_search_path, evaluated_player_id, value)
+            else:
+                assert False
 
 
     def flatten_list_of_dicts(self, list_of_dicts):
@@ -170,12 +219,12 @@ class MultiMCTS:
             self.progress_bar.n = min(value, self.progress_bar.total-1)
             self.progress_bar.update()
 
-    def run_simulation(self, iteration_limit, rollout_repetition):
+    def run_simulation(self, iteration_limit, rollout_repetition, only_best):
 
         iterations_done_so_far = 0
         while iterations_done_so_far < iteration_limit:
             limit_for_this_pass = iteration_limit - iterations_done_so_far
-            jobs_done = self.run_mcts_pass(limit_for_this_pass, rollout_repetition)
+            jobs_done = self.run_mcts_pass(limit_for_this_pass, rollout_repetition, only_best)
             if jobs_done == 0:
                 break
             iterations_done_so_far += jobs_done

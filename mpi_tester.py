@@ -1,7 +1,7 @@
 import random
 
 from mpi4py import MPI
-from agents.multi_process_mcts_agent import MultiProcessMCTSAgent
+from agents.multi_process_mcts_agent import MultiMCTSAgent
 from agents.random_agent import RandomAgent
 from archive.simple_mcts_agent import SimpleMCTSAgent
 from arena.multi_arena import MultiProcessSingleDuelArena
@@ -14,7 +14,7 @@ main_process = my_rank==0
 agent1 = RandomAgent(mpi_communicator=comm)
 agent2 = RandomAgent(mpi_communicator=comm)
 #
-agent3  = MultiProcessMCTSAgent(150, 5, True, False)
+agent3  = MultiMCTSAgent(150, 5, True, False)
 agent4 = SimpleMCTSAgent(10)
 
 random.seed(2)

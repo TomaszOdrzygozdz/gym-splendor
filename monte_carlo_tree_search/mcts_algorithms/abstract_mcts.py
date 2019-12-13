@@ -28,13 +28,13 @@ class MCTS:
             raise ValueError("Iteration limit must be greater than one")
         self.iteration_limit = iteration_limit
 
-        if rollout_policy is not None:
-            assert evaluation_policy is None, 'You cannot use both rollout policy and evaluation policy'
+        if rollout_policy is not None and evaluation_policy is None:
             self.tree_mode = 'rollout'
-        if evaluation_policy is not None:
+        if evaluation_policy is not None and rollout_policy is None:
             assert rollout_policy is None, 'You cannot use both rollout policy and evaluation policy'
             self.tree_mode = 'evaluation'
-        assert rollout_policy is not None or evaluation_policy is not None, 'You must have one policy'
+        if evaluation_policy is not None and rollout_policy is not None:
+            self.tree_mode = 'combined'
 
         self.rollout_policy = rollout_policy
         self.evaluation_policy = evaluation_policy
