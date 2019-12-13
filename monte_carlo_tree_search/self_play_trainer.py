@@ -22,7 +22,6 @@ class SelfPlayTrainer:
         assert mode == 'dqn', 'You must provide mode of training'
         self.iteration_limit = iteration_limit
         self.rollout_repetition = rollout_repetition
-        self.local_arena = MultiArena()
         self.data_collector = TreeDataCollector()
         self.opponent = RandomAgent(distribution='first_buy')
         self.choose_best = choose_best
@@ -46,6 +45,7 @@ class SelfPlayTrainer:
         # set the initial agent id
         # set the initial observation
         observation = self.env.show_observation(mode)
+
         number_of_actions = 0
         results_dict = {}
         # Id if the player who first reaches number of points to win
@@ -56,7 +56,7 @@ class SelfPlayTrainer:
         self.mcts_agent.set_communicator(comm)
 
 
-        while number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
+        while number_of_actions < 5 and not is_done:
             action = self.mcts_agent.choose_action(observation, previous_actions)
             previous_actions = [action]
             self.train_network_iteration()
@@ -78,8 +78,6 @@ class SelfPlayTrainer:
 
     def train_network_iteration(self, alpha=0.1, epochs = 2):
 
-        #run self play:
-        # self.local_arena.run_multi_process_self_play('deterministic', self.mcts_agent, render_game=False)
         #collect data
         if main_process:
             self.data_collector.setup_rooot(self.mcts_agent.mcts_algorithm.return_root())
@@ -111,8 +109,9 @@ class SelfPlayTrainer:
             self.run_self_play('deterministic')
             agent_to_test = self.mcts_agent
             arena = MultiArena()
-            arena.run_many_duels('deterministic', [agent_to_test, RandomAgent(distribution='uniform')], 2, 24)
+            results = arena.run_many_duels('deterministic', [agent_to_test, RandomAgent(distribution='first_buy')], 1, 24)
             if main_process:
+                print(results)
                 self.eval_policy.model.save_weights('Weights_i = {}.h5'.format(i))
 
 

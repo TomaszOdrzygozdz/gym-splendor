@@ -10,7 +10,7 @@ import tensorflow as tf
 import keras
 import json
 from keras.models import Model
-from keras.layers import Input, Dense, Dropout, warnings
+from keras.layers import Input, Dense, Dropout
 from keras import backend as K
 
 import pandas as pd
