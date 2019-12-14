@@ -56,7 +56,7 @@ class SelfPlayTrainer:
         self.mcts_agent.set_communicator(comm)
 
 
-        while number_of_actions < 5 and not is_done:
+        while number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
             action = self.mcts_agent.choose_action(observation, previous_actions)
             previous_actions = [action]
             self.train_network_iteration()
@@ -113,6 +113,9 @@ class SelfPlayTrainer:
             if main_process:
                 print(results)
                 self.eval_policy.model.save_weights('Weights_i = {}.h5'.format(i))
+                text_file = open("Results_{}.txt".format(i), "w")
+                text_file.write(results.__repr__())
+                text_file.close()
 
 
 

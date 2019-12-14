@@ -1,12 +1,16 @@
 import os
-from gym_splendor_code.envs.mechanics.game_settings import USE_TENSORFLOW_GPU
+from gym_splendor_code.envs.mechanics.game_settings import USE_TENSORFLOW_GPU, USE_LOCAL_TF
 from monte_carlo_tree_search.mcts_settings import REWARDS_FOR_HAVING_NO_LEGAL_ACTIONS
 
 if not USE_TENSORFLOW_GPU:
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-import tensorflow as tf
+if USE_LOCAL_TF:
+    import tensorflow_local as tf
+if not USE_LOCAL_TF:
+    import tensorflow as tf
+
 import keras
 import json
 from keras.models import Model
@@ -42,7 +46,7 @@ class ValueDenseModel:
     def set_corrent_session(self):
         K.set_session(self.session)
 
-    def create_network(self, input_size : int = 498, layers_list : List[int] = [500, 500, 500, 500]) -> None:
+    def create_network(self, input_size : int = 498, layers_list : List[int] = [300, 300, 300]) -> None:
         '''
         This method creates network with a specific architecture
         :return:
@@ -56,7 +60,7 @@ class ValueDenseModel:
                 data_flow = Dense(layer_size, activation='relu')(entries)
             else:
                 data_flow = Dense(layer_size, activation='relu')(data_flow)
-                data_flow = Dropout(rate=0.5)(data_flow)
+                data_flow = Dropout(rate=0.1)(data_flow)
         predictions = Dense(1, activation='tanh')(data_flow)
 
         optim = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
@@ -98,11 +102,12 @@ class ValueDenseModel:
         Y = np.array(Y)
 
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.05)
-        self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=0)
-        score = self.network.evaluate(X_test, Y_test, verbose=0)
+        fit_history = self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=1)
+        score = self.network.evaluate(X_test, Y_test, verbose=1)
         print('Training score = {}'.format(score))
         if output_weights_file_name is not None:
             self.network.save_weights(output_weights_file_name)
+        return fit_history
 
     def load_weights(self, weights_file):
         assert self.network is not None, 'You must create network before loading weights.'

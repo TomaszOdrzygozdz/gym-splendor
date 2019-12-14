@@ -4,7 +4,8 @@ from gym_splendor_code.envs.mechanics.enums import *
 USE_TKINTER = False
 USE_FAST_ACTION_GENERATOR = True
 USE_TQDM = False
-USE_TENSORFLOW_GPU = False
+USE_TENSORFLOW_GPU = True
+USE_LOCAL_TF = False
 
 MAX_GEMS_IN_ONE_MOVE = 3
 MAX_GEMS_ON_HAND = 10
@@ -21,6 +22,6 @@ NOBLES_IN_DECK = 10
 NOBLES_ON_BOARD_INITIAL = 3
 MAX_NOBLES_IN_HAND = 3
 
-MAX_NUMBER_OF_MOVES = 150
+MAX_NUMBER_OF_MOVES = 120
 
 INITIAL_GEMS_ON_BOARD_DICT = {gem_color : 4 if  gem_color != GemColor.GOLD else 5 for gem_color in GemColor}
