@@ -119,6 +119,7 @@ class MultiMCTS:
                 flattened_results = self.flatten_list_of_dicts(combined_results)
                 if self.mcts.tree_mode == 'evaluation' or self.mcts.tree_mode == 'combined':
                     self._backpropagate_many_results('evaluation', search_path, flattened_results)
+                    #print('MULTI MCTS PASS backrop evaluations')
 
         #now rollout nodes:
         if self.mcts.tree_mode == 'rollout':

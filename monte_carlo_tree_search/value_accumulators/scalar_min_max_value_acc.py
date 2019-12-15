@@ -3,7 +3,7 @@ from monte_carlo_tree_search.value_accumulators.abstract_value_accumulator impor
 
 class ScalarMeanMaxValueAccumulator(ValueAccumulator):
 
-    def __init__(self, value=-1, state=None, mean_max_coeff=0.9):
+    def __init__(self, value=-1, state=None, mean_max_coeff=1.0):
 
         self._sum = 0.0
         self._count = 0
@@ -18,8 +18,11 @@ class ScalarMeanMaxValueAccumulator(ValueAccumulator):
         self._sum += value
         self._count += 1
 
-    def set_evaluation(self, evaluation):
-        self.evaluation = evaluation
+    def add_evaluation(self, evaluation):
+        if self.evaluation is None:
+            self.evaluation = evaluation
+        else:
+            self.add(evaluation)
 
     def add_auxiliary(self, value):
         self.auxiliary_loss += value
@@ -41,4 +44,7 @@ class ScalarMeanMaxValueAccumulator(ValueAccumulator):
         return self.get()
 
     def count(self):
-        return self._count
+        if self.evaluation is not None:
+            return max(self._count,1)
+        else:
+            return self._count

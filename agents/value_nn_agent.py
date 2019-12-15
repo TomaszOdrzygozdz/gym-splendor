@@ -1,8 +1,6 @@
 from agents.abstract_agent import Agent
-from keras import Model
 
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from nn_models.dense_model import DenseModel
 from nn_models.value_dense_model import ValueDenseModel
 
 

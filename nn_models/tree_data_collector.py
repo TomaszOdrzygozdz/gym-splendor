@@ -11,7 +11,7 @@ class TreeDataCollector:
     def __init__(self):
         self.clean_memory()
 
-    def setup_rooot(self, root : DeterministicTreeNode, jump_to_parent=True):
+    def setup_root(self, root : DeterministicTreeNode, jump_to_parent=True):
         self.root = root
         if jump_to_parent:
             if self.root.parent is not None:

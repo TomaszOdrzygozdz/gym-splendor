@@ -44,7 +44,8 @@ class ValueDenseModel:
         self.network = None
 
     def set_corrent_session(self):
-        K.set_session(self.session)
+        pass
+        #K.set_session(self.session)
 
     def create_network(self, input_size : int = 498, layers_list : List[int] = [300, 300, 300]) -> None:
         '''

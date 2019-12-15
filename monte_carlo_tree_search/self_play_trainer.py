@@ -80,7 +80,7 @@ class SelfPlayTrainer:
 
         #collect data
         if main_process:
-            self.data_collector.setup_rooot(self.mcts_agent.mcts_algorithm.return_root())
+            self.data_collector.setup_root(self.mcts_agent.mcts_algorithm.return_root())
             data_collected = self.data_collector.generate_dqn_data()
             #evaluate_data with old network:
             eval_by_old_network_values = []

@@ -13,7 +13,9 @@ class UCB1Score(ScoreComputer):
         n_i = node.value_acc.count()
         N_i = parent.value_acc.count()
 
-        if n_i > 0:
+        assert N_i > 0, 'Parents count equal 0'
+
+        if n_i > 0 and N_i > 0:
             exploitation_term = node.value_acc.get()
             exploration_term = self.exploration_coefficient*math.sqrt(math.log(N_i)/n_i)
             return exploitation_term + exploration_term
