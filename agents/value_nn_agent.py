@@ -26,6 +26,8 @@ class ValueNNAgent(Agent):
                 current_value = self.model.get_value(StateAsDict(state_copy))
                 if current_value > best_action_value:
                     best_action = action
+
+            print('Value NN best action = {}'.format(best_action))
             return best_action
         else:
             return None

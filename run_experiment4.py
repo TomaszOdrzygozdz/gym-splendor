@@ -35,16 +35,17 @@ n_repetition = 1
 for i, mcts_agent in enumerate(list_of_mcts_agents):
     current_repetitions = n_repetition + max(20-5*i, 0)
     for rep in range(current_repetitions):
-        arek.run_many_duels('deterministic', [mcts_agent, agent1], n_games=1, n_proc_per_agent=400)
-        if main_process:
-            data_collector = TreeDataCollector()
-            data_collector.setup_root(mcts_agent.mcts_algorithm.original_root())
-            data_collector.generate_dqn_data()
-            data_collector.dump_data('lvl_{}_against_random_{}_'.format(i, rep))
+        # arek.run_many_duels('deterministic', [mcts_agent, agent1], n_games=1, n_proc_per_agent=400)
+        # if main_process:
+        #     data_collector = TreeDataCollector()
+        #     data_collector.setup_root(mcts_agent.mcts_algorithm.original_root())
+        #     data_collector.generate_dqn_data()
+        #     data_collector.dump_data('lvl_{}_against_random_{}_'.format(i, rep))
+        print('lvl_{}_against_random_{}_'.format(i, rep))
 
-        arek.run_many_duels('deterministic', [mcts_agent, agent2], n_games=1, n_proc_per_agent=400)
-        if main_process:
-            data_collector = TreeDataCollector()
-            data_collector.setup_root(mcts_agent.mcts_algorithm.original_root())
-            data_collector.generate_dqn_data()
-            data_collector.dump_data('lvl_{}_against_greedyBoost_{}_'.format(i, rep))
+        # arek.run_many_duels('deterministic', [mcts_agent, agent2], n_games=1, n_proc_per_agent=400)
+        # if main_process:
+        #     data_collector = TreeDataCollector()
+        #     data_collector.setup_root(mcts_agent.mcts_algorithm.original_root())
+        #     data_collector.generate_dqn_data()
+        #     data_collector.dump_data('lvl_{}_against_greedyBoost_{}_'.format(i, rep))

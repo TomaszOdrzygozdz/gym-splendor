@@ -5,9 +5,9 @@ from nn_models.value_dense_model import ValueDenseModel
 model = ValueDenseModel()
 model.create_network()
 
-history = model.train_model(data_file_name='E:\ML_research\gym_splendor\\nn_models\data\\value_vectorized\combined.csv',
+history = model.train_model(data_file_name='E:\ML_research\gym_splendor\\nn_models\data\\value_vectorized\combined_new.csv',
                   output_weights_file_name='E:\ML_research\gym_splendor\\nn_models\weights\experiment7.h5',
-                  epochs = 1)
+                  epochs = 5)
 
 
 print(history.history.keys())

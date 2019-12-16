@@ -6,11 +6,8 @@ if not USE_TENSORFLOW_GPU:
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-if USE_LOCAL_TF:
-    import tensorflow_local as tf
-if not USE_LOCAL_TF:
-    import tensorflow as tf
 
+import tensorflow as tf
 import keras
 import json
 from keras.models import Model
@@ -47,7 +44,7 @@ class ValueDenseModel:
         pass
         #K.set_session(self.session)
 
-    def create_network(self, input_size : int = 498, layers_list : List[int] = [300, 300, 300]) -> None:
+    def create_network(self, input_size : int = 498, layers_list : List[int] = [800, 800, 800, 800]) -> None:
         '''
         This method creates network with a specific architecture
         :return:
@@ -61,7 +58,7 @@ class ValueDenseModel:
                 data_flow = Dense(layer_size, activation='relu')(entries)
             else:
                 data_flow = Dense(layer_size, activation='relu')(data_flow)
-                data_flow = Dropout(rate=0.1)(data_flow)
+                #data_flow = Dropout(rate=0.1)(data_flow)
         predictions = Dense(1, activation='tanh')(data_flow)
 
         optim = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)

@@ -15,7 +15,7 @@ from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNo
 class SingleMCTS(MCTS):
     def __init__(self,
                  iteration_limit=None,
-                 exploration_parameter = 1/math.sqrt(6),
+                 exploration_parameter = 0.8,
                  rollout_policy=None,
                  evaluation_policy=None,
                  rollout_repetition = 10):
@@ -142,6 +142,29 @@ class SingleMCTS(MCTS):
                 node.value_acc.add(0)
 
     def _backpropagate_evaluation(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
+        assert evaluated_player_id is not None, 'Provide id of evaluated player'
+        stop_backprop = False
+        pupu = 'BE, '
+        for node in search_path:
+            if not stop_backprop:
+                pupu = pupu + ' ns + {} '.format(value)
+                if node.active_player_id() == evaluated_player_id:
+                    stop_backprop_for_next = node.value_acc.add_eval(value)
+
+                if node.active_player_id() != evaluated_player_id:
+                    stop_backprop_for_next =  node.value_acc.add_eval(-value)
+
+            if stop_backprop:
+                pupu += ' stop '
+                if node.value_acc._eval is None:
+                    print('ERROR ' + pupu)
+                node.value_acc.add_count()
+
+            stop_backprop = stop_backprop_for_next
+
+        print(pupu)
+
+    def _backpropagate_evaluation_old(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
         assert evaluated_player_id is not None, 'Provide id of evaluated player'
         for node in search_path:
             if node.active_player_id() == evaluated_player_id:
