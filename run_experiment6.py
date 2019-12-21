@@ -6,17 +6,11 @@ from monte_carlo_tree_search.mcts_algorithms.multi_process.multi_mcts import Mul
 from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
 
 from mpi4py import MPI
+
+from monte_carlo_tree_search.self_play_trainer import SelfPlayTrainer
+
 comm = MPI.COMM_WORLD
 
-ag = MultiMCTSAgent(iteration_limit=5, only_best=0.1, rollout_policy=RandomRollout(), evaluation_policy=ValueEvaluator(weights_file=None),
-                    rollout_repetition=2, create_visualizer=True, show_unvisited_nodes=False)
-
-
-stanek = State()
-obek = DeterministicObservation(stanek)
-print(type(comm))
-ag.set_communicator(comm)
-ag.initialize_mcts(mpi_communicator=comm)
-print(ag.choose_action(obek, [None]))
-ag.draw_final_tree()
-
+trainer = SelfPlayTrainer('dqn', 10, 2, 0.5)
+trainer.prepare_training()
+trainer.full_training(n_repetitions=2, alpha=0.05, epochs=1)

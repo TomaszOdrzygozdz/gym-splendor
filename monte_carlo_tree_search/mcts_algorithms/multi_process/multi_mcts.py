@@ -95,13 +95,16 @@ class MultiMCTS:
         return terminal_children, states_to_rollout, n_child_to_rollout
 
 
-    def run_mcts_pass(self, iteration_limit, rollout_repetition, choose_best):
+    def run_mcts_pass(self, iteration_limit, rollout_repetition, choose_best, best_backprop=True,  totally_expand=True):
 
         if self.main_process:
             leaf, search_path = self.mcts._tree_traversal()
             self.mcts._expand_leaf(leaf)
 
-        iteration_limit_for_expand = iteration_limit - self.iterations_done_so_far
+        if not totally_expand:
+            iteration_limit_for_expand = iteration_limit - self.iterations_done_so_far
+        if totally_expand:
+            iteration_limit_for_expand = 10000
 
         states_to_rollout = None
         jobs_to_do = None
@@ -173,16 +176,35 @@ class MultiMCTS:
                 evaluation_results_dict[i] = (evaluated_player_id, value)
         return evaluation_results_dict
 
-    def _backpropagate_many_results(self, backprop_mode, search_path, rollout_results):
-        for i in rollout_results:
-            this_child = search_path[-1].children[i]
-            this_particular_search_path = search_path + [this_child]
-            if backprop_mode == 'rollout':
-                winner_id, value = rollout_results[i]
-                self.mcts._backpropagate(this_particular_search_path, winner_id, value)
-            if backprop_mode == 'evaluation':
-                evaluated_player_id, value = rollout_results[i]
-                self.mcts._backpropagate_evaluation(this_particular_search_path, evaluated_player_id, value)
+    def _backpropagate_many_results(self, backprop_mode, search_path, rollout_results, best_backprop=0.5):
+        if len(rollout_results) > 0:
+            threshold_for_backprop = -1
+            if best_backprop is not None:
+                rollout_results_copy = rollout_results.copy()
+                #print('Rollout results len = {}'.format(len(rollout_results_copy)))
+                top_index = max(int(best_backprop*len(rollout_results_copy)),1)
+                #print('Top index = {}'.format(top_index))
+                values_list = []
+                for i in rollout_results_copy.keys():
+                    _, local_value = rollout_results_copy[i]
+                    values_list.append(local_value)
+
+                threshold_for_backprop = values_list[np.argsort(values_list)[-top_index]]
+
+            for i in rollout_results:
+                _, value = rollout_results[i]
+                if value >= threshold_for_backprop:
+                    this_child = search_path[-1].children[i]
+                    this_particular_search_path = search_path + [this_child]
+                    if backprop_mode == 'rollout':
+                        winner_id, value = rollout_results[i]
+                        self.mcts._backpropagate(this_particular_search_path, winner_id, value)
+                    if backprop_mode == 'evaluation':
+                        evaluated_player_id, value = rollout_results[i]
+                        self.mcts._backpropagate_evaluation(this_particular_search_path, evaluated_player_id, value)
+                if value < threshold_for_backprop:
+                    this_child = search_path[-1].children[i]
+                    this_child.value_acc.add(value)
 
     def flatten_list_of_dicts(self, list_of_dicts):
         combined_dict = {}

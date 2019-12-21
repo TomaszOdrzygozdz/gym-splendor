@@ -4,7 +4,7 @@ from gym_splendor_code.envs.mechanics.enums import *
 USE_TKINTER = False
 USE_FAST_ACTION_GENERATOR = True
 USE_TQDM = False
-USE_TENSORFLOW_GPU = True
+USE_TENSORFLOW_GPU = False
 USE_LOCAL_TF = False
 
 MAX_GEMS_IN_ONE_MOVE = 3

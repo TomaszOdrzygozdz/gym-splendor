@@ -28,7 +28,7 @@ class SelfPlayTrainer:
         self.env = gym.make('splendor-v0')
 
     def prepare_training(self, weights_file:str = None):
-        self.eval_policy = evaluation_policy = ValueEvaluator(weights_file)
+        self.eval_policy = ValueEvaluator(weights_file)
         self.mcts_agent = MultiMCTSAgent(iteration_limit=self.iteration_limit,
                                          evaluation_policy = self.eval_policy, rollout_policy=RandomRollout(),
                                          rollout_repetition=self.rollout_repetition,
@@ -36,7 +36,7 @@ class SelfPlayTrainer:
 
 
 
-    def run_self_play(self, mode: str = 'deterministic'):
+    def run_self_play(self, mode: str = 'deterministic', alpha=0.1, epochs=2):
 
         self.env.reset()
         self.env.set_active_player(0)
@@ -59,7 +59,7 @@ class SelfPlayTrainer:
         while number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
             action = self.mcts_agent.choose_action(observation, previous_actions)
             previous_actions = [action]
-            self.train_network_iteration()
+            self.train_network_iteration(alpha=alpha, epochs=epochs)
             #data collection and training:
 
             if main_process:
@@ -76,7 +76,7 @@ class SelfPlayTrainer:
         self.mcts_agent.finish_game()
         print('Self-game done')
 
-    def train_network_iteration(self, alpha=0.1, epochs = 2):
+    def train_network_iteration(self, alpha=0.1, epochs=2):
 
         #collect data
         if main_process:
@@ -95,7 +95,7 @@ class SelfPlayTrainer:
             #add columns to dataframe:
             data_collected['old_eval'] = pd.Series(eval_by_old_network_values)
             data_collected['eval_to_learn'] = pd.Series(eval_to_learn)
-            self.eval_policy.model.train_model(data_frame=data_collected)
+            self.eval_policy.model.train_model(data_frame=data_collected, epochs=epochs)
 
     def return_agent(self):
         return self.mcts_agent
@@ -106,7 +106,7 @@ class SelfPlayTrainer:
         for i in range(n_repetitions):
             if main_process:
                 print('Game number = {}'.format(i))
-            self.run_self_play('deterministic')
+            self.run_self_play('deterministic', alpha=alpha, epochs=epochs)
             agent_to_test = self.mcts_agent
             arena = MultiArena()
             results = arena.run_many_duels('deterministic', [agent_to_test, RandomAgent(distribution='first_buy')], 1, 24)

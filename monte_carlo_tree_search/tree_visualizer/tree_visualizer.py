@@ -46,7 +46,8 @@ class TreeVisualizer:
         # BFS
         kiu = [root]
         self.add_node_to_dict(root)
-        self.states_as_dicts += '<br>' + str(self.nodes_to_id[root]) + str(root.observation.observation_dict) + '<br><br><br>'
+        self.states_as_dicts += '<br>' + ' --- P = [{}, {}]'.format(root.state.active_players_hand().number_of_my_points(), root.state.previous_players_hand().number_of_my_points()) +\
+                                str(self.nodes_to_id[root]) + str(root.observation.observation_dict) + '<br><br><br>'
 
 
         while len(kiu) > 0:

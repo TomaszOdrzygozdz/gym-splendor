@@ -39,8 +39,6 @@ class ValueAccumulator:
         """Returns the number of accumulated values."""
         raise NotImplementedError
 
-    def set_constant_value_for_terminal_node(self, perfect_value):
-        self.perfect_value = perfect_value
-        self._count = 1
+
 
 

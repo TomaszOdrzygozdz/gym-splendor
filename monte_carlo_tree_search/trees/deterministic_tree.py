@@ -12,7 +12,7 @@ class DeterministicTreeNode(TreeNode):
 
     def __init__(self, observation: DeterministicObservation, parent: 'MCTSTreeNode', parent_action: Action,
                  reward: int, is_done: bool, winner_id: int)->None:
-        super().__init__(parent, parent_action, EvaluationAccumulator())
+        super().__init__(parent, parent_action, ScalarMeanMaxValueAccumulator())
         assert observation.name == 'deterministic', 'Wrong observation'
         self.state_recreated = False
         #self.observation = DeterministicObservation(self.state)
@@ -25,7 +25,7 @@ class DeterministicTreeNode(TreeNode):
             self.solved = True
         if self.is_done:
             self.perfect_value = reward
-            self.value_acc.set_constant_value_for_terminal_node(perfect_value=reward)
+            self.value_acc.set_constant_value_for_terminal_node(reward)
             self.terminal = True
 
 

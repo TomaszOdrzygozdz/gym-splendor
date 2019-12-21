@@ -7,20 +7,25 @@ class EvaluationAccumulator(ValueAccumulator):
 
         super().__init__(None)
         self._eval = None
+        self._perfect_value = None
         self._count = 0
 
     def add_count(self):
-        assert self._eval is not None, 'Cannot increase count without previous evaluation'
-        self._count += 1
+        if self._perfect_value is None:
+            assert self._eval is not None, 'Cannot increase count without previous evaluation'
+            self._count += 1
 
     def count(self):
         return self._count
 
     def get(self):
-        if self._eval is not None:
-            return self._eval
+        if self._perfect_value is not None:
+            return self._perfect_value
         else:
-            return None
+            if self._eval is not None:
+                return self._eval
+            else:
+                return None
 
     def add_eval(self, value):
         stop_backprop = False
@@ -32,8 +37,11 @@ class EvaluationAccumulator(ValueAccumulator):
                 stop_backprop = True
 
         if self._eval is None:
-            print('First setting')
             self._eval = value
 
         self._count += 1
         return stop_backprop
+
+    def set_constant_value_for_terminal_node(self, perfect_value):
+        self._perfect_value = perfect_value
+        self._count = 1

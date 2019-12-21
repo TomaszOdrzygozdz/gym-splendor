@@ -15,7 +15,7 @@ from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNo
 class SingleMCTS(MCTS):
     def __init__(self,
                  iteration_limit=None,
-                 exploration_parameter = 0.8,
+                 exploration_parameter = 0.4,
                  rollout_policy=None,
                  evaluation_policy=None,
                  rollout_repetition = 10):
@@ -141,37 +141,50 @@ class SingleMCTS(MCTS):
             else:
                 node.value_acc.add(0)
 
-    def _backpropagate_evaluation(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
+    def _backpropagate_evaluation_min_max(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
         assert evaluated_player_id is not None, 'Provide id of evaluated player'
         stop_backprop = False
         pupu = 'BE, '
-        for node in search_path:
-            if not stop_backprop:
-                pupu = pupu + ' ns + {} '.format(value)
-                if node.active_player_id() == evaluated_player_id:
-                    stop_backprop_for_next = node.value_acc.add_eval(value)
+        i = 0
 
-                if node.active_player_id() != evaluated_player_id:
-                    stop_backprop_for_next =  node.value_acc.add_eval(-value)
+        reversed_search_path = self.reverse_search_path(search_path)
 
+        for node in reversed_search_path:
             if stop_backprop:
                 pupu += ' stop '
                 if node.value_acc._eval is None:
-                    print('ERROR ' + pupu)
+                    print('ERROR ' + pupu + ' node gen = {}, i = {}'.format(node.generation, i))
                 node.value_acc.add_count()
 
-            stop_backprop = stop_backprop_for_next
+            if not stop_backprop:
+                pupu = pupu + ' ns + {}, i = {} gen = {}'.format(value, i, node.generation)
+                if node.active_player_id() == evaluated_player_id:
+                    stop_backprop = node.value_acc.add_eval(value)
 
-        print(pupu)
+                if node.active_player_id() != evaluated_player_id:
+                    stop_backprop =  node.value_acc.add_eval(-value)
 
-    def _backpropagate_evaluation_old(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
+
+            i += 1
+        #print(pupu)
+
+    def _backpropagate_evaluation(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
         assert evaluated_player_id is not None, 'Provide id of evaluated player'
         for node in search_path:
             if node.active_player_id() == evaluated_player_id:
-                node.value_acc.add_evaluation(value)
+                node.value_acc.add(value)
             else:
-                node.value_acc.add_evaluation(-value)
+                node.value_acc.add(-value)
 
     def choose_action(self):
         _, best_action = self._select_best_child()
         return best_action
+
+
+    def reverse_search_path(self, search_path: List[DeterministicTreeNode]):
+
+        reversed_search_path = []
+        for node in search_path:
+            reversed_search_path = [node] + reversed_search_path
+
+        return reversed_search_path

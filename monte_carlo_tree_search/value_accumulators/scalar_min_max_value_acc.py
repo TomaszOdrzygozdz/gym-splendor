@@ -27,6 +27,11 @@ class ScalarMeanMaxValueAccumulator(ValueAccumulator):
     def add_auxiliary(self, value):
         self.auxiliary_loss += value
 
+    def set_constant_value_for_terminal_node(self, value):
+        def set_constant_value_for_terminal_node(self, perfect_value):
+            self._perfect_value = perfect_value
+            self._count += 1
+
     def get(self):
         if self._count > 0:
             return (self._sum / self._count)*self.mean_max_coeff \
