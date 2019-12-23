@@ -1,0 +1,27 @@
+image: "python:3.6"
+
+before_script:
+  - python --version
+  # Set up the SSH key for accessing our private repos.
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  # Install the package.
+  - pip install -e .[dev,mrunner]
+
+stages:
+  - Static Analysis
+  - Unit Testing
+
+pylint:
+  stage: Static Analysis
+  script:
+  - pylint alpacka
+
+pytest:
+  stage: Unit Testing
+  script:
+  - pytest alpacka
