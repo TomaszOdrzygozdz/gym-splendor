@@ -14,7 +14,7 @@ class Agent:
     This is done using a coroutine API, explained in solve().
     """
 
-    def __init__(self, action_space):
+    def __init__(self):
         """Initializes Agent.
 
         Args:
@@ -23,7 +23,6 @@ class Agent:
                 because it shouldn't change between environments and this way
                 the API for stateless OnlineAgents is simpler.
         """
-        self._action_space = action_space
 
     def solve(self, env, init_state=None, time_limit=None):
         """Solves a given environment.
@@ -92,6 +91,7 @@ class OnlineAgent(Agent):
         """
 
     def act(self, observation):
+
         """Determines the next action to be performed.
 
         Coroutine, suspends execution similarly to Agent.solve().

@@ -3,6 +3,7 @@
 # TODO(koz4k): Clean up more, add comments and tests.
 
 import gin
+import gym
 import numpy as np
 
 from alpaca.alpacka.agents import base
@@ -174,14 +175,14 @@ class DeterministicMCTSAgent(base.OnlineAgent):
 
     def __init__(
         self,
-        action_space,
         gamma=0.99,
         n_passes=10,
         avoid_loops=True,
         value_traits_class=ScalarValueTraits,
         value_accumulator_class=ScalarValueAccumulator,
     ):
-        super().__init__(action_space=action_space)
+
+        super().__init__()
         self._gamma = gamma
         self._n_passes = n_passes
         self._avoid_loops = avoid_loops
@@ -334,7 +335,14 @@ class DeterministicMCTSAgent(base.OnlineAgent):
         )
         self._root = TreeNode(graph_node)
 
-    def act(self, observation):
+    def act(self):
+        for _ in range(self._n_passes):
+            self.run_mcts_pass()
+            print('x')
+
+    def mumu(self, observation):
+        a = 0
+        assert False
         # perform MCTS passes.
         # each pass = tree traversal + leaf evaluation + backprop
         for _ in range(self._n_passes):

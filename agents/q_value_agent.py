@@ -5,7 +5,7 @@ from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from nn_models.dense_model import DenseModel
 
 
-class DenseNNAgent(Agent):
+class QValueAgent(Agent):
 
     def __init__(self, weights_file=None):
         super().__init__()

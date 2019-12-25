@@ -2,8 +2,8 @@
 
 import gin
 
-from alpacka.networks import core
-from alpacka.networks import keras
+from alpaca.alpacka.networks import core
+from alpaca.alpacka.networks import keras
 
 
 # Configure networks in this module to ensure they're accessible via the

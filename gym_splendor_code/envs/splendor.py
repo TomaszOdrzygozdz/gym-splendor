@@ -196,8 +196,15 @@ class SplendorEnv(Env):
     def previous_player_id(self):
         return self.current_state_of_the_game.previous_player_id()
 
-    def active_player_id(self):
-        return self.current_state_of_the_game.active_player_id
+    def previous_players_hand(self):
+        return self.current_state_of_the_game.previous_players_hand()
+
+    def clone_state(self):
+        observation = DeterministicObservation(self.current_state_of_the_game)
+        return observation.recreate_state()
+
+    def restore_state(self, state):
+        self.current_state_of_the_game = state
 
     def vectorize_observation_space(self):
         pass

@@ -17,9 +17,9 @@ model.create_network()
  #                  output_weights_file_name='E:\ML_research\gym_splendor\\nn_models\weights\experiment7.h5',
  #                  epochs = 10)
 
-agent1 = ValueNNAgent(weights_file='E:\ML_research\gym_splendor\\nn_models\weights\experiment7.h5')
-eval_policy = ValueEvaluator(weights_file='E:\ML_research\gym_splendor\\nn_models\weights\experiment7.h5')
-agent2 = MultiMCTSAgent(iteration_limit=500, only_best=None, rollout_policy=None, evaluation_policy=eval_policy,
+agent1 = ValueNNAgent(weights_file='/home/tomasz/ML_Research/splendor/gym-splendor/nn_models/weights/experiment7.h5')
+eval_policy = ValueEvaluator(weights_file='/home/tomasz/ML_Research/splendor/gym-splendor/nn_models/weights/experiment7.h5')
+agent2 = MultiMCTSAgent(iteration_limit=100, only_best=None, rollout_policy=None, evaluation_policy=eval_policy,
                         rollout_repetition=1, create_visualizer=True, show_unvisited_nodes=False)
 
 agent3 = RandomAgent(distribution='first_buy')

@@ -4,9 +4,9 @@ import functools
 
 import gin
 import tensorflow as tf
-from tensorflow import keras
+import keras
 
-from alpacka.networks import core
+from alpaca.alpacka.networks import core
 
 
 @gin.configurable

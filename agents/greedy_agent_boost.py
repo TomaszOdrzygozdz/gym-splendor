@@ -20,7 +20,7 @@ class GreedyAgentBoost(Agent):
         self.weight = weight
         self.normalize_weight()
 
-    def choose_act(self, mode) -> Action:
+    def choose_act(self, mode, info) -> Action:
 
         #first we load observation to the private environment
         current_points = self.env.current_state_of_the_game.active_players_hand().number_of_my_points()

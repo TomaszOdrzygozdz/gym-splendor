@@ -4,10 +4,13 @@ from monte_carlo_tree_search.mcts_settings import REWARDS_FOR_HAVING_NO_LEGAL_AC
 
 if not USE_TENSORFLOW_GPU:
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+from tensorflow.python.util import deprecation
+deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 import tensorflow as tf
+tf.logging.set_verbosity(tf.logging.ERROR)
 import keras
 import json
 from keras.models import Model

@@ -61,7 +61,7 @@ class MinMaxAgent(Agent):
                     self.stats_dataframe = self.stats_dataframe.append({'state' : primary_state,
                                                     'action' : action.to_dict(),
                                                     'evaluation' : potential_reward}, ignore_index=True)
-                    self.stats_dataframe_vectorized = self.stats_dataframe_vectorized .append({'state_vector': vectorize_state(primary_state),
+                    self.stats_dataframe_vectorized = self.stats_dataframe_vectorized.append({'state_vector': vectorize_state(primary_state),
                                                                         'action_vector': vectorize_action(action),
                                                                         'evaluation': potential_reward},
                                                                        ignore_index=True)

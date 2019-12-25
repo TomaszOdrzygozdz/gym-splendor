@@ -21,7 +21,7 @@ class RandomAgent(Agent):
         self.name = 'RandomAgent - ' + self.distribution + ' '
 
 
-    def choose_act(self, mode):
+    def choose_act(self, mode, info=False):
         if len(self.env.action_space.list_of_actions):
             if self.distribution == 'uniform':
                 return random.choice(self.env.action_space.list_of_actions)

@@ -54,3 +54,15 @@ class SplendorActionSpace(Space):
 
     def evaluate(self):
         return [x.evaluate() for x in self.list_of_actions]
+
+    def __iter__(self):
+        self.iteration_index = -1
+        return self
+
+    def __next__(self):
+        self.iteration_index += 1
+        if self.iteration_index < len(self.list_of_actions):
+            return self.list_of_actions[self.iteration_index]
+        else:
+            raise StopIteration
+
