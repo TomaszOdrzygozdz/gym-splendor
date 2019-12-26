@@ -76,9 +76,9 @@ class Arena:
                 #print('Action number = {}'.format(number_of_actions))
             active_agent = list_of_agents[active_agent_id]
             if active_agent.multi_process == True:
-                action = list_of_agents[active_agent_id].choose_action(observation, previous_actions, info=False)
+                action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
             if active_agent.multi_process == False and local_main_process:
-                action = list_of_agents[active_agent_id].choose_action(observation, previous_actions, info=False)
+                action = list_of_agents[active_agent_id].choose_action(observation, previous_actions)
             previous_actions = [action]
 
             if local_main_process:

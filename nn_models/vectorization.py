@@ -23,15 +23,22 @@ def vectorize_state(state_as_dict: StateAsDict):
 
 def vectorize_action(pure_action : Action):
 
-    action_as_dict = pure_action.to_dict()
+    if pure_action is not None:
+        action_as_dict = pure_action.to_dict()
 
-    if action_as_dict["action_type"] == "buy":
-        action = [1,0,0]
-    elif action_as_dict["action_type"] == "reserve":
-        action = [0,1,0]
+        if action_as_dict["action_type"] == "buy":
+            action = [1,0,0]
+        elif action_as_dict["action_type"] == "reserve":
+            action = [0,1,0]
+        else:
+            action = [0,0,1]
+
+        action.extend([1 if y in {action_as_dict["card"]} else 0 for y in np.arange(CARDS_IN_DECK)])
+        action.extend(action_as_dict["gems_flow"])
+
+        # print('len = {}'.format(len(action)))
+        # print(type(action))
+        # assert False
+        return action
     else:
-        action = [0,0,1]
-
-    action.extend([1 if y in {action_as_dict["card"]} else 0 for y in np.arange(CARDS_IN_DECK)])
-    action.extend(action_as_dict["gems_flow"])
-    return action
+        return [-1]*99

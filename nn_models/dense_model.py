@@ -72,20 +72,37 @@ class DenseModel:
         self.network.summary()
         self.session.run(tf.global_variables_initializer())
 
-    def train_model(self, data_file_name, output_weights_file_name, epochs):
+    def train_model(self, data_file_name=None, data_frame=None, output_weights_file_name=None, epochs=2):
 
         assert self.network is not None, 'You must create network before training'
         self.set_corrent_session()
 
-        data = pd.read_csv(data_file_name)
         X = []
         Y = []
 
-        for i, row in data.iterrows():
-                state_action_concat = json.loads(row[1]) + json.loads(row[2])
-                evaluation = 10*row[3]
+        if data_file_name is not None:
+            data = pd.read_csv(data_file_name)
+
+            for i, row in data.iterrows():
+                    state_action_concat = json.loads(row[1]) + json.loads(row[2])
+                    evaluation = row[3]
+                    X.append(state_action_concat)
+                    Y.append(evaluation)
+
+        if data_frame is not None:
+            data = data_frame
+
+            for i, row in data.iterrows():
+                # print('row = {}'.format(row))
+                # print('row [0] =  {}'.format(row[0]))
+                # print('row [1] =  {}'.format(row[1]))
+                # print('row [2] =  {}'.format(row[2]))
+
+                state_action_concat = row[0] + row[2]
+                evaluation = row[1]
                 X.append(state_action_concat)
                 Y.append(evaluation)
+
 
         X = np.array(X)
         Y = np.array(Y)
@@ -94,7 +111,8 @@ class DenseModel:
         self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=1)
         score = self.network.evaluate(X_test, Y_test, verbose=1)
         print('Training score = {}'.format(score))
-        self.network.save_weights(output_weights_file_name)
+        if output_weights_file_name is not None:
+            self.network.save_weights(output_weights_file_name)
 
     def load_weights(self, weights_file):
         assert self.network is not None, 'You must create network before loading weights.'
@@ -117,6 +135,16 @@ class DenseModel:
             return list_of_actions[index_of_best_action]
         else:
             return None
+
+    def choose_best_action_with_q_value(self, state_as_dict : StateAsDict, list_of_actions: List[Action]):
+        assert self.network is not None, 'You must create network first.'
+        if len(list_of_actions) > 0:
+            q_values_predicted = self.evaluate_list(state_as_dict, list_of_actions)
+            index_of_best_action = np.argmax(q_values_predicted)
+            best_value = np.max(q_values_predicted)
+            return list_of_actions[index_of_best_action], best_value
+        else:
+            return None, -1
 
     def get_max_q_value(self, state_as_dict : StateAsDict, list_of_actions: List[Action]) -> Action:
         assert self.network is not None, 'You must create network first.'

@@ -36,14 +36,14 @@ class Agent:
         self.self_play_mode = False
 
     @abstractmethod
-    def choose_action(self, observation : SplendorObservation, previous_actions : List[Action], info:bool=False):
+    def choose_action(self, observation : SplendorObservation, previous_actions : List[Action]):
         """This method chooses one action to take, based on the provided observation. This method should not have
         access to the original gym-splendor environment - you can create your own environment for example to do
         simulations of game, or have access to environment methods."""
         if observation.name == 'deterministic':
-            return self.deterministic_choose_action(observation, previous_actions, info)
+            return self.deterministic_choose_action(observation, previous_actions)
         if observation.name == 'stochastic':
-            return self.stochastic_choose_action(observation, previous_actions, info)
+            return self.stochastic_choose_action(observation, previous_actions)
         else:
             raise ValueError
 
@@ -55,13 +55,13 @@ class Agent:
         assert observation.name == 'stochastic'
         self.env.load_observation(observation)
         self.env.update_actions_light()
-        return self.choose_act(mode = "stochastic", info=info)
+        return self.choose_act(mode = "stochastic")
 
-    def deterministic_choose_action(self, observation, previous_actions, info):
+    def deterministic_choose_action(self, observation, previous_actions):
         assert observation.name == 'deterministic'
         self.env.load_observation(observation)
         self.env.update_actions_light()
-        return self.choose_act(mode = "deterministic", info=info)
+        return self.choose_act(mode = "deterministic")
 
     def __repr__(self):
         return self.name
