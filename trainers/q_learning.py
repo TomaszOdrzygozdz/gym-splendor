@@ -32,11 +32,12 @@ main_process = my_rank == 0
 
 class QLearningTrainer:
 
-    def __init__(self):
+    def __init__(self, alpha):
         self.agent = QValueAgent()
         self.env = gym.make('splendor-v0')
         self.weights_token = 'weights_' + str(random.randint(0,1000000)) + '.h5'
         self.arena = Arena()
+        self.alpha = alpha
 
 
     def _set_token(self, token):
@@ -118,7 +119,7 @@ class QLearningTrainer:
                                                         'state_ex' : state_status,
                                                         'state_vec' : state_vector,
                                                         'new_value': self.new_value_formula(old_value, best_eval,
-                                                                                            winner_id, reward, alpha=0.1),
+                                                                                            winner_id, reward, self.alpha),
                                                         'active_player_id' : self.env.previous_player_id(),
                                                         'winner_id' : winner_id,
                                                         'reward' : reward,
@@ -133,7 +134,7 @@ class QLearningTrainer:
                 collected_data = collected_data.append({'state_as_vector' : vectorize_state(old_state),
                                                         'action_vector' : old_action_vec,
                                                             'value': self.new_value_formula(old_value, best_eval,
-                                                                                                winner_id, reward, alpha=0.1)},
+                                                                                                winner_id, reward, self.alpha)},
                                                        ignore_index=True)
 
 
@@ -168,10 +169,9 @@ class QLearningTrainer:
 
     def run_training(self, n_iterations, opponent):
 
-        experience_replay_buffer = None
-
         if USE_NEPTUNE:
-            neptune.create_experiment('Q learning training')
+            neptune.create_experiment('Q learning alpha = '.format(self.alpha))
+        experience_replay_buffer = None
         for i in range(n_iterations):
             collected_data, there_was_no_action = self.run_one_game_and_collect_data(debug_info=True)
             if not there_was_no_action:
@@ -196,9 +196,9 @@ class QLearningTrainer:
                 print(results)
                 if USE_NEPTUNE:
                     for pair in results.data.keys():
-                        neptune.send_metric(pair[0] + '_wins', x=results.data[pair].wins)
-                        neptune.send_metric(pair[0] + '_reward', x=results.data[pair].reward)
-                        neptune.send_metric(pair[0] + '_victory_points', x=results.data[pair].victory_points)
+                        neptune.send_metric(pair[0] + '_wins', x=i, y=results.data[pair].wins)
+                        neptune.send_metric(pair[0] + '_reward', x=i, y=results.data[pair].reward)
+                        neptune.send_metric(pair[0] + '_victory_points', x=i, y=results.data[pair].victory_points)
 
 
 
@@ -209,12 +209,12 @@ class QLearningTrainer:
 
 class MultiQLearningTrainer:
 
-    def __init__(self):
+    def __init__(self, alpha):
         if USE_NEPTUNE and main_process:
-            neptune.create_experiment('Q learning training')
+            neptune.create_experiment('Q learning M alpha = {}'.format(alpha))
 
         self.multi_arena = MultiArena()
-        self.local_trainer = QLearningTrainer()
+        self.local_trainer = QLearningTrainer(alpha=alpha)
         token = None
         if main_process:
             token = self.local_trainer._get_token()
@@ -257,8 +257,8 @@ class MultiQLearningTrainer:
 
         #broadcats information about saving weights:
 
-    def run_test(self, opponent: Agent):
-        results = self.multi_arena.run_many_duels('deterministic', [self.local_trainer.agent, opponent], n_games=5*comm.Get_size(),
+    def run_test(self, opponent: Agent, x_coord):
+        results = self.multi_arena.run_many_duels('deterministic', [self.local_trainer.agent, opponent], n_games=2*comm.Get_size(),
                                         n_proc_per_agent=1, shuffle=True)
 
 
@@ -266,9 +266,9 @@ class MultiQLearningTrainer:
             print(results)
             if USE_NEPTUNE and main_process:
                 for pair in results.data.keys():
-                    neptune.send_metric(pair[0] + '_wins', x=results.data[pair].wins)
-                    neptune.send_metric(pair[0] + '_reward', x=results.data[pair].reward)
-                    neptune.send_metric(pair[0] + '_victory_points', x=results.data[pair].victory_points)
+                    neptune.send_metric(pair[0] + '_wins', x=x_coord, y=results.data[pair].wins)
+                    neptune.send_metric(pair[0] + '_reward', x=x_coord,  y=results.data[pair].reward)
+                    neptune.send_metric(pair[0] + '_victory_points', x=x_coord, y=results.data[pair].victory_points)
 
 
     def run_full_training(self, n_iterations, opponent):
@@ -278,8 +278,8 @@ class MultiQLearningTrainer:
             if main_process:
                 print('Game number = {}'.format(i))
             self.run_one_episode(epochs=2)
-            if i %5 == 0:
-                self.run_test(opponent=opponent)
+            if i %2 == 0:
+                self.run_test(opponent=opponent, x_coord=i)
 
         if USE_NEPTUNE and main_process:
             neptune.stop()

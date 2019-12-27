@@ -6,7 +6,7 @@ from trainers.q_learning import QLearningTrainer, MultiQLearningTrainer
 
 opponent_x = GreedyAgentBoost()
 #opponent_x = RandomAgent(distribution='first_buy')
-fufu = MultiQLearningTrainer()
+fufu = MultiQLearningTrainer(alpha=0.1)
 t_start = time.time()
 fufu.run_full_training(n_iterations=150, opponent=opponent_x)
 t_end = time.time()
