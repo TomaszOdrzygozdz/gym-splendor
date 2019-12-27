@@ -30,7 +30,7 @@ class QValueAgent(Agent):
 
     def choose_act(self, mode):
 
-        self.epsilon = self.epsilon*0.999
+        self.epsilon = self.epsilon*0.999995
         if not self.explore:
             current_state_as_dict = StateAsDict(self.env.current_state_of_the_game)
             list_of_actions = self.env.action_space.list_of_actions

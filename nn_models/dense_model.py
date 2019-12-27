@@ -98,8 +98,8 @@ class DenseModel:
                 # print('row [1] =  {}'.format(row[1]))
                 # print('row [2] =  {}'.format(row[2]))
 
-                state_action_concat = row[0] + row[2]
-                evaluation = row[1]
+                state_action_concat = row[1] + row[0]
+                evaluation = row[2]
                 X.append(state_action_concat)
                 Y.append(evaluation)
 
@@ -118,6 +118,11 @@ class DenseModel:
         assert self.network is not None, 'You must create network before loading weights.'
         self.set_corrent_session()
         self.network.load_weights(weights_file)
+
+    def save_weights(self, weights_file):
+        assert self.network is not None, 'You must create network before saving weights.'
+        self.set_corrent_session()
+        self.network.save_weights(weights_file)
 
     def get_q_value(self, state_as_dict: StateAsDict, action : Action) -> float:
         assert self.network is not None, 'You must create network first.'
