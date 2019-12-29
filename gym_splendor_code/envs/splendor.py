@@ -37,6 +37,7 @@ class SplendorEnv(Env):
         self.observation_space = SplendorObservationSpace(all_cards=self.all_cards, all_nobles=self.all_nobles)
         self.is_done = False
         self.first_winner = None
+        self.draw = False
         self.end_episode_mode = 'instant_end'
         self.gui = None
 
@@ -53,14 +54,6 @@ class SplendorEnv(Env):
     def active_players_hand(self):
         return self.current_state_of_the_game.active_players_hand()
 
-    # def to_dict_state(self, output_file = None, return_var = False):
-    #     state = str(self.current_state_of_the_game.to_dict()).replace("set()", "NULL")
-    #     if output_file is not None:
-    #         with open(output_file, 'w') as json_file:
-    #             json.dump(state, json_file)
-    #
-    #     if return_var:
-    #         return state
 
     def state_to_dict(self):
         return self.current_state_of_the_game.to_dict()
@@ -68,12 +61,6 @@ class SplendorEnv(Env):
     def action_space_to_dict(self):
         return self.action_space.to_dict()
 
-    # def to_dict_action_space(self, output_file = None):
-    #     state = str(self.action_space.to_dict()).replace("set()", "NULL")
-    #
-    #     if output_file is not None:
-    #         with open(output_file, 'w') as json_file:
-    #             json.dump(state, json_file)
 
     def step(self, mode, action: Action, return_observation=True, ensure_correctness = False):
         """
@@ -99,18 +86,21 @@ class SplendorEnv(Env):
                 assert self.action_space.contains(action), '{} is not valid action'.format(action)
             action.execute(self.current_state_of_the_game)
 
+        # We find the reward:
+        reward = 0
+
         if action is None:
             info = {'Warning' : 'There was no action.'}
             self.is_done = True
             self.first_winner = self.current_state_of_the_game.previous_player_id()
-        # We find the reward:
-        reward = 0
+            reward = -1
 
-        if self.first_winner is not None:
-            if self.current_state_of_the_game.previous_player_id() == self.first_winner:
-                reward = 1
-            if self.current_state_of_the_game.previous_player_id() != self.first_winner:
-                reward = -1
+
+        #if self.first_winner is not None:
+        if self.current_state_of_the_game.previous_player_id() == self.first_winner:
+            reward = 1
+        if self.current_state_of_the_game.previous_player_id() != self.first_winner:
+            reward = -1
 
         if self.first_winner is None:
             if not self.is_done:

@@ -5,9 +5,13 @@ hold only 1 vs 1 games."""
 
 from typing import List
 from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
+from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
+
 if USE_TQDM:
     from tqdm import tqdm
 import random
+
+import pandas as pd
 
 import gym
 
@@ -25,15 +29,32 @@ class Arena:
                  environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
+        self.collect_states_mode = False
+        self.collect_states_df = False
 
+    def start_collecting_states(self):
+        self.collect_states_mode = True
+        self.collected_states_df = pd.DataFrame()
 
+    def stop_collecting_states(self):
+        self.collect_states_mode = False
+
+    def dump_collected_states(self, filename, color=0):
+        self.collected_states_df.to_pickle('col_{}_'.format(color) + filename + '.pi')
+
+    def collected_states_to_csv(self, filename, color=0):
+        self.collected_states_df.to_csv('col_{}_'.format(color) + filename + '.csv')
+
+    def return_collected_states(self, filename):
+        return self.collect_states_df
 
     def run_one_duel(self,
                      mode: str,
                      list_of_agents: List[Agent],
                      starting_agent_id: int = 0,
                      render_game: bool=False,
-                     mpi_communicator = None)-> GameStatisticsDuels:
+                     mpi_communicator = None,
+                     initial_observation = None)-> GameStatisticsDuels:
         """Runs one game between two agents.
         :param:
         mode: mode of the game (stochastic or deterministic)
@@ -43,9 +64,12 @@ class Arena:
 
         #prepare the game
         self.env.reset()
-        self.env.set_active_player(starting_agent_id)
-        #set players names:
-        self.env.set_players_names([agent.name for agent in list_of_agents])
+        if initial_observation is not None:
+            self.env.load_observation(initial_observation)
+        if initial_observation is None:
+            self.env.set_active_player(starting_agent_id)
+            #set players names:
+            self.env.set_players_names([agent.name for agent in list_of_agents])
         is_done = False
         #set the initial agent id
         active_agent_id = starting_agent_id
@@ -71,6 +95,10 @@ class Arena:
             self.env.render()
             time.sleep(GAME_INITIAL_DELAY)
 
+        # print('Initial state of game = {}'.format(StateAsDict(self.env.current_state_of_the_game)))
+
+        state_to_print = 0
+
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
             #if local_main_process:
                 #print('Action number = {}'.format(number_of_actions))
@@ -83,6 +111,15 @@ class Arena:
 
             if local_main_process:
                 observation, reward, is_done, info = self.env.step(mode, action)
+
+                # if state_to_print < 5:
+                #     print('State no {} \n {}'.format(state_to_print, StateAsDict(self.env.current_state_of_the_game)))
+                #     state_to_print += 1
+
+                if self.collect_states_mode:
+                    self.collected_states_df = self.collected_states_df.append({'observation' : observation},
+                                                                               ignore_index=True)
+
                 winner_id = info['winner_id']
             if render_game:
                 self.env.render()
@@ -121,7 +158,8 @@ class Arena:
                        list_of_agents: List[Agent],
                        number_of_games: int,
                        shuffle_agents: bool = True,
-                       starting_agent_id = 0):
+                       starting_agent_id = 0,
+                       initial_observation = None):
 
         """Runs many games on a single process.
         :param
@@ -136,7 +174,7 @@ class Arena:
         for game_id in games_ids_to_iterate:
             if shuffle_agents:
                 starting_agent_id = random.choice(range(len(list_of_agents)))
-            one_game_results = self.run_one_duel(mode, list_of_agents, starting_agent_id)
+            one_game_results = self.run_one_duel(mode, list_of_agents, starting_agent_id, initial_observation=initial_observation)
             #update results:
             cumulative_results.register(one_game_results)
 

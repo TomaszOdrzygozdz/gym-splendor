@@ -23,7 +23,7 @@ class MultiMCTS:
     def __init__(self,
                  mpi_communicator,
                  iteration_limit: int = 1000,
-                 rollout_policy: RolloutPolicy = RandomRollout(distribution='first_buy'),
+                 rollout_policy: RolloutPolicy = RandomRollout(distribution='uniform_on_types'),
                  evaluation_policy: EvaluationPolicy = None,
                  rollout_repetition: int = 0,
                  environment_id: str = 0) -> None:
@@ -128,6 +128,12 @@ class MultiMCTS:
         if self.mcts.tree_mode == 'rollout':
             for _ in range(rollout_repetition):
                 my_results = self._rollout_many_nodes(my_nodes_to_rollout)
+                combined_results = self.mpi_communicator.gather(my_results, root=0)
+                if self.main_process:
+                    flattened_results = self.flatten_list_of_dicts(combined_results)
+                    self._backpropagate_many_results('rollout', search_path, flattened_results)
+
+
 
         if self.mcts.tree_mode == 'combined':
             if self.main_process:
@@ -138,14 +144,12 @@ class MultiMCTS:
             my_nodes_to_rollout = self.mpi_communicator.scatter(states_to_rollout, root=0)
             for _ in range(rollout_repetition):
                 my_results = self._rollout_many_nodes(my_nodes_to_rollout)
-
-
-        combined_results = self.mpi_communicator.gather(my_results, root=0)
+                combined_results = self.mpi_communicator.gather(my_results, root=0)
         #if self.main_process:
-        if self.main_process:
-            flattened_results = self.flatten_list_of_dicts(combined_results)
-            if self.mcts.tree_mode == 'rollout' or self.mcts.tree_mode == 'combined':
-                self._backpropagate_many_results('rollout', search_path, flattened_results)
+                if self.main_process:
+                    flattened_results = self.flatten_list_of_dicts(combined_results)
+                    if self.mcts.tree_mode == 'combined':
+                        self._backpropagate_many_results('rollout', search_path, flattened_results)
 
         #colloect values for terminal children:
         if self.main_process:

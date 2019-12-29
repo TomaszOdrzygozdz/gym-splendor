@@ -14,7 +14,7 @@ class MultiMCTSAgent(Agent):
                  only_best,
                  rollout_policy: RolloutPolicy = None,
                  evaluation_policy: EvaluationPolicy = None,
-                 rollout_repetition = 1,
+                 rollout_repetition = 10,
                  create_visualizer: bool=True,
                  show_unvisited_nodes = False):
 
@@ -37,20 +37,21 @@ class MultiMCTSAgent(Agent):
         self.color = 0
         self.self_play_mode = False
 
-    def initialize_mcts(self, mpi_communicator):
+    def initialize_mcts(self):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
         self.mcts_algorithm = MultiMCTS(self.mpi_communicator, rollout_repetition=self.rollout_repetition,
                                         rollout_policy=self.rollout_policy,
                                         evaluation_policy=self.evaluation_policy)
         self.mcts_initialized = True
-        self.main_process = mpi_communicator.Get_rank() == 0
+        self.main_process = self.mpi_communicator.Get_rank() == 0
+
 
     def deterministic_choose_action(self, observation : DeterministicObservation, previous_actions):
 
         assert observation.name == 'deterministic', 'You must provide deterministic observation'
         ignore_previous_action = False
         if not self.mcts_initialized:
-            self.initialize_mcts(self.mpi_communicator)
+            self.initialize_mcts()
         if not self.mcts_started:
             self.mcts_algorithm.create_root(observation)
             self.mcts_started = True
@@ -79,6 +80,27 @@ class MultiMCTSAgent(Agent):
                 self.draw_final_tree()
 
             return best_action
+        else:
+            return None
+
+    def judge_observation(self, observation : DeterministicObservation):
+
+        self.mcts_algorithm.create_root(observation)
+
+        root_is_terminal = None
+        if self.main_process:
+            root_is_terminal = self.mcts_algorithm.return_root().terminal
+        root_is_terminal = self.mpi_communicator.bcast(root_is_terminal, root=0)
+        if not root_is_terminal:
+            self.mcts_algorithm.run_simulation(self.iteration_limit,self.rollout_repetition, self.only_best)
+            if self.visualize and self.main_process:
+                RENDER_FILE_ACTION = os.path.join(RENDER_DIR, 'color_{}_decision_{}.html'.format(self.color, self.actions_taken_so_far))
+                self.visualizer.generate_html(self.mcts_algorithm.return_root(), RENDER_FILE_ACTION)
+
+            if self.main_process:
+                return self.mcts_algorithm.mcts.root.value_acc.get()
+            else:
+                return None
         else:
             return None
 

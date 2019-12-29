@@ -25,6 +25,7 @@ class ArenaMultiThread:
 
         self.environment_id = environment_id
         self.progress_bar = None
+        self.local_arena = Arena()
 
     def create_progress_bar(self, lenght):
         if main_thread and USE_TQDM:
@@ -34,6 +35,18 @@ class ArenaMultiThread:
         if main_thread and USE_TQDM:
             self.progress_bar.n = min(value, self.progress_bar.total-1)
             self.progress_bar.update()
+
+    def start_collecting_states(self):
+        self.local_arena.start_collecting_states()
+
+    def stop_collecting_states(self):
+        self.local_arena.start_collecting_states()
+
+    def dump_collected_states(self, filename):
+        self.local_arena.dump_collected_states(filename, my_rank)
+
+    def collected_states_to_csv(self, filename):
+        self.local_arena.collected_states_to_csv(filename, my_rank)
 
     def one_group_vs_other_duels(self,
                                  mode,
@@ -51,7 +64,6 @@ class ArenaMultiThread:
         jobs_per_thread = int(len(list_of_jobs) / n_proc)
         remaining_jobs = len(list_of_jobs) % n_proc
         #create local arena
-        local_arena = Arena()
         local_results = GameStatisticsDuels(list_of_agents1, list_of_agents2)
         add_remaining_job = int(my_rank < remaining_jobs)
 
@@ -62,7 +74,7 @@ class ArenaMultiThread:
             pair_to_duel = list_of_jobs[game_id*n_proc + my_rank]
             if shuffle:
                 starting_agent_id = random.choice(range(2))
-            one_game_results = local_arena.run_one_duel(mode, list(pair_to_duel))
+            one_game_results = self.local_arena.run_one_duel(mode, list(pair_to_duel))
             local_results.register(one_game_results)
             if main_thread:
                 self.set_progress_bar((game_id+1)*n_proc)
