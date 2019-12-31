@@ -56,3 +56,5 @@ obs2 = DeterministicObservation(state_2)
 obs1 = DeterministicObservation(state_1)
 obs1_1 = DeterministicObservation(state1_1)
 obs1_2 = DeterministicObservation(state_1_2)
+
+obs0 = DeterministicObservation(State())

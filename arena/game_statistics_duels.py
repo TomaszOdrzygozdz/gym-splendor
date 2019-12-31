@@ -45,12 +45,17 @@ class GameStatisticsDuels:
                     self.n_games_dict[(list_agents_names[i], list_agents_names[(i + 1) % 2])] += 1
         self.number_of_games += 1
 
+    def return_stats(self, agent1=None, agent2=None):
+        pair = (self.list_of_agents_names1[0], self.list_of_agents_names1[1])
+        return self.number_of_games, self.data[pair].reward, self.data[pair].wins
+
 
     def register(self, other):
-        for pair in other.data.keys():
-            self.data[pair] = self.data[pair] + other.data[pair]
-            self.n_games_dict[pair] = self.n_games_dict[pair] + other.n_games_dict[pair]
-        self.number_of_games += other.number_of_games
+        if other is not None:
+            for pair in other.data.keys():
+                self.data[pair] = self.data[pair] + other.data[pair]
+                self.n_games_dict[pair] = self.n_games_dict[pair] + other.n_games_dict[pair]
+            self.number_of_games += other.number_of_games
 
 
     def to_pandas(self, param='wins', average: bool=True, crop_names:bool = True, n_games = 1000):
