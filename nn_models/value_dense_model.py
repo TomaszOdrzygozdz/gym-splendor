@@ -1,21 +1,22 @@
 import os
 from gym_splendor_code.envs.mechanics.game_settings import USE_TENSORFLOW_GPU, USE_LOCAL_TF
 from monte_carlo_tree_search.mcts_settings import REWARDS_FOR_HAVING_NO_LEGAL_ACTIONS
+from neptune_settings import USE_NEPTUNE
+from nn_models.abstract_model import AbstractModel
 
 if not USE_TENSORFLOW_GPU:
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-from tensorflow.python.util import deprecation
-deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 import tensorflow as tf
 tf.logging.set_verbosity(tf.logging.ERROR)
 import keras
+from keras.callbacks import Callback
 import json
 from keras.models import Model
 from keras.layers import Input, Dense, Dropout
-from keras import backend as K
+
 
 import pandas as pd
 
@@ -23,29 +24,27 @@ from typing import List
 
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-
-from gym_splendor_code.envs.mechanics.action import Action
-from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions
-from gym_splendor_code.envs.mechanics.enums import GemColor
-
-from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from nn_models.vectorization import vectorize_state, vectorize_action
 
+if USE_NEPTUNE:
+    import neptune
+
+    class NeptuneMonitor(Callback):
+        def on_epoch_end(self, epoch, logs={}):
+            neptune.send_metric('loss', epoch, logs['loss'])
+
+        def on_batch_end(self, epoch, logs={}):
+            neptune.send_metric('batch loss', logs['loss'])
 
 
-
-class ValueDenseModel:
+class ValueDenseModel(AbstractModel):
 
     def __init__(self):
 
-        self.session = tf.Session()
-        self.network = None
+        super().__init__()
+        self.params['Model name'] = 'Dense model for value function'
 
-    def set_corrent_session(self):
-        pass
-        #K.set_session(self.session)
 
     def create_network(self, input_size : int = 498, layers_list : List[int] = [800, 800, 800, 800]) -> None:
         '''
@@ -64,17 +63,38 @@ class ValueDenseModel:
                 #data_flow = Dropout(rate=0.1)(data_flow)
         predictions = Dense(1, activation='tanh')(data_flow)
 
-        optim = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+        self.params['Layers list'] = layers_list
+
+        lr = 0.001
+        beta_1 = 0.9
+        beta_2 = 0.999
+        epsilon = None
+        decay=0.0
+        amsgrad = False
+
+        optim = keras.optimizers.Adam(lr=lr, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
+        self.params['optimizer_name'] = 'Adam'
+        self.params['optimizer lr'] = lr
+        self.params['optimizer beta_1'] = beta_1
+        self.params['optimizer beta_2'] = beta_2
+        self.params['optimizer epsilon'] = None
+        self.params['optimizer decay'] = 0.0
+        self.params['optimizer amsgrad'] = False
+
+
         self.network = Model(inputs=entries, outputs=predictions)
         self.network.compile(optimizer=optim, loss='mean_squared_error')
-
-        with open('architecture.txt', 'w') as fh:
-            # Pass the file handle in as a lambda function to make it callable
-            self.network.summary(print_fn=lambda x: fh.write(x + '\n'))
-        self.network.summary()
         self.session.run(tf.global_variables_initializer())
 
-    def train_model(self, data_file_name=None, data_frame=None, output_weights_file_name=None, epochs=5):
+
+    def train_model(self, data_file_name=None, data_frame=None, output_weights_file_name=None, verbose=2):
+
+        self.start_neptune_experiment(experiment_name='First training', description='Training dense network', neptune_monitor=NeptuneMonitor())
+
+        #training params
+        epochs = 5
+        test_size = 0.05
+        batch_size = None
 
         assert self.network is not None, 'You must create network before training'
         self.set_corrent_session()
@@ -84,12 +104,12 @@ class ValueDenseModel:
 
         if data_frame is None:
             assert data_file_name is not None
-            data = pd.read_csv(data_file_name)
+            data = pd.read_pickle(data_file_name)
             for i, row in data.iterrows():
-                    state_vector = json.loads(row[1])
-                    evaluation = row[-1]
+                    state_vector = vectorize_state(row['observation'].observation_dict)
+                    value = row['value']
                     X.append(state_vector)
-                    Y.append(evaluation)
+                    Y.append(value)
 
         if data_frame is not None:
             data = data_frame
@@ -102,9 +122,19 @@ class ValueDenseModel:
         X = np.array(X)
         Y = np.array(Y)
 
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.05)
-        fit_history = self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=1)
-        score = self.network.evaluate(X_test, Y_test, verbose=1)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_size)
+
+        self.params['Training set shape [0]'] = X_train.shape[0]
+        self.params['Training set shape [1]'] = X_train.shape[1]
+        self.params['Epochs'] = epochs
+        self.params['Test set shape [0]'] = X_test.shape[0]
+        self.params['Test set shape [1]'] = X_test.shape[1]
+        self.params['Test size (%)'] = test_size
+        self.params['batch_size'] = batch_size
+
+        fit_history = self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=1, callbacks=[self.neptune_monitor])
+        neptune.stop()
+        score = self.network.evaluate(X_test, Y_test, verbose=verbose)
         print('Training score = {}'.format(score))
         if output_weights_file_name is not None:
             self.network.save_weights(output_weights_file_name)
