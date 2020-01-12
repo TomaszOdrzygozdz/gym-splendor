@@ -11,9 +11,7 @@ class ValueSupervisedTrainer:
 
     def __init__(self):
         pass
-        # self.model = ValueDenseModel()
-        # self.layers_list = [600, 600, 600, 600]
-        # self.model.create_network(layers_list=self.layers_list)
+
 
 
     def get_model_summary(self):
@@ -45,5 +43,5 @@ class ValueSupervisedTrainer:
 # fufix.merge_data(subset=120, output='half_merged.pi')
 
 bubik = ValueDenseModel()
-bubik.create_network(layers_list=[500, 500, 500])
-bubik.train_model(data_file_name='merged.pi', output_weights_file_name='wuw.h5', experiment_name='Large data train')
+bubik.create_network(layers_list=[400, 400, 400])
+bubik.train_model(data_file_name='merged.pi', output_weights_file_name='wuw.h5', experiment_name='Large data train', epochs=50)

@@ -5,6 +5,7 @@ from agents.greedysearch_agent import GreedySearchAgent
 
 from mpi4py import MPI
 
+from agents.randomized_agent import RandomizedAgent
 from agents.state_judger import Judger
 from arena.arena_multi_thread import ArenaMultiThread
 
@@ -22,25 +23,27 @@ agent2a = GreedyAgentBoost()
 agent2b = GreedyAgentBoost()
 agent3a = GreedySearchAgent()
 agent3b = GreedySearchAgent()
+agent4a = RandomizedAgent(epsilon=0.7)
+agent4b = RandomizedAgent(epsilon = 0.7)
 # agent3 = RandomAgent(distribution = 'first_buy')
 #
 #
-multi_arena = ArenaMultiThread()
-multi_arena.start_collecting_states()
-results = multi_arena.all_vs_all('deterministic', [agent3a, agent3b], n_games=1200)
-multi_arena.dump_collected_states('part2')
-multi_arena.collected_states_to_csv('part2')
-multi_arena.stop_collecting_states()
-print(results)
+# multi_arena = ArenaMultiThread()
+# multi_arena.start_collecting_states()
+# results = multi_arena.all_vs_all('deterministic', [agent4a, agent4b], n_games=300)
+# multi_arena.dump_collected_states('epsilon_07')
+# multi_arena.collected_states_to_csv('epsilon_07')
+# multi_arena.stop_collecting_states()
+# print(results)
 
 
-# fufix = Judger(5)
-# time_s = time.time()
-# fufix.judge_dataframe('part2', 2)
-# print('Time taken = {}'.format(time.time() - time_s))
-# #
-# x = obs0
+fufix = Judger(5)
+time_s = time.time()
+fufix.judge_dataframe('epsilon_07', 2)
+print('Time taken = {}'.format(time.time() - time_s))
 
+
+#
 # res = fufix.judge_observation(x, 5)
 # print(res)
 

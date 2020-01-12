@@ -89,10 +89,9 @@ class ValueDenseModel(AbstractModel):
         self.session.run(tf.global_variables_initializer())
 
 
-    def train_model(self, data_file_name=None, data_frame=None, output_weights_file_name=None, experiment_name='Training'):
+    def train_model(self, data_file_name=None, data_frame=None, epochs=50, output_weights_file_name=None, experiment_name='Training'):
 
         #training params
-        epochs = 50
         test_size = 0.05
         batch_size = None
 
