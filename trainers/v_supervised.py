@@ -10,10 +10,10 @@ from nn_models.value_dense_model import ValueDenseModel
 class ValueSupervisedTrainer:
 
     def __init__(self):
-
-        self.model = ValueDenseModel()
-        self.layers_list = [600, 600, 600, 600]
-        self.model.create_network(layers_list=self.layers_list)
+        pass
+        # self.model = ValueDenseModel()
+        # self.layers_list = [600, 600, 600, 600]
+        # self.model.create_network(layers_list=self.layers_list)
 
 
     def get_model_summary(self):
@@ -23,21 +23,27 @@ class ValueSupervisedTrainer:
         stream.close()
         return summary_string
 
-    def merge_data(self, folder_path = 'states_train_data', output = None):
+    def merge_data(self, folder_path = 'states_train_data', subset=None,  output = None):
+
         list_of_files = os.listdir(folder_path)
-        df_list = [pd.read_pickle(os.path.join(folder_path, file)) for file in list_of_files]
+        chosen_files = [os.path.join(folder_path, file) for file in list_of_files if 'judged' in file]
+        if subset != None:
+            chosen_files = chosen_files[0:subset]
+        df_list = [pd.read_pickle(df_file)for df_file in chosen_files]
+        print(chosen_files)
         collected_df = pd.concat(df_list)
         if output is not None:
-            collected_df.to_pickle(output)
+             collected_df.to_pickle(output)
 
         return collected_df
 
 
 
-fufix = ValueSupervisedTrainer()
-#
-# fufix.merge_data(output='merged.pi')
+
+# fufix = ValueSupervisedTrainer()
+# #
+# fufix.merge_data(subset=120, output='half_merged.pi')
 
 bubik = ValueDenseModel()
 bubik.create_network(layers_list=[500, 500, 500])
-bubik.train_model(data_file_name='merged.pi', output_weights_file_name='wuwik.h5')
+bubik.train_model(data_file_name='merged.pi', output_weights_file_name='wuw.h5', experiment_name='Large data train')

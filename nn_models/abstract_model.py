@@ -27,8 +27,8 @@ class AbstractModel:
         model_summary = self.model_summary()
         params_to_upload = {'Architecture' : model_summary}
         params_to_upload.update(self.params)
-        neptune.log_image('Architecture', 'model_summary.png')
         neptune.create_experiment(name=experiment_name, description=description, params=params_to_upload)
+        neptune.log_image('Architecture', 'model_architecture.png')
 
     def model_summary(self):
         assert self.network is not None, 'You must create network before vizualization.'

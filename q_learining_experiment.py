@@ -1,8 +1,7 @@
 import time
 
 from agents.greedy_agent_boost import GreedyAgentBoost
-from agents.random_agent import RandomAgent
-from trainers.q_learning import QLearningTrainer, MultiQLearningTrainer
+from archive.q_learning import MultiQLearningTrainer
 
 opponent_x = GreedyAgentBoost()
 #opponent_x = RandomAgent(distribution='first_buy')

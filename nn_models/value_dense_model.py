@@ -33,9 +33,11 @@ if USE_NEPTUNE:
     class NeptuneMonitor(Callback):
         def on_epoch_end(self, epoch, logs={}):
             neptune.send_metric('loss', epoch, logs['loss'])
+            neptune.send_metric('test loss', epoch, self.model.evaluate(self.validation_data[0], self.validation_data[1]))
 
-        def on_batch_end(self, epoch, logs={}):
-            neptune.send_metric('batch loss', logs['loss'])
+        # def on_batch_end(self, epoch, logs={}):
+        #     neptune.send_metric('loss [batch]', logs['loss'])
+        #     neptune.send_metric('test loss [batch]', self.model.evaluate(self.validation_data[0], self.validation_data[1]))
 
 
 class ValueDenseModel(AbstractModel):
@@ -87,12 +89,10 @@ class ValueDenseModel(AbstractModel):
         self.session.run(tf.global_variables_initializer())
 
 
-    def train_model(self, data_file_name=None, data_frame=None, output_weights_file_name=None, verbose=2):
-
-        self.start_neptune_experiment(experiment_name='First training', description='Training dense network', neptune_monitor=NeptuneMonitor())
+    def train_model(self, data_file_name=None, data_frame=None, output_weights_file_name=None, experiment_name='Training'):
 
         #training params
-        epochs = 5
+        epochs = 50
         test_size = 0.05
         batch_size = None
 
@@ -122,20 +122,17 @@ class ValueDenseModel(AbstractModel):
         X = np.array(X)
         Y = np.array(Y)
 
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_size)
-
-        self.params['Training set shape [0]'] = X_train.shape[0]
-        self.params['Training set shape [1]'] = X_train.shape[1]
         self.params['Epochs'] = epochs
-        self.params['Test set shape [0]'] = X_test.shape[0]
-        self.params['Test set shape [1]'] = X_test.shape[1]
-        self.params['Test size (%)'] = test_size
+        self.params['Data set size'] = X.shape[0]
+
+        self.params['Test set size'] = int(test_size*X.shape[0])
         self.params['batch_size'] = batch_size
 
-        fit_history = self.network.fit(X_train, Y_train, batch_size=None, epochs=epochs, verbose=1, callbacks=[self.neptune_monitor])
+        self.start_neptune_experiment(experiment_name=experiment_name, description='Training dense network',
+                                      neptune_monitor=NeptuneMonitor())
+
+        fit_history = self.network.fit(X, Y, batch_size=None, epochs=epochs, verbose=1, validation_split=test_size, callbacks=[self.neptune_monitor])
         neptune.stop()
-        score = self.network.evaluate(X_test, Y_test, verbose=verbose)
-        print('Training score = {}'.format(score))
         if output_weights_file_name is not None:
             self.network.save_weights(output_weights_file_name)
         return fit_history
