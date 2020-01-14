@@ -1,11 +1,7 @@
-from typing import List, Tuple
-
-from gym_splendor_code.envs.mechanics.action import Action
-from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
-from nn_models.value_dense_model import ValueDenseModel
+from nn_models.dense_models.value_dense_model_v0 import ValueDenseModel
 
 
 class ValueEvaluator(EvaluationPolicy):

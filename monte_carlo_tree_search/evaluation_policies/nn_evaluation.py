@@ -5,7 +5,7 @@ from gym_splendor_code.envs.mechanics.action_space_generator import generate_all
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
-from nn_models.dense_model import DenseModel
+from nn_models.dense_q_model_v0 import DenseModel
 
 
 class QValueEvaluator(EvaluationPolicy):

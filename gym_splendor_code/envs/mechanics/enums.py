@@ -14,12 +14,12 @@ class GemColor(Enum):
     This class represents colors of gems that are used in the game.
     """
     # We do not use auto() to have control of how gem colors are encoded to vectors (to make this encoding consistent).
-    GOLD = 0
-    RED = 1
-    GREEN = 2
-    BLUE = 3
-    WHITE = 4
-    BLACK = 5
+    RED = 0
+    GREEN = 1
+    BLUE = 2
+    WHITE = 3
+    BLACK = 4
+    GOLD = 5
 
 
 class MoveType(Enum):

@@ -7,7 +7,7 @@ from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from nn_models.vectorization import vectorize_state, vectorize_action
+from archive.vectorization import vectorize_state, vectorize_action
 
 
 class MinMaxAgent(Agent):

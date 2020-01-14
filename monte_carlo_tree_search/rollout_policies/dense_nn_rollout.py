@@ -3,7 +3,7 @@ from gym_splendor_code.envs.mechanics.action_space_generator import generate_all
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
-from nn_models.dense_model import DenseModel
+from nn_models.dense_q_model_v0 import DenseModel
 
 
 class DenseNNRollout(RolloutPolicy):

@@ -1,18 +1,14 @@
 import random
-from functools import reduce
 
 import gym
 import pandas as pd
-import numpy as np
 
 from agents.abstract_agent import Agent
-from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.value_nn_agent import ValueNNAgent
 from arena.multi_arena import MultiArena
 from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
-from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from nn_models.vectorization import vectorize_state
+from archive.vectorization import vectorize_state
 
 from mpi4py import MPI
 

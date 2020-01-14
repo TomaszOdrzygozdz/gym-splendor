@@ -1,9 +1,8 @@
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from monte_carlo_tree_search.trees.abstract_tree import TreeNode
 from monte_carlo_tree_search.trees.deterministic_tree import DeterministicTreeNode
 import pandas as pd
 
-from nn_models.vectorization import vectorize_state
+from archive.vectorization import vectorize_state
 
 
 class TreeDataCollector:

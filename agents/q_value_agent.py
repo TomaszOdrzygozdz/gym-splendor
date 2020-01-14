@@ -4,7 +4,7 @@ from agents.abstract_agent import Agent
 import numpy as np
 
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from nn_models.dense_model import DenseModel
+from nn_models.dense_q_model_v0 import DenseModel
 
 
 class QValueAgent(Agent):

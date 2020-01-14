@@ -1,6 +1,5 @@
 
 import random
-from functools import reduce
 
 from neptune_settings import USE_NEPTUNE
 
@@ -11,18 +10,14 @@ if USE_NEPTUNE:
 
 import gym
 import pandas as pd
-import numpy as np
 
 from agents.abstract_agent import Agent
-from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.q_value_agent import QValueAgent
-from agents.random_agent import RandomAgent
 from arena.arena import Arena
 from arena.multi_arena import MultiArena
 from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
-from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from nn_models.vectorization import vectorize_state, vectorize_action
+from archive.vectorization import vectorize_state, vectorize_action
 
 from mpi4py import MPI
 

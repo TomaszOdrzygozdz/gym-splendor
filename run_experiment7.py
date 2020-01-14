@@ -5,10 +5,8 @@ from agents.multi_process_mcts_agent import MultiMCTSAgent
 from agents.random_agent import RandomAgent
 from agents.value_nn_agent import ValueNNAgent
 from arena.multi_arena import MultiArena
-from monte_carlo_tree_search.evaluation_policies.nn_evaluation import QValueEvaluator
 from monte_carlo_tree_search.evaluation_policies.value_evaluator_nn import ValueEvaluator
-from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
-from nn_models.value_dense_model import ValueDenseModel
+from nn_models.dense_models.value_dense_model_v0 import ValueDenseModel
 
 model = ValueDenseModel()
 model.create_network()

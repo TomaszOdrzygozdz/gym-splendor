@@ -3,7 +3,7 @@ import os
 import io
 import pandas as pd
 
-from nn_models.value_dense_model import ValueDenseModel
+from nn_models.dense_models.value_dense_model_v0 import ValueDenseModel
 
 
 
