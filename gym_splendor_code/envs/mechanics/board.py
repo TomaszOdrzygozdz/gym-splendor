@@ -59,7 +59,6 @@ class Board:
         self.gems_on_board = GemsCollection({GemColor.GOLD: gems[0], GemColor.RED: gems[1],GemColor.GREEN: gems[2], GemColor.BLUE: gems[3],
                         GemColor.WHITE: gems[4], GemColor.BLACK: gems[5]})
 
-
         """Puts cards on the board according to previous current_state. """
         cards = vector['board']['cards_on_board']
         drawn_cards = map(lambda x: self.deck.pop_cards_from_id_list(cards, x), self.deck.decks_dict.keys())

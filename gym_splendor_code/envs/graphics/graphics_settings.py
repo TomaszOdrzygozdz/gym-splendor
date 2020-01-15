@@ -12,7 +12,7 @@ SCALING_FACTOR = 1
 WINDOW_TITLE = 'Splendor kayoshin bakemono'
 WINDOW_GEOMETRY = '1550x780'
 WINDOW_REFRESH_TIME = 0.01 #time in seconds
-GAME_SPEED = 0.5 #time between consecutive frames of game
+GAME_SPEED = 5.5 #time between consecutive frames of game
 GAME_INITIAL_DELAY = 1 #time before teh game starts (needed for example to start recording)
 
 # Card visual settings:
@@ -134,7 +134,7 @@ CONFIRM_RESERVE_Y = 500*SCALING_FACTOR
 #____________________________________________________________
 #Placing cards settings:
 
-PLAYERS_HAND_INITIAL_X = -190*SCALING_FACTOR
+PLAYERS_HAND_INITIAL_X = -80*SCALING_FACTOR
 PLAYERS_HAND_INITIAL_Y = 60*SCALING_FACTOR
 PLAYERS_HAND_HORIZONTAL_SHIFT = 105*SCALING_FACTOR
 PLAYERS_HAND_VERTICAL_SHIFT = 30*SCALING_FACTOR

@@ -1,16 +1,15 @@
 import os
+import gin
 
 from gym_splendor_code.envs.mechanics.card import Card
 from gym_splendor_code.envs.mechanics.game_settings import USE_TENSORFLOW_GPU, USE_LOCAL_TF, Row, GemColor
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
-from monte_carlo_tree_search.mcts_settings import REWARDS_FOR_HAVING_NO_LEGAL_ACTIONS
 from neptune_settings import USE_NEPTUNE
 from nn_models.abstract_model import AbstractModel
 
 if not USE_TENSORFLOW_GPU:
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
 
 import tensorflow as tf
 tf.logging.set_verbosity(tf.logging.ERROR)
@@ -41,31 +40,15 @@ if USE_NEPTUNE:
         #     neptune.send_metric('loss [batch]', logs['loss'])
         #     neptune.send_metric('test loss [batch]', self.model.evaluate(self.validation_data[0], self.validation_data[1]))
 
+@gin.configurable
 class EmbeddingAveragePool_v0(AbstractModel):
-
     '''Architecture v1 proposed by Adam'''
-
-    def __init__(self):
-
+    def __init__(self,
+                 model_name : str,
+                 architecture_params: dict,
+                 ):
         super().__init__()
-        self.params['Model name'] = 'Dense model for value function'
-
-    def one_hot(self, i, n):
-        vec = np.zeros(n)
-        vec[i] = 1
-        return vec
-
-    def card_to_vector(self, card: Card):
-        profit_vec = self.one_hot(card.discount_profit.value, 5)
-        price_vec_list = [self.one_hot(card.price.gems_dict[gem_color], 8) for gem_color in GemColor if gem_color !=
-                          GemColor.GOLD]
-        price_vec = np.concatenate(price_vec_list)
-        victory_points_vec = self.one_hot(card.victory_points, 5)
-
-        return np.concatenate([profit_vec, price_vec, victory_points_vec])
-
-    def vectorize_state(state_as_dict: StateAsDict):
-        pass
+        self.params['Model name'] = model_name
 
     def create_network(self, input_size : int = 498, layers_list : List[int] = [800, 800, 800, 800]) -> None:
         '''

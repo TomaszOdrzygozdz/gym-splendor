@@ -1,7 +1,7 @@
 """This file contains constants that are used in the game."""
 from gym_splendor_code.envs.mechanics.enums import *
 
-USE_TKINTER = False
+USE_TKINTER = True
 USE_FAST_ACTION_GENERATOR = True
 USE_TQDM = False
 USE_TENSORFLOW_GPU = False
