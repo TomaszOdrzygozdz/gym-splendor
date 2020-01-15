@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import gin
 
 
@@ -14,3 +16,5 @@ gin.parse_config_file('config1.gin')
 
 x = Pupu()
 print(x.a)
+
+dudek = namedtuple('wiki', )

@@ -39,20 +39,18 @@ class Vectorizer:
         return price_vec
 
     def players_hand_to_vectors(self, players_hand: PlayersHand):
-        print('DUPA')
         discount_vec = self.gems_collection_to_vector(players_hand.discount(), with_gold=False, n=15)
         gems_possessed_vec = self.gems_collection_to_vector(players_hand.gems_possessed, with_gold=True, n=5)
-        print(players_hand.gems_possessed)
-        nobles_posessed_vec = self.one_hot(len(players_hand.nobles_possessed), 3)
+        nobles_posessed_vec = self.one_hot(len(players_hand.nobles_possessed), 4)
         cards_reserved_list = []
         for card in players_hand.cards_reserved:
             cards_reserved_list.append(self.card_to_vector(card))
         cards_reserved_list = cards_reserved_list + [None]*(3 - len(cards_reserved_list))
         victory_points_vec = self.one_hot(players_hand.number_of_my_points(), 25)
 
-        return {'discount_vec': discount_vec, 'gems_possessed_vec' : gems_possessed_vec,
-                'cards_reserved_vec' : cards_reserved_list, 'victory_points_vec': victory_points_vec,
-                'nobles_posessed_vec' : nobles_posessed_vec}
+        return {'discount_vec': discount_vec, 'gems_vec' : gems_possessed_vec,
+                'cards_reserved_vec' : cards_reserved_list, 'points_vec': victory_points_vec,
+                'nobles_vec' : nobles_posessed_vec}
 
     def board_to_vectors(self, board: Board):
         gems_on_board_vec = self.gems_collection_to_vector(board.gems_on_board, with_gold=True, n=5)
@@ -80,9 +78,9 @@ class Vectorizer:
                 'board_vectors' : board_vectors}
 
 
-
 fufer = Vectorizer()
-print(fufer.observation_to_vector(DeterministicObservation(state_3)))
+x = fufer.observation_to_vector(DeterministicObservation(state_3))
+print(len(x['active_players_hand_vec']['nobles_vec']))
 
-xoxo = SplendorGUI()
-xoxo.draw_state(state_3)
+# xoxo = SplendorGUI()
+# xoxo.draw_state(state_3)

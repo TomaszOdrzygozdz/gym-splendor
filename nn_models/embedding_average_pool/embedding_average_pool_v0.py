@@ -55,8 +55,22 @@ class EmbeddingAveragePool_v0(AbstractModel):
         This method creates network with a specific architecture
         :return:
         '''
-        self.set_corrent_session()
+
+        #board input:
+        gems_on_board_input = Input(shape=(36,), name='gems_on_board')
+        cards_on_board_input_list = [Input(shape=(51,), name='card_{}th'.format(i)) for i in range(12)]
+        nobles_on_board_list = [Input(shape=(25,), name='noble_{}th'.format(i)) for i in range(3)]
+
+        #active_player:
+        active_player_discount = Input(shape=(80,), name='active_player_discount')
+        active_player_gems = Input(shape=(36,0), name='active_player_gems')
+        active_player_reserved_cards = [Input(shape=(51,0), name='active_rsv_card_{}th'.format(i)) for i in range(3)]
+        active_player_points = Input(shape = (25,), name='active_player_points')
+
+
         entries = Input(shape=(input_size,))
+
+
 
         for i, layer_size in enumerate(layers_list):
             print(layer_size)
