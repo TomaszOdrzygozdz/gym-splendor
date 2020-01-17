@@ -2,10 +2,13 @@ import tensorflow as tf
 import keras
 import numpy as np
 from keras.models import Model
-from keras.layers import Input, Embedding, Layer
+from keras.layers import Input, Embedding, Concatenate
 from keras.utils import plot_model
 
+from archive.states_list import state_3
 from nn_models.utils.named_tuples import *
+from nn_models.utils.vectorized_old import Vectorizer
+
 
 class GemsInput:
     def __init__(self):
@@ -45,24 +48,34 @@ class PriceEmbedding:
 
 class CardInput:
     def __init__(self):
-        self.inputs = [Input(shape=(1,), name='card_profit')] + PriceInput().inputs +  [Input(shape=(1,), name='points')]
+        self.inputs = [Input(shape=(1,), name='card_profit'), PriceInput().inputs, Input(shape=(1,), name='victory_points')]
     def __call__(self, card_tuple : CardTuple):
-        return [card_tuple.profit] + list(card_tuple.price) + [card_tuple.victory_points]
+        return [card_tuple.profit, [x for x in card_tuple.price], card_tuple.victory_points]
 
 class CardEmbedding:
-    def __init__(self):
+    def __init__(self, card_profit_dim=2, gem_dim=3, points_dim=3):
+
         self.inputs = CardInput().inputs
+        self.price_embedding_layer = PriceEmbedding(gem_dim).layer
+        profit_embedded = Embedding(input_dim=5, output_dim=card_profit_dim, name='card_profit')(self.inputs[0])
+        price_embedded = self.price_embedding_layer(self.inputs[1])
+        points_embedded = Embedding(input_dim=25, output_dim=points_dim, name='points')(self.inputs[2])
+        card_embedded = [profit_embedded, profit_embedded, points_embedded]
+
+        self.layer = Model(inputs = self.inputs, outputs=card_embedded, name='card_embedding')
 
 
+card = state_3.board.cards_on_board.pop()
+converter = Vectorizer()
+card_t = converter.card_to_tuple(card)
+print(card_t)
 
-dane = PriceTuple(1, 2, 3, 4, 5)
+card_input = CardInput()
+model_inputs = card_input.inputs
+card_embedding = CardEmbedding(2, 2, 2)
+card_output = card_embedding.layer(card_input.inputs)
 
-aaa = PriceInput()
-real_inputs = aaa.inputs
-bbb = PriceEmbedding(2)
-next_layer = bbb.layer(real_inputs)
-
-real_model = Model(inputs = real_inputs, outputs = next_layer, name='gems_embedder' )
+real_model = Model(inputs = card_inputs, outputs = card_output, name='gems_embedder' )
 optim = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 real_model.compile(optimizer=optim, loss='mean_squared_error')
 #wynik = real_model.predict(x = aaa(dane))

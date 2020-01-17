@@ -1,4 +1,4 @@
-class Co(keras.layers.Layer):
+class Concatenate(keras.layers.Layer):
   def __init__(self):
     super(ComputeSum, self).__init__()
 

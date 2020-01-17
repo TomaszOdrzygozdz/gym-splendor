@@ -54,7 +54,7 @@ class Vectorizer:
 
         return {'discount_vec': discount, 'gems' : gems_possessed,
                 'cards_reserved' : cards_reserved_list, 'points_vec': victory_points_vec,
-                'nobles' : nobles_posessed_vec}
+                'nobles' : nobles_posessed}
 
     def board_to_vectors(self, board: Board):
         gems_on_board_vec = self.gems_collection_to_tuple(board.gems_on_board)
