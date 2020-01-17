@@ -9,7 +9,6 @@ from archive.states_list import state_3
 from nn_models.utils.named_tuples import *
 from nn_models.utils.vectorized_old import Vectorizer
 
-
 class GemsInput:
     def __init__(self):
         self.inputs = [Input(shape=(1,), name='gem_{}'.format(color).replace('GemColor.', '')) for color in GemColor]
@@ -27,7 +26,6 @@ class GemsEmbedding:
         self.layer = Model(inputs = self.inputs, outputs = self.color_embeddings, name = 'gems_embed')
 
 ########################################################################################################################
-
 class PriceInput:
     def __init__(self):
         self.inputs = [Input(shape=(1,), name='price_{}'.format(color).replace('GemColor.', '')) for color in GemColor if
