@@ -21,8 +21,6 @@ class GemColor(Enum):
     WHITE = 4
     BLACK = 5
 
-
-
 class MoveType(Enum):
     """
     This class represents four main types of moves.
@@ -32,3 +30,4 @@ class MoveType(Enum):
     BUY_RESERVED_CARD = 1
     MODIFY_COINS = 2
     RESERVE_CARD = 3
+

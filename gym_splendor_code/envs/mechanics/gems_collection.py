@@ -131,3 +131,5 @@ class GemsCollection():
 
     def get_all_colors_on_condition(self, cond):
         return {gem_color for gem_color in GemColor if self.gems_dict[gem_color] >= cond}
+
+

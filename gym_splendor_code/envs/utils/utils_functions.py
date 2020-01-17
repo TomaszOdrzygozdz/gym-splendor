@@ -37,3 +37,12 @@ def colors_to_gems_collection(tuple_of_gems) -> GemsCollection:
     for element in tuple_of_gems:
         gems_dict[element] += 1
     return GemsCollection(gems_dict)
+
+# def gem_to_str(gem_color: GemColor):
+#     out_dict = {GemColor.RED : 'red',
+#                 GemColor.GREEN: 'green',
+#                 GemColor.BLUE: 'blue',
+#                 GemColor.WHITE: 'white',
+#                 GemColor.BLACK: 'black',
+#                 GemColor.GOLD: 'gold'}
+#     return out_dict[gem_color]

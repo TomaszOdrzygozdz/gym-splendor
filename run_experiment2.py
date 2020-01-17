@@ -1,48 +1,70 @@
-import time
-
-from mpi4py import MPI
-
-from agents.multi_process_mcts_agent import MultiMCTSAgent
-from agents.random_agent import RandomAgent
-from arena.multi_arena import MultiArena
-from monte_carlo_tree_search.rollout_policies.random_rollout import RandomRollout
-
-my_rank = MPI.COMM_WORLD.Get_rank()
-main_process = my_rank==0
-
-agent1 = RandomAgent(distribution='first_buy')
-agent1a = RandomAgent(distribution='first_buy')
-#agentG = GreedyAgentBoost()
-#agent2 = DenseNNAgent(weights_file='E:\ML_research\gym_splendor\\nn_models\weights\minmax_480_games.h5')
-#agent3 = MultiMCTSAgent(250, evaluation_policy=ValueEvaluator(), create_visualizer=True)
-agent4 = MultiMCTSAgent(5, rollout_policy=RandomRollout(distribution='first_buy'), rollout_repetition=2, create_visualizer=True)
-
-# agent5 = MultiMCTSAgent(3, 5, True)
-# agent6 = GeneralMultiProcessMCTSAgent(10, 2, True, False,
-#                                         mcts = "rollout",
-#                                         param_1 = "random",
-#                                         param_2 = "uniform")
-#agent7 = ValueNNAgent(weights_file='E:\ML_research\gym_splendor\\nn_models\weights\\value_random_rollout_960.h5')
+import tensorflow as tf
+import keras
+import numpy as np
+from keras.models import Model
+from keras.layers import Input, Dense, Embedding
+from keras.utils import plot_model
 
 
-arek = MultiArena()
-time_s = time.time()
+class ComputeSum(keras.layers.Layer):
+  def __init__(self):
+    super(ComputeSum, self).__init__()
 
-# import cProfile
-# pro = cProfile.Profile()
-
-#wyn = pro.run('arek.run_many_duels(\'deterministic\', [agent3, agent4], n_games=1, n_proc_per_agent=10)')
-#wyn.dump_stats('stat.prof')
-fuf = arek.run_many_duels('deterministic', [agent1, agent4], n_games=1, n_proc_per_agent=10)
-
-#arek.run_multi_process_self_play('deterministic', agent4, render_game=False)
-
-if main_process:
-    print(fuf)
-    print('Time = {}'.format(time.time() - time_s))
-    #data_collecting
-    # root = agent3.mcts_algorithm.original_root()
-    # data_collector = TreeDataCollector(root)
-    # data_collector.dump_data(file_name='E:\ML_research\gym_splendor\\nn_models\data\\tree_data')
+  def call(self, l):
+    return tf.math.add(l[0], l[1])
 
 
+inpA = Input(shape=(None,3), name='A')
+inpB = Input(shape=(None,4), name='B')
+fA = Dense(3, activation='relu')(inpA)
+fB = Dense(3, activation='relu')(inpB)
+
+susu = ComputeSum()([fA, fB])
+
+internal = Model(inputs=[inpA, inpB], output = susu, name='internal_model')
+optim = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+#neti.compile(optimizer=optim, loss='mean_squared_error')
+#plot_model(neti, to_file='model_archie_larp.png', show_shapes=True, show_layer_names='True')
+
+inpC = Input(shape=(2,), name='C')
+inpD = Input(shape=(2,), name='D')
+inpE = Input(shape=(2,), name='E')
+inpF = Input(shape=(2,), name='F')
+
+
+x1 = Dense(3, activation='relu')(inpC)
+x2 = Dense(4, activation='relu')(inpD)
+x3 = Dense(3, activation='relu')(inpE)
+x4 = Dense(4, activation='relu')(inpF)
+
+fuf1 = internal([x1, x2])
+fuf2 = internal([x3, x4])
+
+fuf2b = Dense(3, activation='relu', name='dupa')(fuf2)
+
+kupidynek = ComputeSum()([fuf1, fuf2b])
+
+master_model = Model(inputs = [inpC, inpD, inpE, inpF], output = kupidynek)
+master_model.compile(optimizer=optim, loss='mean_squared_error')
+plot_model(master_model, to_file='kupidynek.png')
+
+
+
+# v1 = np.array([1,1,1])
+# v2 = np.array([0,0,0,0])
+# v1 = v1.reshape(1,3)
+# v2 = v2.reshape(1,4)
+#
+# u1 = np.array([0,0,0])
+# u2 = np.array([1,2,3,4])
+# u1 = u1.reshape(1,3)
+# u2 = u2.reshape(1,4)
+#
+# # o1 = neti.predict([v1, v2])
+# # print(o1)
+# # o2 = neti.predict([u1, u2])
+# # print(o2)
+# #
+# # o3 = neti.predict([v1, u2])
+# # print(o3)
+# #

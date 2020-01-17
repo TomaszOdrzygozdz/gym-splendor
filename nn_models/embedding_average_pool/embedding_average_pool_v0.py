@@ -67,7 +67,7 @@ class EmbeddingAveragePool_v0(AbstractModel):
         active_player_reserved_cards = [Input(shape=(51,0), name='active_rsv_card_{}th'.format(i)) for i in range(3)]
         active_player_points = Input(shape = (25,), name='active_player_points')
 
-
+        #TODO: klasa model  card_encoder
         entries = Input(shape=(input_size,))
 
 
