@@ -1,7 +1,5 @@
 import numpy as np
 
-from archive.states_list import state_3
-from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.board import Board
 from gym_splendor_code.envs.mechanics.card import Card
@@ -69,17 +67,3 @@ class Vectorizer:
 
         return ObservationTuple(active_player, previous_player, board_info)
 
-#
-# carr = state_3.board.nobles_on_board.pop()
-#
-fufer = Vectorizer()
-# print(carr)
-# x = fufer.noble_to_tuple(carr)
-# print(x)
-
-x = fufer.observation_to_vector(DeterministicObservation(state_3))
-print(x)
-#print(len(x['active_players_hand_vec']['nobles_vec']))
-
-# xoxo = SplendorGUI()
-# xoxo.draw_state(state_3)

@@ -1,10 +1,15 @@
+import logging, os
+
+logging.disable(logging.WARNING)
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 import tensorflow as tf
+
 import keras
 import numpy as np
 from keras.models import Model
 from keras.layers import Input, Dense, Embedding
 from keras.utils import plot_model
-
 
 class ComputeSum(keras.layers.Layer):
   def __init__(self):
@@ -21,7 +26,7 @@ fB = Dense(3, activation='relu')(inpB)
 
 susu = ComputeSum()([fA, fB])
 
-internal = Model(inputs=[inpA, inpB], output = susu, name='internal_model')
+internal = Model(inputs=[inpA, inpB], outputs = susu, name='internal_model')
 optim = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 #neti.compile(optimizer=optim, loss='mean_squared_error')
 #plot_model(neti, to_file='model_archie_larp.png', show_shapes=True, show_layer_names='True')
@@ -44,7 +49,7 @@ fuf2b = Dense(3, activation='relu', name='dupa')(fuf2)
 
 kupidynek = ComputeSum()([fuf1, fuf2b])
 
-master_model = Model(inputs = [inpC, inpD, inpE, inpF], output = kupidynek)
+master_model = Model(inputs = [inpC, inpD, inpE, inpF], outputs = kupidynek)
 master_model.compile(optimizer=optim, loss='mean_squared_error')
 plot_model(master_model, to_file='kupidynek.png')
 
