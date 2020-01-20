@@ -1,4 +1,6 @@
 import logging, os
+from copy import deepcopy
+
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
@@ -13,6 +15,10 @@ from keras.utils import plot_model
 from archive.states_list import state_3
 from nn_models.utils.named_tuples import *
 from nn_models.utils.vectorizer import Vectorizer
+
+CARDS_ON_BOARD = 12
+NOBLES_ON_BOARD = 3
+
 
 class GemsEncoder:
     def __init__(self, output_dim):
@@ -55,44 +61,72 @@ class CardEncoder:
     def __call__(self, card_input_list):
         return self.layer(card_input_list)
 
-
 class NobleEncoder:
     def __init__(self, price_dim, dense1_dim, dense2_dim):
         self.price_encoder = PriceEncoder(output_dim=price_dim)
         self.inputs = self.price_encoder.inputs
         price_encoded = self.price_encoder.layer(self.inputs)
         price_concatenated = Concatenate(axis=-1)(price_encoded)
-
+        full_noble = Dense(dense1_dim)(price_concatenated)
+        full_noble = Dense(dense2_dim)(full_noble)
+        self.layer = Model(inputs = self.inputs, outputs = full_noble, name='noble_encoder')
+    def __call__(self, noble_input_list):
+        return self.layer(noble_input_list)
 
 class BoardEncoder:
     def __init__(self, gems_dim, profit_dim, price_dim, points_dim, dense1_dim, dense2_dim):
         self.gems_encoder = GemsEncoder(gems_dim)
+        self.noble_encoder = NobleEncoder(price_dim, dense1_dim, dense2_dim)
         self.card_encoder = CardEncoder(profit_dim, price_dim, points_dim, dense1_dim, dense2_dim)
-        self.inputs = self.gems_encoder.inputs + self.card_encoder.inputs
+        self.inputs = self.gems_encoder.inputs + self.card_encoder.inputs + self.noble_encoder.inputs
 
 
 
 
-x=2
-card_encoder = CardEncoder(1, 1, 1, 2, 2)
+
+card_encoder = CardEncoder(3, 1, 1, 1, 2, 2)
 model_inputs = [Input(batch_shape=(None, None, 1)) for _ in range(7)]
 model_outputs = card_encoder.layer(model_inputs)
 real_model = Model(inputs=model_inputs, outputs=model_outputs, name='real_model')
 optim = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 real_model.compile(optimizer=optim, loss='mean_squared_error')
 plot_model(real_model, to_file='tf2.0_real_model.png')
-card = state_3.board.cards_on_board.pop()
 
-def card_to_tensor(card_tuple: CardTuple):
+card1 = state_3.board.cards_on_board.pop()
+card2 = deepcopy(card1)
+card3 = state_3.board.cards_on_board.pop()
+
+
+# print(card1)
+# print(card2)
+# print(card3)
+
+def card_to_tensor(card: CardTuple):
+    card_tuple = Vectorizer().card_to_tuple(card)
     pre_list = [np.array(card_tuple.profit)] + [np.array(x) for x in card_tuple.price] + \
                [np.array(card_tuple.victory_points)]
     list_to_return = []
-    for x in pre_list:
-        list_to_return.append(x.reshape(1,1,1))
-    return list_to_return
+    x = np.array(pre_list).reshape(1, 1, 7)
+    return x
 
-xxx = card_to_tensor(Vectorizer().card_to_tuple(card))
+def card_list_to_tensor(ll):
+    oo = []
+    for x in ll:
+        oo.append(card_to_tensor(x))
+    oo = np.array(oo).reshape(1, len(oo), 7)
+    return np.array(oo)
 
-wyn = real_model.predict(x=xxx)
+print(card3)
+y = card_list_to_tensor([card1, card2, card3])
+print(y)
+
+wyn=real_model.predict(x=y)
 print(wyn)
 
+#
+
+# xxx = card_to_tensor(Vectorizer().card_to_tuple(card))
+#
+# wyn = real_model.predict(x=xxx)
+# print(wyn)
+#
