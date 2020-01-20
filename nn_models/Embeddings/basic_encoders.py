@@ -55,13 +55,14 @@ class CardEncoder:
     def __call__(self, card_input_list):
         return self.layer(card_input_list)
 
+
 class NobleEncoder:
     def __init__(self, price_dim, dense1_dim, dense2_dim):
         self.price_encoder = PriceEncoder(output_dim=price_dim)
         self.inputs = self.price_encoder.inputs
         price_encoded = self.price_encoder.layer(self.inputs)
         price_concatenated = Concatenate(axis=-1)(price_encoded)
-        
+
 
 class BoardEncoder:
     def __init__(self, gems_dim, profit_dim, price_dim, points_dim, dense1_dim, dense2_dim):
@@ -72,7 +73,7 @@ class BoardEncoder:
 
 
 
-
+x=2
 card_encoder = CardEncoder(1, 1, 1, 2, 2)
 model_inputs = [Input(batch_shape=(None, None, 1)) for _ in range(7)]
 model_outputs = card_encoder.layer(model_inputs)
