@@ -1,9 +1,9 @@
 import logging, os
+from _ast import Lambda
 from copy import deepcopy
 
 from gym_splendor_code.envs.mechanics.game_settings import MAX_CARDS_ON_BORD, MAX_RESERVED_CARDS, \
     NOBLES_ON_BOARD_INITIAL
-from nn_models.utils.own_keras_layers import CardInputSplit
 
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -45,38 +45,24 @@ class PriceEncoder:
         return self.layer(list_of_gems)
 
 class ManyCardEncoder:
-    def __init__(self, profit_dim, price_dim, points_dim, dense1_dim, dense2_dim,  max_points=25):
+    def __init__(self, seq_dim, profit_dim, price_dim, points_dim, dense1_dim, dense2_dim,  max_points=25):
         self.price_encoder = PriceEncoder(output_dim=price_dim)
-        self.inputs = [Input(batch_shape=(None, MAX_CARDS_ON_BORD), name='{}'.format(x)) for x in CardTuple._fields]
+        self.inputs = [Input(batch_shape=(None, seq_dim, 1), name='{}'.format(x)) for x in CardTuple._fields]
         profit_embedded = Embedding(input_dim=5, output_dim=profit_dim, name='profit_embedd')(self.inputs[0])
         price_encoded = self.price_encoder.layer(self.inputs[1:-1])
         price_concatenated = Concatenate(axis=-1)(price_encoded)
         points_embedded = Embedding(input_dim=max_points, output_dim=points_dim, name='points_embedd')(self.inputs[6])
-        full_card = Concatenate(axis=-1)([profit_embedded, price_concatenated, points_embedded])
-        full_card  = Dense(units=dense1_dim)(full_card)
-        full_card = Dense(units=dense2_dim)(full_card)
-        self.layer = Model(inputs = self.inputs, outputs = profit_embedded, name = 'card_encoder')
-
+        full_cards = Concatenate(axis=-1)([profit_embedded, price_concatenated, points_embedded])
+        full_cards  = Dense(units=dense1_dim)(full_cards)
+        full_cards = Dense(units=dense2_dim)(full_cards)
+        self.layer = Model(inputs = self.inputs, outputs = full_cards, name = 'card_encoder')
     def __call__(self, card_input_list):
         return self.layer(card_input_list)
 
-bub = ManyCardEncoder(10, 20, 30, 50, 70)
-optim = Adam()
-bub.layer.compile(optim, 'mean_squared_error')
-
-xoxo = Vectorizer().board_to_input(state_3.board)[6:13]
-new_xoxo = []
-for uu in xoxo:
-    new_xoxo.append(np.array(uu).reshape(1,12))
-    print(new_xoxo[-1].shape)
-#print(new_xoxo)
-wyn = bub.layer.predict(x = new_xoxo)
-print(wyn.shape)
-
-class NobleEncoder:
-    def __init__(self, price_dim, dense1_dim, dense2_dim):
+class ManyNobleEncoder:
+    def __init__(self,price_dim, dense1_dim, dense2_dim):
         self.price_encoder = PriceEncoder(output_dim=price_dim)
-        self.inputs = self.price_encoder.inputs
+        self.inputs = [Input(batch_shape=(None, NOBLES_ON_BOARD_INITIAL, 1), name=x) for x in PriceTuple._fields]
         price_encoded = self.price_encoder.layer(self.inputs)
         price_concatenated = Concatenate(axis=-1)(price_encoded)
         full_noble = Dense(dense1_dim)(price_concatenated)
@@ -85,25 +71,34 @@ class NobleEncoder:
     def __call__(self, noble_input_list):
         return self.layer(noble_input_list)
 
-# class BoardEncoder:
-#     def __init__(self, gems_dim, profit_dim, price_dim, points_dim, dense1_dim, dense2_dim):
-#         self.gems_encoder = GemsEncoder(gems_dim)
-#         self.noble_encoder = NobleEncoder(price_dim, dense1_dim, dense2_dim)
-#         self.card_encoder = CardEncoder(profit_dim, price_dim, points_dim, dense1_dim, dense2_dim)
-#         self.inputs = self.gems_encoder.inputs + [Input(batch_shape=(None, 12, 1), name=x) for x in CardTuple._fields] \
-#                       + [Input(batch_shape=(None, 3, 1), name = x) for x in NobleTuple._fields]
-#         gems_input = self.inputs[0:6]
-#         cards_input = tuple(self.inputs[6:13])
-#         nobles_input = self.inputs[12:16]
-#         cards_mask = self.inputs[16]
-#         nobles_mask = self.inputs[17]
-#         cards_encoded = TimeDistributed(self.card_encoder.layer, input_shape=(12, 1))(cards_input)]
+class BoardEncoder:
+    def __init__(self, gems_dim, profit_dim, price_dim, points_dim, dense1_dim, dense2_dim):
+        self.gems_encoder = GemsEncoder(gems_dim)
+        self.card_encoder = ManyCardEncoder(MAX_CARDS_ON_BORD, profit_dim, price_dim, points_dim, dense1_dim, dense2_dim)
+        self.noble_encoder = ManyNobleEncoder(price_dim, dense1_dim, dense2_dim)
+        self.inputs = self.gems_encoder.inputs + [Input(batch_shape=(None, MAX_CARDS_ON_BORD, 1), name='card_{}'.format(x)) for x in CardTuple._fields] \
+                      + [Input(batch_shape=(None, NOBLES_ON_BOARD_INITIAL, 1), name = 'noble_{}'.format(x)) for x in NobleTuple._fields] #+ \
+                      #[Input(batch_shape=(None, 12), name='cards_mask'), Input(batch_shape=(None, 3), name='nobles_mask')]
+        gems_input = self.inputs[0:6]
+        cards_input = self.inputs[6:13]
+        nobles_input = self.inputs[13:18]
+        gems_list = self.gems_encoder(gems_input)
+        gems_concatenated = Concatenate(axis=-1)(gems_list)
+        cards_encoded = self.card_encoder(cards_input)
+        cards_reduced = ReduceSequence(cards_encoded)
+        nobles_encoded = self.noble_encoder(nobles_input)
+        nobles_reduced = ReduceSequence(nobles_encoded)
+        full_board = Concatenate(axis=-1)([gems_concatenated, nobles_reduced, cards_reduced])
+        # cards_mask = self.inputs[18]
+        # nobles_mask = self.inputs[19]
+        self.layer = Model(inputs = self.inputs, outputs = full_board, name='board_encoder')
 #
-#         self.layer = Model(inputs = self.inputs, outputs = cards_encoded, name='board_encoder')
-#
-#
-# bubu = BoardEncoder(2, 2, 2, 2, 10, 11)
-# plot_model(bubu.layer, to_file='bubu.png')
+
+
+bubu = BoardEncoder(1, 2, 2, 2, 10, 11)
+plot_model(bubu.layer, to_file='bubu.png', show_shapes=True)
+#wyn = bub.layer.predict(x=yuyu[:-2])
+#print(wyn)
 #
 # card_encoder = CardEncoder(3, 1, 1, 1, 32, 2)
 # # model_inputs = Input(batch_shape=(None, 1))
@@ -126,3 +121,4 @@ class NobleEncoder:
 #         full_card  = Dense(units=dense1_dim)(full_card)
 #         full_card = Dense(units=dense2_dim)(full_card)
 #         self.layer = Model(inputs = self.inputs, outputs = full_card, name = 'card_encoder')
+

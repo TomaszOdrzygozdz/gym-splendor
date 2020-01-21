@@ -15,6 +15,18 @@ class Vectorizer:
     def __init__(self):
         pass
 
+    def to_tensors(self, board_tuple : BoardTuple):
+        list_of_tensors = []
+        for i in range(6):
+            list_of_tensors.append(np.array(board_tuple[i]))
+        for i in range(6, 13):
+            list_of_tensors.append(np.array(board_tuple[i]).reshape(12, 1))
+        for i in range(13, 18):
+            list_of_tensors.append(np.array(board_tuple[i]).reshape(3, 1))
+        list_of_tensors.append(np.array(board_tuple[18]).reshape(12, 1))
+        list_of_tensors.append(np.array(board_tuple[19]).reshape(3, 1))
+        return list_of_tensors
+
     def append_tuples(self, old_tuple, new_tuples_list, seq_len):
         mask = []
         for new_tuple in new_tuples_list:
@@ -52,12 +64,8 @@ class Vectorizer:
         nobles_mask = self.append_tuples(nobles_on_board, [self.noble_to_input(noble) for noble in board.nobles_on_board], 3)
         list_of_args = list(self.gems_to_input(board.gems_on_board)) + list(cards_on_board) + list(nobles_on_board) + \
                        [cards_mask] + [nobles_mask]
-        print(list_of_args)
-
         return BoardTuple(*list_of_args)
 
-bb = state_3.board
-print(Vectorizer().board_to_input(bb))
 
     # def players_hand_to_vectors(self, players_hand: PlayersHand):
     #     discount = self.price_to_tuple(players_hand.discount())
