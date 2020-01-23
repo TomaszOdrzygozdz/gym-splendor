@@ -108,16 +108,21 @@ class BoardEncoder:
 #                          + tuple_to_str(CardTuple._fields, 'res_cards_') + ' points nobles')
 #
 class PlayerEncoder:
-    def __init__(self, gems_encoder : GemsEncoder, cards_encoder: ManyCardsEncoder):
-        self.inputs = [Input(batch_shape=(None, 1), name='pl_gems_{}'.format(color).replace('GemColor.', '')) for color in GemColor] \
-                      + [Input(batch_shape=(None, MAX_RESERVED_CARDS), name='res_card_{}'.format(x)) for x in CardTuple._fields] + \
-                      [Input(batch_shape=(None, 1), name='player_points'), Input(batch_shape=(None, 1), name='player_nobles')]
-        gems_input = self.inputs[0:6]
-        cards_input = self.inputs[6:13]
-        points_input = self.inputs[13]
-        nobles = self.inputs[14]
+    def __init__(self, gems_encoder : GemsEncoder, reserved_cards_encoder: ManyCardsEncoder):
+
+        gems_input = [Input(batch_shape=(None, 1), name='pl_gems_{}'.format(color).replace('GemColor.', '')) for color in GemColor]
+        reserved_cards_input = [Input(batch_shape=(None, MAX_RESERVED_CARDS), name='res_card_{}'.format(x)) for x in CardTuple._fields]
+        points_input = [Input(batch_shape=(None, 1), name='player_points')]
+        nobles_input = [Input(batch_shape=(None, 1), name='player_nobles')]
+        reserved_cards_mask_input = [Input(batch_shape=(None, MAX_RESERVED_CARDS), name='reserved_cards_mask')]
+
+        self.inputs =  gems_input +
+                      +  + \
+                      [Input(batch_shape=(None, 1), name='player_points'), Input(batch_shape=(None, 1), name='player_nobles')] + \
+                      [Input(batch_shape=(None, MAX_RESERVED_CARDS), name='reserved_cards_mask')]
+
         gems_encoded = gems_encoder(gems_input)
-        # reserved_cards_encoded = cards_encoder()
+        reserved_cards_encoded = cards_encoder()
 
 
 
@@ -158,3 +163,6 @@ print(wyn)
 #         full_card = Dense(units=dense2_dim)(full_card)
 #         self.layer = Model(inputs = self.inputs, outputs = full_card, name = 'card_encoder')
 
+
+#male embedding 32
+#densy 128

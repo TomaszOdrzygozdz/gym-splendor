@@ -16,6 +16,7 @@ import keras.backend as K
 def card_noble_mask(inputs):
   cards = inputs[0]
   mask = inputs[1]
+
   dotted = K.batch_dot(cards, mask, axes=[-2, -1])
   mask_sum = K.sum(mask, axis=-1)
   results = tf.math.divide(dotted, mask_sum)
