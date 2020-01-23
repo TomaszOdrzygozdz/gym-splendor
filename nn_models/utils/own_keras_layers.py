@@ -1,10 +1,11 @@
-import logging, os
-logging.disable(logging.WARNING)
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+# import logging, os
+# logging.disable(logging.WARNING)
+# os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import tensorflow as tf
 import numpy as np
 from keras import Input, Model
+
 
 from keras.layers import Layer, Lambda, Dense
 #from tensorflow_core.python.ops.gen_array_ops import split
@@ -12,33 +13,42 @@ from keras.optimizers import Adam
 from keras.utils import plot_model
 import keras.backend as K
 
-def card_mask(inputs):
+def card_noble_mask(inputs):
   cards = inputs[0]
   mask = inputs[1]
   dotted = K.batch_dot(cards, mask, axes=[-2, -1])
   mask_sum = K.sum(mask, axis=-1)
   results = tf.math.divide(dotted, mask_sum)
   return results
-  # result = K.batch_dot(dotted, mask_sum, axes=[-3, -1])
-  #
 
-CardMasking = Lambda(card_mask)
+def tensor_squeeze(inputs):
+  result = tf.squeeze(inputs, axis=1)
+  return result
 
-x_in = np.array([[[1, 2, 3], [-1, -2, 6], [-1, -2, 9]]])
-y_in = np.array([1, 1, 1]).reshape(1,3)
-print(y_in.shape)
-
-imp = [Input(batch_shape=(None, None, 3)), Input(batch_shape=(None, None))]
-wyn = CardMasking(imp)
-
-fufer = Model(inputs = imp, outputs = wyn)
-fufer.compile(Adam(), 'mean_squared_error')
-
-print('x = {}'.format(x_in))
-print('scalars =  {}'.format(y_in))
-wyn = fufer.predict(x=[x_in, y_in])
-print('************')
-print(wyn)
+CardNobleMasking = Lambda(card_noble_mask)
+TensorSqueeze = Lambda(tensor_squeeze)
+#
+# x_in = np.array([[[1, 2, 3], [-1, -2, 6], [-1, -2, 9]]])
+# y_in = np.array([1, 1, 1]).reshape(1,3)
+# print(y_in.shape)
+#
+# imp = Input(batch_shape=(None, 1, 3))
+# dd = TensorSqueeze(imp)
+# ee = Dense(3)(dd)
+# #
+# fufer = Model(inputs = imp, outputs = ee)
+# fufer.compile(Adam(), 'mean_squared_error')
+#
+# xx = np.array([[1, 2, 3]]).reshape(1, 1, 3)
+# print(xx.shape)
+# wyn = fufer.predict(xx)
+# print(wyn.shape)
+#
+# print('x = {}'.format(x_in))
+# print('scalars =  {}'.format(y_in))
+# wyn = fufer.predict(x=[x_in, y_in])
+# print('************')
+# print(wyn)
 
 # x1 = Input(batch_shape=(None, 3, 4))
 # x2 = ReduceSequence(x1)

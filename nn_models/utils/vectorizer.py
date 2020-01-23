@@ -15,16 +15,17 @@ class Vectorizer:
     def __init__(self):
         pass
 
-    def to_tensors(self, board_tuple : BoardTuple):
+    def board_to_tensors(self, board: Board):
+        board_tuple = self.board_to_input(board)
         list_of_tensors = []
         for i in range(6):
-            list_of_tensors.append(np.array(board_tuple[i]))
+            list_of_tensors.append(np.array(board_tuple[i]).reshape(1,1))
         for i in range(6, 13):
-            list_of_tensors.append(np.array(board_tuple[i]).reshape(12, 1))
+            list_of_tensors.append(np.array(board_tuple[i]).reshape(1,12))
         for i in range(13, 18):
-            list_of_tensors.append(np.array(board_tuple[i]).reshape(3, 1))
-        list_of_tensors.append(np.array(board_tuple[18]).reshape(12, 1))
-        list_of_tensors.append(np.array(board_tuple[19]).reshape(3, 1))
+            list_of_tensors.append(np.array(board_tuple[i]).reshape(1,3))
+        list_of_tensors.append(np.array(board_tuple[18]).reshape(1,12))
+        list_of_tensors.append(np.array(board_tuple[19]).reshape(1, 3))
         return list_of_tensors
 
     def append_tuples(self, old_tuple, new_tuples_list, seq_len):
