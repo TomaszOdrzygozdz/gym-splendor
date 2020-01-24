@@ -28,6 +28,9 @@ class Vectorizer:
         list_of_tensors.append(np.array(board_tuple[19]).reshape(1, 3))
         return list_of_tensors
 
+    # def player_to_tensor(self, players_hans: PlayersHand):
+    #     player
+
     def append_tuples(self, old_tuple, new_tuples_list, seq_len):
         mask = []
         for new_tuple in new_tuples_list:
@@ -63,22 +66,39 @@ class Vectorizer:
         nobles_on_board = NobleTuple([], [], [], [], [])
         cards_mask = self.append_tuples(cards_on_board, [self.card_to_input(card) for card in board.cards_on_board], 12)
         nobles_mask = self.append_tuples(nobles_on_board, [self.noble_to_input(noble) for noble in board.nobles_on_board], 3)
-        list_of_args = list(self.gems_to_input(board.gems_on_board)) + list(cards_on_board) + list(nobles_on_board) + \
-                       [cards_mask] + [nobles_mask]
-        return BoardTuple(*list_of_args)
+        list_of_tensors = []
+        for x in self.gems_to_input(board.gems_on_board):
+            list_of_tensors.append(np.array(x).reshape(1, 1))
+        for x in cards_on_board:
+            list_of_tensors.append(np.array(x).reshape(1,12))
+        for x in nobles_on_board:
+            list_of_tensors.append(np.array(x).reshape(1,3))
+        list_of_tensors.append(np.array(cards_mask).reshape(1,12))
+        list_of_tensors.append(np.array(nobles_mask).reshape(1, 3))
 
+        #list_of_args = list(self.gems_to_input(board.gems_on_board)) + list(cards_on_board) + list(nobles_on_board) + \
+          #             [cards_mask] + [nobles_mask]
+        #return BoardTuple(*list_of_args)
+        return list_of_tensors
 
-    # def players_hand_to_vectors(self, players_hand: PlayersHand):
-    #     discount = self.price_to_tuple(players_hand.discount())
-    #     gems_possessed = self.gems_collection_to_tuple(players_hand.gems_possessed)
-    #     nobles_posessed = self.one_hot(len(players_hand.nobles_possessed), 4)
-    #     cards_reserved_list = []
-    #     for card in players_hand.cards_reserved:
-    #         cards_reserved_list.append(self.card_to_tuple(card))
-    #     cards_reserved_list = cards_reserved_list + [None]*(3 - len(cards_reserved_list))
-    #     victory_points = players_hand.number_of_my_points()
-    #     return PlayerTuple(discount, gems_possessed, cards_reserved_list, victory_points, nobles_posessed)
+    def players_hand_to_input(self, players_hand: PlayersHand):
+        reserved_cards_list = CardTuple([], [], [], [], [], [], [])
+        reserved_cards_mask = self.append_tuples(reserved_cards_list, [self.card_to_input(card) for card in players_hand.cards_reserved], 3)
+        victory_points = players_hand.number_of_my_points()
+        list_of_tensors = []
+        for x in self.gems_to_input(players_hand.gems_possessed):
+            list_of_tensors.append(np.array(x).reshape(1, 1))
+        for x in self.price_to_input(players_hand.discount()):
+            list_of_tensors.append(np.array(x).reshape(1,1))
+        for x in reserved_cards_list:
+            list_of_tensors.append(np.array(x).reshape(1,3))
+        list_of_tensors.append(np.array([players_hand.number_of_my_points()]).reshape(1,1))
+        list_of_tensors.append(np.array([len(players_hand.nobles_possessed)]).reshape(1, 1))
+        list_of_tensors.append(np.array(reserved_cards_mask).reshape(1, 3))
+        
+        return list_of_tensors
     #
+
 
     #
     #     return BoardTuple(gems_on_board, cards_on_board_list, nobles_on_board_list)

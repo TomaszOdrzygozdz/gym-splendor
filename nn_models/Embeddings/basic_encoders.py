@@ -133,21 +133,35 @@ class PlayerEncoder:
     def __call__(self, player_input):
         return self.layer(player_input)
 #
-# class StateEncoder:
-#     def __init__(self, gems_dim):
-#         self.gems_encoder = GemsEncoder(gems_dim)
+#class StateEncoder:
+#    def __init__(self, gems_dim):
+        #board_inputs
+        # self.gems_encoder = GemsEncoder()
+        # self.board_encoder = BoardEncoder()
+        # board_inputs =
+        #
 
 
-xuxu = PlayerEncoder(GemsEncoder(2), PriceEncoder(3), ManyCardsEncoder(3, 2, 3, 4, 5, 6), 3, 3, 3, 3)
-plot_model(xuxu.layer, to_file='player_encoder.png')
+
+pupu = PlayerEncoder(GemsEncoder(2), PriceEncoder(3), ManyCardsEncoder(3, 2, 3, 4, 5, 6), 3, 3, 3, 3)
+pupu.layer.compile(Adam(), 'mean_squared_error')
+xxx = Vectorizer().players_hand_to_input(state_3.active_players_hand())
+wyn = pupu.layer.predict(x = xxx)
+print(wyn)
+#plot_model(xuxu.layer, to_file='player_encoder.png')
+
+
+
 
 # bubu = BoardEncoder(GemsEncoder(3), ManyNoblesEncoder(2, 2, 2), ManyCardsEncoder(12, 2, 2, 2, 2, 2), 17, 13)
 # bubu.layer.compile(Adam(), 'mean_squared_error')
 # plot_model(bubu.layer, to_file='bubu.png', show_shapes=True)
-# xxx = Vectorizer().board_to_tensors(state_3.board)
-# for susu in xxx:
-#     print(susu.shape)
-# wyn = bubu.layer.predict(x=xxx)
+# xxx1 = Vectorizer().board_to_input(state_3.board)
+# xxx2 = Vectorizer().board_to_input(state_3.board)
+#
+# # for susu in xxx:
+# #     print(susu.shape)
+# wyn = bubu.layer.predict(x=xxx3)
 # print(wyn)
 #
 # card_encoder = CardEncoder(3, 1, 1, 1, 32, 2)
