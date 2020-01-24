@@ -95,7 +95,7 @@ class Vectorizer:
         list_of_tensors.append(np.array([players_hand.number_of_my_points()]).reshape(1,1))
         list_of_tensors.append(np.array([len(players_hand.nobles_possessed)]).reshape(1, 1))
         list_of_tensors.append(np.array(reserved_cards_mask).reshape(1, 3))
-        
+
         return list_of_tensors
     #
 
