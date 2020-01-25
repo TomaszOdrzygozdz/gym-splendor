@@ -133,13 +133,52 @@ class PlayerEncoder:
     def __call__(self, player_input):
         return self.layer(player_input)
 #
-#class StateEncoder:
-#    def __init__(self, gems_dim):
-        #board_inputs
-        # self.gems_encoder = GemsEncoder()
-        # self.board_encoder = BoardEncoder()
-        # board_inputs =
-        #
+class StateEncoder:
+   def __init__(self,
+                gems_encoder_dim : int,
+                price_encoder_dim : int,
+                profit_encoder_dim : int,
+                cards_points_dim: int,
+                board_nobles_dense1_dim : int,
+                board_nobles_dense2_dim : int,
+                board_cards_dense1_dim: int,
+                board_cards_dense2_dim: int,
+                full_board_dense1_dim: int,
+                full_board_dense2_dim: int,
+                player_points_dim: int,
+                player_nobles_dim: int,
+                full_player_dense1_dim: int,
+                full_player_dense2_dim: int
+                ):
+        self.gems_encoder = GemsEncoder(gems_encoder_dim)
+        self.price_encoder = PriceEncoder(price_encoder_dim)
+        self.board_encoder = BoardEncoder(self.gems_encoder,
+                                          ManyNoblesEncoder(price_encoder_dim,
+                                                            board_nobles_dense1_dim,
+                                                            board_nobles_dense2_dim),
+                                          ManyCardsEncoder(MAX_CARDS_ON_BORD,
+                                                           profit_encoder_dim,
+                                                           price_encoder_dim,
+                                                           cards_points_dim,
+                                                           board_cards_dense1_dim,
+                                                           board_cards_dense2_dim
+                                                           ),
+                                          full_board_dense1_dim,
+                                          full_board_dense2_dim)
+        self.player_encoder = PlayerEncoder(self.gems_encoder,
+                                            self.price_encoder,
+                                            ManyCardsEncoder(MAX_RESERVED_CARDS,
+                                                             profit_encoder_dim,
+                                                             price_encoder_dim,
+                                                             cards_points_dim,
+                                                             ),
+                                            player_points_dim,
+                                            player_nobles_dim,
+                                            full_player_dense1_dim,
+                                            full_player_dense2_dim)
+
+        board_inputs =
+
 
 
 
