@@ -1,3 +1,4 @@
+import gin
 import logging, os
 
 from gym_splendor_code.envs.mechanics.game_settings import MAX_RESERVED_CARDS, \
@@ -7,15 +8,9 @@ from nn_models.utils.useful_keras_layers import CardNobleMasking, TensorSqueeze
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-from keras.optimizers import Adam
 from keras.models import Model
 from keras.layers import Input, Embedding, Concatenate, Dense
-from keras.utils import plot_model
-
-
-from archive.states_list import state_3, state_1
 from nn_models.utils.named_tuples import *
-from nn_models.utils.vectorizer import Vectorizer
 
 class GemsEncoder:
     def __init__(self, output_dim):
@@ -96,9 +91,6 @@ class BoardEncoder:
     def __call__(self, board_tensor):
         return self.layer(board_tensor)
 
-# PlayerTuple = namedtuple('player',  tuple_to_str(GemsTuple._fields, 'player_gems_')
-#                          + tuple_to_str(CardTuple._fields, 'res_cards_') + ' points nobles')
-#
 
 class PlayersInputGenerator:
     def __init__(self, prefix):
@@ -144,23 +136,24 @@ class PlayerEncoder:
 
     def __call__(self, player_input):
         return self.layer(player_input)
-#
+
+@gin.configurable
 class StateEvaluator:
    def __init__(self,
-                gems_encoder_dim : int,
-                price_encoder_dim : int,
-                profit_encoder_dim : int,
-                cards_points_dim: int,
-                cards_dense1_dim: int,
-                cards_dense2_dim: int,
-                board_nobles_dense1_dim : int,
-                board_nobles_dense2_dim : int,
-                full_board_dense1_dim: int,
-                full_board_dense2_dim: int,
-                player_points_dim: int,
-                player_nobles_dim: int,
-                full_player_dense1_dim: int,
-                full_player_dense2_dim: int
+                gems_encoder_dim : int = None,
+                price_encoder_dim : int = None,
+                profit_encoder_dim : int = None,
+                cards_points_dim: int = None,
+                cards_dense1_dim: int = None,
+                cards_dense2_dim: int = None,
+                board_nobles_dense1_dim : int = None,
+                board_nobles_dense2_dim : int = None,
+                full_board_dense1_dim: int = None,
+                full_board_dense2_dim: int = None,
+                player_points_dim: int = None,
+                player_nobles_dim: int = None,
+                full_player_dense1_dim: int = None,
+                full_player_dense2_dim: int = None
                 ):
        self.gems_encoder = GemsEncoder(gems_encoder_dim)
        self.price_encoder = PriceEncoder(price_encoder_dim)
@@ -201,13 +194,4 @@ class StateEvaluator:
        full_state = Dense(full_player_dense1_dim, activation='relu')(full_state)
        full_state = Dense(full_player_dense2_dim, activation='relu')(full_state)
        final_result = Dense(1, activation='tanh')(full_state)
-
-       self.layer = Model(inputs = self.inputs, outputs = final_result, name = 'full_state_splendor_estimator')
-
-fullik = StateEvaluator(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
-fullik.layer.compile(Adam(), 'mean_squared_error')
-plot_model(fullik.layer, to_file='fullik.png')
-xxx = Vectorizer().many_states_to_input([state_3, state_1, state_1, state_3])
-wyn =  fullik.layer.predict(xxx, batch_size=1)
-#print(len(xxx))
-print(wyn)
+       self.network = Model(inputs = self.inputs, outputs = final_result, name = 'full_state_splendor_estimator')

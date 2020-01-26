@@ -3,7 +3,7 @@ import os
 import io
 import pandas as pd
 
-from nn_models.dense_models.value_dense_model_v0 import ValueDenseModel
+from archive.dense_models.value_dense_model_v0 import ValueDenseModel
 
 
 
@@ -21,7 +21,7 @@ class ValueSupervisedTrainer:
         stream.close()
         return summary_string
 
-    def merge_data(self, folder_path = 'states_train_data', subset=None,  output = None):
+    def merge_data(self, folder_path = 'raw_value_data', subset=None,  output = None):
 
         list_of_files = os.listdir(folder_path)
         chosen_files = [os.path.join(folder_path, file) for file in list_of_files if 'judged' in file]

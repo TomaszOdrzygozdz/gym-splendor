@@ -1,4 +1,4 @@
-"""Tests for alpacka.trainers.supervised."""
+"""Tests for alpacka.training_data.supervised."""
 
 import collections
 

@@ -1,7 +1,7 @@
 from gym_splendor_code.envs.mechanics.state import State
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
-from nn_models.dense_models.value_dense_model_v0 import ValueDenseModel
+from archive.dense_models.value_dense_model_v0 import ValueDenseModel
 
 
 class ValueEvaluator(EvaluationPolicy):

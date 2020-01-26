@@ -1,4 +1,4 @@
-"""Neural network trainers."""
+"""Neural network training_data."""
 
 import gin
 
@@ -7,11 +7,11 @@ from alpacka.trainers import supervised
 from alpacka.trainers.base import Trainer
 
 
-# Configure trainers in this module to ensure they're accessible via the
-# alpacka.trainers.* namespace.
+# Configure training_data in this module to ensure they're accessible via the
+# alpacka.training_data.* namespace.
 def configure_trainer(trainer_class):
     return gin.external_configurable(
-        trainer_class, module='alpacka.trainers'
+        trainer_class, module='alpacka.training_data'
     )
 
 

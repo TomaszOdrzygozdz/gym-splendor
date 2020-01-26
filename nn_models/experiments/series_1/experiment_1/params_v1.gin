@@ -1,0 +1,14 @@
+StateEvaluator.gems_encoder_dim = 5
+StateEvaluator.price_encoder_dim = 5
+StateEvaluator.profit_encoder_dim = 5
+StateEvaluator.cards_points_dim = 5
+StateEvaluator.cards_dense1_dim = 5
+StateEvaluator.cards_dense2_dim = 5
+StateEvaluator.board_nobles_dense1_dim = 5
+StateEvaluator.board_nobles_dense2_dim = 5
+StateEvaluator.full_board_dense1_dim = 5
+StateEvaluator.full_board_dense2_dim = 5
+StateEvaluator.player_points_dim = 5
+StateEvaluator.player_nobles_dim = 5
+StateEvaluator.full_player_dense1_dim = 5
+StateEvaluator.full_player_dense2_dim = 5

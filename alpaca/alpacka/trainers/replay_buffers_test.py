@@ -1,4 +1,4 @@
-"""Tests for alpacka.trainers.replay_buffers."""
+"""Tests for alpacka.training_data.replay_buffers."""
 
 import collections
 

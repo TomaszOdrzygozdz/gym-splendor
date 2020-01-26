@@ -1,8 +1,8 @@
-"""Base class for trainers."""
+"""Base class for training_data."""
 
 
 class Trainer:
-    """Base class for trainers.
+    """Base class for training_data.
 
     Trainer is something that can train a neural network using data from memory.
     In the most basic setup, it just samples data from a replay buffer. By
