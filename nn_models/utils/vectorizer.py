@@ -1,10 +1,8 @@
 import numpy as np
 
 from archive.states_list import state_3
-from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from gym_splendor_code.envs.mechanics.board import Board
-from gym_splendor_code.envs.mechanics.card import Card
-from gym_splendor_code.envs.mechanics.enums import GemColor
+from typing import List
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 from gym_splendor_code.envs.mechanics.players_hand import PlayersHand
 from gym_splendor_code.envs.mechanics.state import State
@@ -31,7 +29,7 @@ class Vectorizer:
     # def player_to_tensor(self, players_hans: PlayersHand):
     #     player
 
-    def append_tuples(self, old_tuple, new_tuples_list, seq_len):
+    def append_tuples(self, old_tuple, new_tuples_list, seq_len, false_elem):
         mask = []
         for new_tuple in new_tuples_list:
             for i in range(len(old_tuple._fields)):
@@ -40,8 +38,10 @@ class Vectorizer:
         if len(new_tuples_list) < seq_len:
             for _ in range(seq_len - len(new_tuples_list)):
                 for i in range(len(old_tuple._fields)):
-                    old_tuple[i].append(new_tuples_list[-1][i])
-            mask.append(0)
+                    old_tuple[i].append(false_elem[i])
+                mask.append(0)
+        if len(new_tuples_list) == 0:
+            mask = [1]*seq_len
         return mask
 
     def price_to_input(self, gems_collection : GemsCollection):
@@ -64,8 +64,8 @@ class Vectorizer:
     def board_to_input(self, board: Board):
         cards_on_board = CardTuple([], [], [], [], [], [], [])
         nobles_on_board = NobleTuple([], [], [], [], [])
-        cards_mask = self.append_tuples(cards_on_board, [self.card_to_input(card) for card in board.cards_on_board], 12)
-        nobles_mask = self.append_tuples(nobles_on_board, [self.noble_to_input(noble) for noble in board.nobles_on_board], 3)
+        cards_mask = self.append_tuples(cards_on_board, [self.card_to_input(card) for card in board.cards_on_board], 12, FALSE_CARD)
+        nobles_mask = self.append_tuples(nobles_on_board, [self.noble_to_input(noble) for noble in board.nobles_on_board], 3, FALSE_NOBLE)
         list_of_tensors = []
         for x in self.gems_to_input(board.gems_on_board):
             list_of_tensors.append(np.array(x).reshape(1, 1))
@@ -83,7 +83,7 @@ class Vectorizer:
 
     def players_hand_to_input(self, players_hand: PlayersHand):
         reserved_cards_list = CardTuple([], [], [], [], [], [], [])
-        reserved_cards_mask = self.append_tuples(reserved_cards_list, [self.card_to_input(card) for card in players_hand.cards_reserved], 3)
+        reserved_cards_mask = self.append_tuples(reserved_cards_list, [self.card_to_input(card) for card in players_hand.cards_reserved], 3, FALSE_CARD)
         victory_points = players_hand.number_of_my_points()
         list_of_tensors = []
         for x in self.gems_to_input(players_hand.gems_possessed):
@@ -97,9 +97,29 @@ class Vectorizer:
         list_of_tensors.append(np.array(reserved_cards_mask).reshape(1, 3))
 
         return list_of_tensors
-    #
+
+    def state_to_input(self, state: State):
+        return self.board_to_input(state.board) + self.players_hand_to_input(state.active_players_hand()) + \
+               self.players_hand_to_input(state.previous_players_hand())
+
+    def many_states_to_input(self, list_of_states: List[State]):
+        input_len = 62
+        output_list = [[] for _ in range(input_len)]
+        for state in list_of_states:
+            state_transfored = self.state_to_input(state)
+            for i in range(input_len):
+                output_list[i].append(state_transfored[i])
+
+        output_list_of_tensors = []
+        for i in range(input_len):
+            concatated = np.concatenate(output_list[i], axis=0)
+            output_list_of_tensors.append(concatated)
+
+        return output_list_of_tensors
 
 
+# xxx = Vectorizer().many_states_to_input([state_3, state_3])
+# print(xxx[8].shape)
     #
     #     return BoardTuple(gems_on_board, cards_on_board_list, nobles_on_board_list)
     #

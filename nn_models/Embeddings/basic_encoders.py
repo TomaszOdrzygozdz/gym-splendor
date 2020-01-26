@@ -1,23 +1,19 @@
 import logging, os
-from _ast import Lambda
-from copy import deepcopy
 
-from gym_splendor_code.envs.mechanics.game_settings import MAX_CARDS_ON_BORD, MAX_RESERVED_CARDS, \
+from gym_splendor_code.envs.mechanics.game_settings import MAX_RESERVED_CARDS, \
     NOBLES_ON_BOARD_INITIAL
-from nn_models.utils.own_keras_layers import CardNobleMasking, TensorSqueeze
+from nn_models.utils.useful_keras_layers import CardNobleMasking, TensorSqueeze
 
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-import tensorflow as tf
-import keras
-import numpy as np
+
 from keras.optimizers import Adam
 from keras.models import Model
-from keras.layers import Input, Embedding, Concatenate, Dense, Layer
+from keras.layers import Input, Embedding, Concatenate, Dense
 from keras.utils import plot_model
 
 
-from archive.states_list import state_3
+from archive.states_list import state_3, state_1
 from nn_models.utils.named_tuples import *
 from nn_models.utils.vectorizer import Vectorizer
 
@@ -197,7 +193,7 @@ class StateEvaluator:
        active_player_input = PlayersInputGenerator('active_').inputs
        other_player_input = PlayersInputGenerator('other_').inputs
        board_input = self.board_encoder.inputs
-       self.inputs = active_player_input + other_player_input + board_input
+       self.inputs = board_input + active_player_input + other_player_input
        board_encoded = self.board_encoder(board_input)
        active_player_encoded = self.player_encoder(active_player_input)
        other_player_encoded = self.player_encoder(other_player_input)
@@ -208,54 +204,10 @@ class StateEvaluator:
 
        self.layer = Model(inputs = self.inputs, outputs = final_result, name = 'full_state_splendor_estimator')
 
-
-fullik = StateEvaluator(2, 2, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 2, 2)
+fullik = StateEvaluator(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
+fullik.layer.compile(Adam(), 'mean_squared_error')
 plot_model(fullik.layer, to_file='fullik.png')
-#
-
-# pupu = PlayerEncoder(GemsEncoder(2), PriceEncoder(3), ManyCardsEncoder(3, 2, 3, 4, 5, 6), 3, 3, 3, 3)
-# pupu.layer.compile(Adam(), 'mean_squared_error')
-# xxx = Vectorizer().players_hand_to_input(state_3.active_players_hand())
-# wyn = pupu.layer.predict(x = xxx)
-# print(wyn)
-#plot_model(xuxu.layer, to_file='player_encoder.png')
-
-
-
-
-# bubu = BoardEncoder(GemsEncoder(3), ManyNoblesEncoder(2, 2, 2), ManyCardsEncoder(12, 2, 2, 2, 2, 2), 17, 13)
-# bubu.layer.compile(Adam(), 'mean_squared_error')
-# plot_model(bubu.layer, to_file='bubu.png', show_shapes=True)
-# xxx1 = Vectorizer().board_to_input(state_3.board)
-# xxx2 = Vectorizer().board_to_input(state_3.board)
-#
-# # for susu in xxx:
-# #     print(susu.shape)
-# wyn = bubu.layer.predict(x=xxx3)
-# print(wyn)
-#
-# card_encoder = CardEncoder(3, 1, 1, 1, 32, 2)
-# # model_inputs = Input(batch_shape=(None, 1))
-# # model_outputs = card_encoder(model_inputs)
-# # real_model = Model(inputs=model_inputs, outputs=model_outputs, name='real_model')
-# # optim = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-# # real_model.compile(optimizer=optim, loss='mean_squared_error')
-# plot_model(card_encoder.layer, to_file='card_encoder_new.png')
-
-
-# class CardEncoder:
-#     def __init__(self, profit_dim, price_dim, points_dim, dense1_dim, dense2_dim,  max_points=25):
-#         self.price_encoder = PriceEncoder(output_dim=price_dim)
-#         self.inputs = [Input(batch_shape=(None, 1), name='{}'.format(x)) for x in CardTuple._fields]
-#         profit_embedded = Embedding(input_dim=5, output_dim=profit_dim, name='profit_embedd')(self.inputs[0])
-#         price_encoded = self.price_encoder.layer(self.inputs[1:-1])
-#         price_concatenated = Concatenate(axis=-1)(price_encoded)
-#         points_embedded = Embedding(input_dim=max_points, output_dim=points_dim, name='points_embedd')(self.inputs[6])
-#         full_card = Concatenate(axis=-1)([profit_embedded, price_concatenated, points_embedded])
-#         full_card  = Dense(units=dense1_dim)(full_card)
-#         full_card = Dense(units=dense2_dim)(full_card)
-#         self.layer = Model(inputs = self.inputs, outputs = full_card, name = 'card_encoder')
-
-
-#male embedding 32
-#densy 128
+xxx = Vectorizer().many_states_to_input([state_3, state_1, state_1, state_3])
+wyn =  fullik.layer.predict(xxx, batch_size=1)
+#print(len(xxx))
+print(wyn)

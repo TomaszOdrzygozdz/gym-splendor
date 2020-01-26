@@ -1,4 +1,5 @@
 from collections import namedtuple
+import numpy as np
 
 from gym_splendor_code.envs.mechanics.enums import GemColor
 from gym_splendor_code.envs.mechanics.game_settings import MAX_CARDS_ON_BORD
@@ -17,6 +18,8 @@ PlayerTuple = namedtuple('player',  tuple_to_str(GemsTuple._fields, 'player_gems
                          tuple_to_str(PriceTuple._fields, ' discount') + tuple_to_str(CardTuple._fields, 'res_cards_')
                          + ' points nobles')
 
+FALSE_CARD = CardTuple(*[np.array([0]) for x in range(7)])
+FALSE_NOBLE = NobleTuple(*[np.array([0]) for x in range(5)])
 
 # PlayerTuple = namedtuple('player', 'discount gems reserved_cards points nobles')
 # ObservationTuple = namedtuple('observation', 'active_player previous_player board')
