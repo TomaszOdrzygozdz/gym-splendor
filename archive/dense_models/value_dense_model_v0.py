@@ -101,7 +101,6 @@ class ValueDenseModel_v0(AbstractModel):
         self.network.compile(optimizer=optim, loss='mean_squared_error')
         self.session.run(tf.global_variables_initializer())
 
-
     def train_model(self, data_file_name=None, data_frame=None, epochs=50, output_weights_file_name=None, experiment_name='Training'):
 
         #training params

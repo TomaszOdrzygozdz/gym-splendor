@@ -1,16 +1,29 @@
 import gin
+import neptune
 import logging, os
+
+from keras.optimizers import Adam
 
 from gym_splendor_code.envs.mechanics.game_settings import MAX_RESERVED_CARDS, \
     NOBLES_ON_BOARD_INITIAL
+from nn_models.abstract_model import AbstractModel
 from nn_models.utils.useful_keras_layers import CardNobleMasking, TensorSqueeze
+from keras.callbacks import Callback
 
 logging.disable(logging.WARNING)
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+#os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 from keras.models import Model
 from keras.layers import Input, Embedding, Concatenate, Dense
 from nn_models.utils.named_tuples import *
+from sklearn.model_selection import train_test_split
+
+class NeptuneMonitor(Callback):
+    def on_epoch_end(self, epoch, logs={}):
+        neptune.send_metric('loss', epoch, logs['loss'])
+ #       print(self.validation_data)
+        #d = self.model.predict(x = self.validation_data[0:62])
+        neptune.send_metric('test loss', epoch, self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
 
 class GemsEncoder:
     def __init__(self, output_dim):
@@ -126,7 +139,7 @@ class PlayerEncoder:
         discount_encoded = TensorSqueeze(price_encoder(discount_input))
         reserved_cards_encoded = reserved_cards_encoder(reserved_cards_input + reserved_cards_mask_input)
         points_encoded = TensorSqueeze(Embedding(input_dim=25, output_dim=points_dim)(*points_input))
-        nobles_number_encoded = TensorSqueeze(Embedding(input_dim=3, output_dim=nobles_dim)(*nobles_number_input))
+        nobles_number_encoded = TensorSqueeze(Embedding(input_dim=4, output_dim=nobles_dim)(*nobles_number_input))
 
         full_player = Concatenate(axis=-1)([gems_encoded, discount_encoded, reserved_cards_encoded, points_encoded,
                                             nobles_number_encoded])
@@ -138,7 +151,7 @@ class PlayerEncoder:
         return self.layer(player_input)
 
 @gin.configurable
-class StateEvaluator:
+class StateEvaluator(AbstractModel):
    def __init__(self,
                 gems_encoder_dim : int = None,
                 price_encoder_dim : int = None,
@@ -153,8 +166,17 @@ class StateEvaluator:
                 player_points_dim: int = None,
                 player_nobles_dim: int = None,
                 full_player_dense1_dim: int = None,
-                full_player_dense2_dim: int = None
+                full_player_dense2_dim: int = None,
+                experiment_name: str = None,
+                validation_split: int = None,
+                epochs: int = None
                 ):
+       super().__init__()
+       self.neptune_monitor = NeptuneMonitor()
+       self.experiment_name = experiment_name
+       self.validation_split = validation_split
+       self.epochs = epochs
+
        self.gems_encoder = GemsEncoder(gems_encoder_dim)
        self.price_encoder = PriceEncoder(price_encoder_dim)
        self.board_encoder = BoardEncoder(self.gems_encoder,
@@ -193,5 +215,18 @@ class StateEvaluator:
        full_state = Concatenate(axis=-1)([board_encoded, active_player_encoded, other_player_encoded])
        full_state = Dense(full_player_dense1_dim, activation='relu')(full_state)
        full_state = Dense(full_player_dense2_dim, activation='relu')(full_state)
-       final_result = Dense(1, activation='tanh')(full_state)
+       final_result = Dense(1, activation='tanh', name='final_layer')(full_state)
        self.network = Model(inputs = self.inputs, outputs = final_result, name = 'full_state_splendor_estimator')
+       self.network.compile(Adam(), loss='mean_squared_error')
+       self.params['Model name'] = 'Average pooling model'
+       self.params['optimizer_name'] = 'Adam'
+
+   def train_network(self, x_train, y_train):
+       assert self.network is not None, 'You must create network before training'
+       self.params['x_train'] = int(y_train.shape[0]*(1 - self.validation_split))
+       self.params['x_valid'] = int(y_train.shape[0]*self.validation_split)
+       self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training dense network',
+                                    neptune_monitor=self.neptune_monitor)
+
+       self.network.fit(x=x_train, y=y_train, epochs=self.epochs, validation_split=self.validation_split, callbacks=[self.neptune_monitor])
+       neptune.stop()

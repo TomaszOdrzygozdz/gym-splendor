@@ -11,23 +11,17 @@ if USE_NEPTUNE:
 class AbstractModel:
 
     def __init__(self):
-        self.session = tf.Session()
         self.network = None
         self.params = {}
 
 
-    def set_corrent_session(self):
-        K.set_session(self.session)
 
     def start_neptune_experiment(self, project_name=NEPTUNE_PROJECT_NAME_NN_TRAINING, experiment_name='Experiment',
                                  description = ' ', neptune_monitor=None):
         neptune.init(project_qualified_name=project_name, api_token=NEPTUNE_API_TOKEN)
         if neptune_monitor is not None:
             self.neptune_monitor = neptune_monitor
-        model_summary = self.model_summary()
-        params_to_upload = {'Architecture' : model_summary}
-        params_to_upload.update(self.params)
-        neptune.create_experiment(name=experiment_name, description=description, params=params_to_upload)
+        neptune.create_experiment(name=experiment_name, description=description, params=self.params)
         neptune.log_image('Architecture', 'model_architecture.png')
 
     def model_summary(self):

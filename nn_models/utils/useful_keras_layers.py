@@ -3,14 +3,8 @@
 # os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import tensorflow as tf
-import numpy as np
-from keras import Input, Model
 
-
-from keras.layers import Layer, Lambda, Dense
-#from tensorflow_core.python.ops.gen_array_ops import split
-from keras.optimizers import Adam
-from keras.utils import plot_model
+from keras.layers import Lambda
 import keras.backend as K
 
 def card_noble_mask(inputs):
@@ -18,7 +12,7 @@ def card_noble_mask(inputs):
   mask = inputs[1]
 
   dotted = K.batch_dot(cards, mask, axes=[-2, -1])
-  mask_sum = K.sum(mask, axis=-1)
+  mask_sum = K.sum(mask, axis=-1, keepdims=True)
   results = tf.math.divide(dotted, mask_sum)
   return results
 
