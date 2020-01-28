@@ -9,7 +9,7 @@ tqdm.tqdm_pandas(progress_bar)
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from nn_models.utils.vectorizer import Vectorizer
 
-raw_data_small = pd.read_pickle('/home/tomasz/ML_Research/splendor/gym-splendor/training_data/micro_merged.pi')
+raw_data_small = pd.read_pickle('/home/tomasz/ML_Research/splendor/gym-splendor/training_data/half_merged.pi')
 #
 vectorizer = Vectorizer()
 
@@ -22,13 +22,18 @@ X_list = series_of_states.tolist()
 n = len(X_list)
 m = n - n%5
 X_list = X_list[0:m]
-
-X = vectorizer.many_states_to_input(X_list)
 Y = np.array(raw_data_small['value'].tolist()[0:m]).reshape(m, 1)
 
+indices = [i for i in range(len(Y)) if abs(Y[i])==1]
+print(indices)
+X_list = [X_list[i] for i in indices]
+Y = np.array([Y[i] for i in indices])
 
+print(Y)
 
-with open('small_data_valid.pickle', 'wb') as f:
+X = vectorizer.many_states_to_input(X_list)
+
+with open('half_data_sure.pickle', 'wb') as f:
     pickle.dump({'X' : X, 'Y' : Y}, f)
 
 print(Y.shape)

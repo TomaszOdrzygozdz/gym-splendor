@@ -99,6 +99,8 @@ class Arena:
 
         state_to_print = 0
 
+        self.one_game_df = pd.DataFrame()
+
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
             #if local_main_process:
                 #print('Action number = {}'.format(number_of_actions))
@@ -119,6 +121,8 @@ class Arena:
                 if self.collect_states_mode:
                     self.collected_states_df = self.collected_states_df.append({'observation' : observation},
                                                                                ignore_index=True)
+
+
 
                 winner_id = info['winner_id']
             if render_game:

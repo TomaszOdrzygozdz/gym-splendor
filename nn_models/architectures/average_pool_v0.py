@@ -63,8 +63,8 @@ class ManyCardsEncoder:
         points_embedded = Embedding(input_dim=max_points, output_dim=points_dim, name='points_embedd')(self.inputs[6])
         cards_mask = self.inputs[7]
         full_cards = Concatenate(axis=-1)([profit_embedded, price_encoded, points_embedded])
-        full_cards  = Dense(units=dense1_dim)(full_cards)
-        full_cards = Dense(units=dense2_dim)(full_cards)
+        full_cards  = Dense(units=dense1_dim, activation='relu')(full_cards)
+        full_cards = Dense(units=dense2_dim, activation='relu')(full_cards)
         full_cards_reduced = CardNobleMasking([full_cards, cards_mask])
         self.layer = Model(inputs = self.inputs, outputs = full_cards_reduced, name = 'card_encoder')
     def __call__(self, card_input_list):
@@ -172,6 +172,7 @@ class StateEvaluator(AbstractModel):
                 epochs: int = None
                 ):
        super().__init__()
+
        self.neptune_monitor = NeptuneMonitor()
        self.experiment_name = experiment_name
        self.validation_split = validation_split
@@ -221,12 +222,13 @@ class StateEvaluator(AbstractModel):
        self.params['Model name'] = 'Average pooling model'
        self.params['optimizer_name'] = 'Adam'
 
-   def train_network(self, x_train, y_train):
+   def train_network(self, x_train, y_train, validation_data):
        assert self.network is not None, 'You must create network before training'
        self.params['x_train'] = int(y_train.shape[0]*(1 - self.validation_split))
        self.params['x_valid'] = int(y_train.shape[0]*self.validation_split)
+
        self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training dense network',
                                     neptune_monitor=self.neptune_monitor)
 
-       self.network.fit(x=x_train, y=y_train, epochs=self.epochs, validation_split=self.validation_split, callbacks=[self.neptune_monitor])
+       self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=1000,validation_split=0.1, callbacks=[self.neptune_monitor])
        neptune.stop()

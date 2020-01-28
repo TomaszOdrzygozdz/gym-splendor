@@ -1,18 +1,18 @@
 StateEvaluator.gems_encoder_dim = 16
 StateEvaluator.price_encoder_dim = 16
 StateEvaluator.profit_encoder_dim = 16
-StateEvaluator.cards_points_dim = 16
+StateEvaluator.cards_points_dim = 32
 StateEvaluator.cards_dense1_dim = 32
 StateEvaluator.cards_dense2_dim = 32
-StateEvaluator.board_nobles_dense1_dim = 16
-StateEvaluator.board_nobles_dense2_dim = 16
-StateEvaluator.full_board_dense1_dim = 32
-StateEvaluator.full_board_dense2_dim = 32
-StateEvaluator.player_points_dim = 16
-StateEvaluator.player_nobles_dim = 16
-StateEvaluator.full_player_dense1_dim = 128
-StateEvaluator.full_player_dense2_dim = 128
+StateEvaluator.board_nobles_dense1_dim = 64
+StateEvaluator.board_nobles_dense2_dim = 64
+StateEvaluator.full_board_dense1_dim = 512
+StateEvaluator.full_board_dense2_dim = 512
+StateEvaluator.player_points_dim = 512
+StateEvaluator.player_nobles_dim = 512
+StateEvaluator.full_player_dense1_dim = 1024
+StateEvaluator.full_player_dense2_dim = 1024
 
 StateEvaluator.experiment_name = 'First run of new network'
-
-StateEvaluator.epochs = 5
+StateEvaluator.validation_split = 0.05
+StateEvaluator.epochs = 50
