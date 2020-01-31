@@ -46,8 +46,8 @@ class ArenaMultiThread:
         self.local_arena.start_collecting_states()
 
 
-    def dump_collected_states(self, filename):
-        self.local_arena.dump_collected_states(filename, my_rank)
+    def dump_collected_states(self, filename, folder):
+        self.local_arena.dump_collected_states(filename, folder, my_rank)
 
 
     def return_collected_states(self):

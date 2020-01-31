@@ -3,6 +3,7 @@
 ___Single thread version___
 hold only 1 vs 1 games."""
 import pickle
+import os
 
 from typing import List
 from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
@@ -12,6 +13,7 @@ if USE_TQDM:
     from tqdm import tqdm
 import random
 import numpy as np
+
 
 import pandas as pd
 
@@ -47,8 +49,9 @@ class Arena:
     def stop_collecting_states(self):
         self.collect_states_mode = False
 
-    def dump_collected_states(self, filename, color=0):
-        with open('proc_' + str(color) + '_' + filename, 'wb') as f:
+    def dump_collected_states(self, filename, folder, color=0):
+        full_name = os.path.join(folder, 'proc_' + str(color) + '_' + filename)
+        with open(full_name, 'wb') as f:
             pickle.dump(self.collected_states_df, f)
 
     # def collected_states_to_csv(self, filename, color=0):
