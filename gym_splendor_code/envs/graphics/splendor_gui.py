@@ -358,6 +358,23 @@ if USE_TKINTER:
 
             self.set_action(ActionReserveCard(card, gems_transfer.gems_dict[GemColor.GOLD] == 1, return_gem_color))
 
+        def next_state(self, list_of_states, ind=0):
+            self.replay_game(list_of_states, ind + 1)
+
+        def previous_state(self, list_of_states, ind=0):
+            self.replay_game(list_of_states, ind - 1)
+
+        def replay_game(self, list_of_states, ind=0):
+            assert ind < len(list_of_states), 'Cannot find the state'
+            self.draw_state(list_of_states[ind])
+            next_state_button = Button(self.main_window, text="Next",
+                                       command=lambda: self.next_state(list_of_states, ind))
+            next_state_button.place(x=750, y=20)
+            prev_state_button = Button(self.main_window, text="Previous",
+                                       command=lambda: self.previous_state(list_of_states, ind))
+            prev_state_button.place(x=650, y=20)
+            mainloop()
+
 if USE_TKINTER == False:
 
     class SplendorGUI():

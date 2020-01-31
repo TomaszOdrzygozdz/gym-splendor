@@ -1,6 +1,7 @@
 import gin
 import neptune
 import logging, os
+import numpy as np
 
 from keras.optimizers import Adam
 
@@ -13,17 +14,36 @@ from keras.callbacks import Callback
 logging.disable(logging.WARNING)
 #os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
+from keras.metrics import MeanSquaredError
 from keras.models import Model
 from keras.layers import Input, Embedding, Concatenate, Dense
 from nn_models.utils.named_tuples import *
+import keras.backend as K
+
 from sklearn.model_selection import train_test_split
 
 class NeptuneMonitor(Callback):
+    def __init__(self):
+        super().__init__()
+        self.mse_metric = MeanSquaredError()
+
     def on_epoch_end(self, epoch, logs={}):
-        neptune.send_metric('loss', epoch, logs['loss'])
+        neptune.send_metric('epoch loss', epoch, logs['loss'])
  #       print(self.validation_data)
         #d = self.model.predict(x = self.validation_data[0:62])
-        neptune.send_metric('test loss', epoch, self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
+        neptune.send_metric('epoch test loss', epoch, self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
+
+        self.mse_metric.update_state(self.validation_data[62][1:4000],
+                                    np.array([1 - 2*np.random.randint(2)
+                                              for _ in range(len(self.validation_data[62][1:4000]))]))
+        random_score = K.eval(self.mse_metric.result())
+        neptune.send_metric('random_prediction loss', epoch, random_score)
+
+    def on_batch_end(self, batch, logs=None):
+        neptune.send_metric('batch_loss', batch, logs['loss'])
+        neptune.send_metric('batch_test_loss', batch,
+                            self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
+
 
 class GemsEncoder:
     def __init__(self, output_dim):
@@ -168,14 +188,12 @@ class StateEvaluator(AbstractModel):
                 full_player_dense1_dim: int = None,
                 full_player_dense2_dim: int = None,
                 experiment_name: str = None,
-                validation_split: int = None,
                 epochs: int = None
                 ):
        super().__init__()
 
        self.neptune_monitor = NeptuneMonitor()
        self.experiment_name = experiment_name
-       self.validation_split = validation_split
        self.epochs = epochs
 
        self.gems_encoder = GemsEncoder(gems_encoder_dim)
@@ -222,13 +240,19 @@ class StateEvaluator(AbstractModel):
        self.params['Model name'] = 'Average pooling model'
        self.params['optimizer_name'] = 'Adam'
 
-   def train_network(self, x_train, y_train, validation_data):
+   def train_network(self, x_train, y_train, validation_split=None, validation_data=None, batch_size = None):
        assert self.network is not None, 'You must create network before training'
-       self.params['x_train'] = int(y_train.shape[0]*(1 - self.validation_split))
-       self.params['x_valid'] = int(y_train.shape[0]*self.validation_split)
 
        self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training dense network',
                                     neptune_monitor=self.neptune_monitor)
 
-       self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=1000,validation_split=0.1, callbacks=[self.neptune_monitor])
+       if validation_data is not None:
+           self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=batch_size, validation_data=validation_data,
+                            callbacks=[self.neptune_monitor])
+       elif validation_split is not None:
+           self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=batch_size, validation_split=validation_split,
+                            callbacks=[self.neptune_monitor])
+       else:
+           pass
        neptune.stop()
+

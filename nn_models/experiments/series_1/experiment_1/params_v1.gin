@@ -14,5 +14,4 @@ StateEvaluator.full_player_dense1_dim = 1024
 StateEvaluator.full_player_dense2_dim = 1024
 
 StateEvaluator.experiment_name = 'First run of new network'
-StateEvaluator.validation_split = 0.05
-StateEvaluator.epochs = 50
+StateEvaluator.epochs = 10

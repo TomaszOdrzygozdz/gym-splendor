@@ -2,6 +2,7 @@
 
 ___Single thread version___
 hold only 1 vs 1 games."""
+import pickle
 
 from typing import List
 from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
@@ -10,6 +11,7 @@ from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 if USE_TQDM:
     from tqdm import tqdm
 import random
+import numpy as np
 
 import pandas as pd
 
@@ -30,20 +32,27 @@ class Arena:
         """Arena has its private environment to run the game."""
         self.env = gym.make(environment_id)
         self.collect_states_mode = False
-        self.collect_states_df = False
+        self.collect_states_df = None
+        self.dump_probability = 1
+        self.n_min_actions = -1
 
     def start_collecting_states(self):
         self.collect_states_mode = True
-        self.collected_states_df = pd.DataFrame()
+        self.collected_states_df = {}
+
+    def collect_only_from_middle_game(self, n_min_actions, dump_probability=1):
+        self.n_min_actions = n_min_actions
+        self.dump_probability = dump_probability
 
     def stop_collecting_states(self):
         self.collect_states_mode = False
 
     def dump_collected_states(self, filename, color=0):
-        self.collected_states_df.to_pickle('col_{}_'.format(color) + filename + '.pi')
+        with open('proc_' + str(color) + '_' + filename, 'wb') as f:
+            pickle.dump(self.collected_states_df, f)
 
-    def collected_states_to_csv(self, filename, color=0):
-        self.collected_states_df.to_csv('col_{}_'.format(color) + filename + '.csv')
+    # def collected_states_to_csv(self, filename, color=0):
+    #     self.collected_states_df.to_csv('col_{}_'.format(color) + filename + '.csv')
 
     def return_collected_states(self, filename):
         return self.collect_states_df
@@ -95,11 +104,7 @@ class Arena:
             self.env.render()
             time.sleep(GAME_INITIAL_DELAY)
 
-        # print('Initial state of game = {}'.format(StateAsDict(self.env.current_state_of_the_game)))
-
-        state_to_print = 0
-
-        self.one_game_df = pd.DataFrame()
+        one_game_obs_list = []
 
         while  number_of_actions < MAX_NUMBER_OF_MOVES and not is_done:
             #if local_main_process:
@@ -114,15 +119,11 @@ class Arena:
             if local_main_process:
                 observation, reward, is_done, info = self.env.step(mode, action)
 
-                # if state_to_print < 5:
-                #     print('State no {} \n {}'.format(state_to_print, StateAsDict(self.env.current_state_of_the_game)))
-                #     state_to_print += 1
-
-                if self.collect_states_mode:
-                    self.collected_states_df = self.collected_states_df.append({'observation' : observation},
-                                                                               ignore_index=True)
-
-
+################## COLECTING STATES IS HERE: ##########################################
+                if self.collect_states_mode and  number_of_actions > self.n_min_actions:
+                    p = np.random.uniform(0,1)
+                    if p <= self.dump_probability:
+                        one_game_obs_list.append(observation.recreate_state())
 
                 winner_id = info['winner_id']
             if render_game:
@@ -150,6 +151,10 @@ class Arena:
             self.env.reset()
             one_game_statistics = GameStatisticsDuels(list_of_agents)
             one_game_statistics.register_from_dict(results_dict)
+            if winner_id is not None:
+                values = [1 if st.active_player_id == winner_id else -1 for st in one_game_obs_list]
+                self.collected_states_df[len(self.collected_states_df)] = {'states' : one_game_obs_list,
+                                                                                'values' : values}
 
         for agent in list_of_agents:
             agent.finish_game()

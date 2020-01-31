@@ -44,6 +44,9 @@ class State():
         self.board.lay_cards_on_board()
         self.board.lay_nobles_on_board()
 
+    def change_active_player(self):
+        self.active_player_id = (self.active_player_id + 1)%len(self.list_of_players_hands)
+
     def previous_player_id(self):
         return (self.active_player_id - 1)%len(self.list_of_players_hands)
 

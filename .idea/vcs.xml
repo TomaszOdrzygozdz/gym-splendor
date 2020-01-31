@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/additional_packages/compress_pickle" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/mrunner_config/hello_mrunner/mrunner" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/new_mrunner/mrunner" vcs="Git" />
   </component>
 </project>

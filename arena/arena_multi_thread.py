@@ -39,11 +39,19 @@ class ArenaMultiThread:
     def start_collecting_states(self):
         self.local_arena.start_collecting_states()
 
+    def collect_only_from_middle_game(self, n_min_actions, dump_probability):
+        self.local_arena.collect_only_from_middle_game(n_min_actions, dump_probability)
+
     def stop_collecting_states(self):
         self.local_arena.start_collecting_states()
 
+
     def dump_collected_states(self, filename):
         self.local_arena.dump_collected_states(filename, my_rank)
+
+
+    def return_collected_states(self):
+        return self.local_arena.collect_states_df
 
     def collected_states_to_csv(self, filename):
         self.local_arena.collected_states_to_csv(filename, my_rank)
@@ -71,6 +79,8 @@ class ArenaMultiThread:
         self.create_progress_bar(len(list_of_jobs))
 
         for game_id in range(0, jobs_per_thread + add_remaining_job):
+            if main_thread:
+                print(f'game_id = {game_id}')
             pair_to_duel = list_of_jobs[game_id*n_proc + my_rank]
             if shuffle:
                 starting_agent_id = random.choice(range(2))
@@ -89,7 +99,7 @@ class ArenaMultiThread:
             return cumulative_results
 
     def run_many_games(self, mode, list_of_agents, n_games):
-        return self.one_group_vs_other_duels(mode, [list_of_agents[0]], [list_of_agents[1]], games_per_duel=n_games)
+        return self.one_group_vs_other_duels(mode, [list_of_agents[0]], [list_of_agents[1]], games_per_duel=n_games, shuffle=True)
 
     def all_vs_all(self, mode, list_of_agents, n_games):
         return self.one_group_vs_other_duels(mode, list_of_agents, list_of_agents, games_per_duel=n_games)
