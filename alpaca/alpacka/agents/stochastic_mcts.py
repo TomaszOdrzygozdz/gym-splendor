@@ -4,7 +4,7 @@ import asyncio
 import random
 
 import gin
-import gym
+import gym_open_ai
 
 from alpaca.alpacka import data
 from alpaca.alpacka.agents import base
@@ -236,7 +236,7 @@ class StochasticMCTSAgent(base.OnlineAgent):
                 from which it's impossible to reach a node that hasn't already
                 been visited.
         """
-        assert isinstance(action_space, gym.spaces.Discrete), (
+        assert isinstance(action_space, gym_open_ai.spaces.Discrete), (
             'MCTSAgent only works with Discrete action spaces.'
         )
         super().__init__(action_space)

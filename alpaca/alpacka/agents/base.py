@@ -57,7 +57,7 @@ class Agent:
         Args:
             env (gym.Env): Environment to solve.
             init_state (object): Reset the environment to this state.
-                If None, then do normal gym.Env.reset().
+                If None, then do normal gym_open_ai.Env.reset().
             time_limit (int or None): Maximum number of steps to make on the
                 solved environment. None means no time limit.
 
@@ -136,7 +136,7 @@ class OnlineAgent(Agent):
         Args:
             env (gym.Env): Environment to solve.
             init_state (object): Reset the environment to this state.
-                If None, then do normal gym.Env.reset().
+                If None, then do normal gym_open_ai.Env.reset().
             time_limit (int or None): Maximum number of steps to make on the
                 solved environment. None means no time limit.
 

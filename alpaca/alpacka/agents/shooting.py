@@ -7,7 +7,7 @@ import functools
 import math
 
 import gin
-import gym
+import gym_open_ai
 import numpy as np
 
 from alpaca.alpacka import batch_steppers
@@ -63,7 +63,7 @@ class ShootingAgent(base.OnlineAgent):
             agent_class (type): Rollout agent class.
             n_envs (int): Number of parallel environments to run.
         """
-        assert isinstance(action_space, gym.spaces.Discrete), (
+        assert isinstance(action_space, gym_open_ai.spaces.Discrete), (
             'ShootingAgent only works with Discrete action spaces.'
         )
         super().__init__(action_space)

@@ -6,7 +6,7 @@ import random
 
 from unittest import mock
 
-import gym
+import gym_open_ai
 import numpy as np
 import pytest
 
@@ -16,10 +16,10 @@ from alpacka import data
 from alpacka import networks
 
 
-class _TestEnv(gym.Env):
+class _TestEnv(gym_open_ai.Env):
 
-    observation_space = gym.spaces.Discrete(1000)
-    action_space = gym.spaces.Discrete(1000)
+    observation_space = gym_open_ai.spaces.Discrete(1000)
+    action_space = gym_open_ai.spaces.Discrete(1000)
 
     def __init__(self, actions, n_steps, observations, rewards):
         super().__init__()

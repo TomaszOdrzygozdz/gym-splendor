@@ -8,10 +8,10 @@ setup(
     include_package_data=True,
     install_requires=[
         'gin-config',
-        'gym',
+        'gym_open_ai',
         # TODO(koz4k): Move to extras?
         # (need to lazily define alpacka.envs.Sokoban then)
-        'gym_sokoban @ git+ssh://git@gitlab.com/awarelab/gym-sokoban.git',
+        'gym_sokoban @ git+ssh://git@gitlab.com/awarelab/gym_open_ai-sokoban.git',
         'numpy',
         'randomdict',
         'ray',

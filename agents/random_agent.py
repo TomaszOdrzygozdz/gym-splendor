@@ -16,7 +16,7 @@ class RandomAgent(Agent):
 
         super().__init__(mpi_comunicator=mpi_communicator)
         self.distribution = distribution
-        #we create own gym-splendor enivronemt to have access to its functionality
+        #we create own gym_open_ai-splendor enivronemt to have access to its functionality
         #We specify the name of the agent
         self.name = 'RandomAgent - ' + self.distribution + ' '
 

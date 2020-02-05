@@ -7,7 +7,7 @@ from typing import List
 from tqdm import tqdm
 import random
 
-import gym
+import gym_open_ai
 
 from agents.abstract_agent import Agent
 from arena.game_statistics_duels import GameStatisticsDuels
@@ -27,7 +27,7 @@ class DeterministicArena:
                  environment_id: str = 'gym_splendor_code:splendor-v0',
                  leaderboard: LeaderBoard = None) -> None:
         """Arena has its private environment to run the game."""
-        self.env = gym.make('splendor-deterministic-v0')
+        self.env = gym_open_ai.make('splendor-deterministic-v0')
         self.leaderboard = leaderboard
 
     def run_one_duel(self,

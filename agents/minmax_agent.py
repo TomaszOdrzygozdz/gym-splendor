@@ -21,7 +21,7 @@ class MinMaxAgent(Agent):
 
         super().__init__()
 
-        #we create own gym-splendor enivronemt to have access to its functionality
+        #we create own gym_open_ai-splendor enivronemt to have access to its functionality
         #We specify the name of the agent
         self.name = name + ' ' + str(weight)
         self.weight = weight

@@ -8,7 +8,7 @@ if USE_NEPTUNE:
     import  neptune
     neptune.init(project_qualified_name=NEPTUNE_PROJECT_NAME, api_token=NEPTUNE_API_TOKEN)
 
-import gym
+import gym_open_ai
 import pandas as pd
 
 from agents.abstract_agent import Agent
@@ -29,7 +29,7 @@ class QLearningTrainer:
 
     def __init__(self, alpha):
         self.agent = QValueAgent()
-        self.env = gym.make('splendor-v0')
+        self.env = gym_open_ai.make('splendor-v0')
         self.weights_token = 'weights_' + str(random.randint(0,1000000)) + '.h5'
         self.arena = Arena()
         self.alpha = alpha

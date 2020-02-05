@@ -1,11 +1,11 @@
-#This example shows how to use gym-Splendor environment.
+#This example shows how to use gym_open_ai-Splendor environment.
 #Here we create game for two human players
-import gym
+import gym_open_ai
 
 #First we create the environment
 from agents.greedy_agent import GreedyAgent
 
-env = gym.make('gym_splendor_code:splendor-v0')
+env = gym_open_ai.make('gym_splendor_code:splendor-v0')
 
 #Let's see what is the observation space:
 print('Observation space: \n {} \n'.format(env.observation_space))

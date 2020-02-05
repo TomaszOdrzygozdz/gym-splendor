@@ -9,7 +9,7 @@ from gym_splendor_code.envs.mechanics.action_space_generator import generate_all
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_trades
 from monte_carlo_tree_search.rollout_policies.abstract_rolluot_policy import RolloutPolicy
 from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
-import gym
+import gym_open_ai
 
 class GreedyRolloutPolicy(RolloutPolicy):
 

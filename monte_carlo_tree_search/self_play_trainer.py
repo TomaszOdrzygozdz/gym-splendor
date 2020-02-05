@@ -1,4 +1,4 @@
-import gym
+import gym_open_ai
 from mpi4py import MPI
 import pandas as pd
 import numpy as np
@@ -25,7 +25,7 @@ class SelfPlayTrainer:
         self.data_collector = TreeDataCollector()
         self.opponent = RandomAgent(distribution='first_buy')
         self.choose_best = choose_best
-        self.env = gym.make('splendor-v0')
+        self.env = gym_open_ai.make('splendor-v0')
 
     def prepare_training(self, weights_file:str = None):
         self.eval_policy = ValueEvaluator(weights_file)

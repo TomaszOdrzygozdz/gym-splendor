@@ -1,7 +1,7 @@
 import random
 from typing import List
 
-import gym
+import gym_open_ai
 
 from agents.abstract_agent import Agent
 from arena.game_statistics_duels import GameStatisticsDuels
@@ -25,7 +25,7 @@ class MultiArena:
 
     def initialize_env(self, environment_id: str = 'gym_splendor_code:splendor-deterministic-v0'):
         """Arena has its private environment to run the game."""
-        self.env = gym.make(environment_id)
+        self.env = gym_open_ai.make(environment_id)
 
     def run_multi_process_self_play(self, mode, agent: Agent, render_game = False):
 

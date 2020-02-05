@@ -3,7 +3,7 @@
 import math
 from unittest import mock
 
-import gym
+import gym_open_ai
 import numpy as np
 import pytest
 
@@ -97,7 +97,7 @@ def mock_env():
     return mock.create_autospec(
         spec=envs.CartPole,
         instance=True,
-        action_space=mock.Mock(spec=gym.spaces.Discrete, n=2)
+        action_space=mock.Mock(spec=gym_open_ai.spaces.Discrete, n=2)
     )
 
 

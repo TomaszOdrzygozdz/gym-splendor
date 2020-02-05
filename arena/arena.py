@@ -17,7 +17,7 @@ import numpy as np
 
 import pandas as pd
 
-import gym
+import gym_open_ai
 
 from agents.abstract_agent import Agent
 from arena.game_statistics_duels import GameStatisticsDuels
@@ -32,7 +32,7 @@ class Arena:
     def __init__(self,
                  environment_id: str = 'gym_splendor_code:splendor-v0') -> None:
         """Arena has its private environment to run the game."""
-        self.env = gym.make(environment_id)
+        self.env = gym_open_ai.make(environment_id)
         self.collect_states_mode = False
         self.collect_states_df = None
         self.dump_probability = 1

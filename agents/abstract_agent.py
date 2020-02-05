@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import List
 
 
-import gym
+import gym_open_ai
 
 from gym_splendor_code.envs.mechanics.abstract_observation import SplendorObservation, StochasticObservation, \
     DeterministicObservation
@@ -26,7 +26,7 @@ class Agent:
 
         """Every agent has its private environment to check legal actions, make simulations etc."""
         if self.main_process:
-            self.env = gym.make(environment_id)
+            self.env = gym_open_ai.make(environment_id)
         self.name = 'Abstract agent '
         #id is uded to distinguish between two agents of the same type
         if self.main_process:
@@ -38,7 +38,7 @@ class Agent:
     @abstractmethod
     def choose_action(self, observation : SplendorObservation, previous_actions : List[Action]):
         """This method chooses one action to take, based on the provided observation. This method should not have
-        access to the original gym-splendor environment - you can create your own environment for example to do
+        access to the original gym_open_ai-splendor environment - you can create your own environment for example to do
         simulations of game, or have access to environment methods."""
         if observation.name == 'deterministic':
             return self.deterministic_choose_action(observation, previous_actions)

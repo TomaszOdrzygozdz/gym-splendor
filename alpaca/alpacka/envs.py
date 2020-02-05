@@ -3,10 +3,10 @@
 import collections
 
 import gin
-import gym
+import gym_open_ai
 import numpy as np
-from gym import wrappers
-from gym.envs import classic_control
+from gym_open_ai import wrappers
+from gym_open_ai.envs import classic_control
 
 try:
     import gfootball.env as football_env
@@ -14,10 +14,10 @@ except ImportError:
     football_env = None
 
 
-class ModelEnv(gym.Env):
+class ModelEnv(gym_open_ai.Env):
     """Environment interface used by model-based agents.
 
-    This class defines an additional interface over gym.Env that is assumed by
+    This class defines an additional interface over gym_open_ai.Env that is assumed by
     model-based agents. It's just for documentation purposes, doesn't have to be
     subclassed by envs used as models (but it can be).
     """
@@ -31,10 +31,10 @@ class ModelEnv(gym.Env):
         raise NotImplementedError
 
 
-class ModelWrapper(gym.Wrapper):
+class ModelWrapper(gym_open_ai.Wrapper):
     """Base class for wrappers intended for use with model-based environments.
 
-    This class defines an additional interface over gym.Wrapper that is assumed
+    This class defines an additional interface over gym_open_ai.Wrapper that is assumed
     by model-based agents. It's just for documentation purposes, doesn't have to
     be subclassed by wrappers used with models (but it can be).
     """
@@ -167,10 +167,10 @@ class GoogleFootball(ModelEnv):
         env = self._env
         observation_wrappers = []
         while True:
-            if isinstance(env, gym.ObservationWrapper):
+            if isinstance(env, gym_open_ai.ObservationWrapper):
                 observation_wrappers.append(env)
 
-            if isinstance(env, gym.Wrapper):
+            if isinstance(env, gym_open_ai.Wrapper):
                 env = env.env
             else:
                 break
@@ -188,7 +188,7 @@ TimeLimitWrapperState = collections.namedtuple(
 
 
 class TimeLimitWrapper(wrappers.TimeLimit, ModelWrapper):
-    """Model-based TimeLimit gym.Env wrapper."""
+    """Model-based TimeLimit gym_open_ai.Env wrapper."""
 
     def clone_state(self):
         """Returns the current environment state."""

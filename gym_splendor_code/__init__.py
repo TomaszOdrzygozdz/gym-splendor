@@ -1,5 +1,5 @@
 import logging
-from gym.envs.registration import register
+from gym_open_ai.envs.registration import register
 
 logger = logging.getLogger(__name__)
 

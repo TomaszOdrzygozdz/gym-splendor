@@ -1,6 +1,6 @@
 from typing import List
 
-import gym
+import gym_open_ai
 
 from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
 from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
@@ -39,7 +39,7 @@ class MCTS:
         self.rollout_policy = rollout_policy
         self.evaluation_policy = evaluation_policy
         self.n_rollout_repetition = rollout_repetition
-        self.env = gym.make(environment_id)
+        self.env = gym_open_ai.make(environment_id)
 
 
 

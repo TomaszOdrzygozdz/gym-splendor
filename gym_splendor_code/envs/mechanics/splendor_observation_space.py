@@ -1,4 +1,4 @@
-from gym.spaces import Space
+from gym_open_ai.spaces import Space
 from typing import Dict
 
 from gym_splendor_code.envs.data.data_loader import name_to_card_dict, name_to_noble_dict

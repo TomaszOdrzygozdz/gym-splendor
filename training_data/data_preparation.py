@@ -9,7 +9,7 @@ tqdm.tqdm_pandas(progress_bar)
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from nn_models.utils.vectorizer import Vectorizer
 
-raw_data_small = pd.read_pickle('/home/tomasz/ML_Research/splendor/gym-splendor/training_data/half_merged.pi')
+raw_data_small = pd.read_pickle('/home/tomasz/ML_Research/splendor/gym_open_ai-splendor/training_data/half_merged.pi')
 #
 vectorizer = Vectorizer()
 

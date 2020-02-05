@@ -1,6 +1,6 @@
 import random
 import numpy as np
-import gym
+import gym_open_ai
 
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
@@ -31,7 +31,7 @@ class GreedySearchEvaluationPolicy(RolloutPolicy):
             self.depth = params[2]
             self.breadth = params[3]
             
-        self.env = gym.make(environment_id)
+        self.env = gym_open_ai.make(environment_id)
         self.env_dict = {lvl : None for lvl in range(1, self.depth)}
 
 

@@ -3,7 +3,7 @@
 # TODO(koz4k): Clean up more, add comments and tests.
 
 import gin
-import gym
+import gym_open_ai
 import numpy as np
 
 from alpaca.alpacka.agents import base

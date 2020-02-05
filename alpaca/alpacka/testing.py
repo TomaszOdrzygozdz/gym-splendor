@@ -1,6 +1,6 @@
 """Testing utilities."""
 
-import gym
+import gym_open_ai
 import numpy as np
 
 from alpacka import envs
@@ -27,8 +27,8 @@ class TabularEnv(envs.ModelEnv):
                     # ...
                 }
         """
-        self.observation_space = gym.spaces.Discrete(len(transitions))
-        self.action_space = gym.spaces.Discrete(n_actions)
+        self.observation_space = gym_open_ai.spaces.Discrete(len(transitions))
+        self.action_space = gym_open_ai.spaces.Discrete(n_actions)
         self._init_state = init_state
         self._transitions = transitions
         self._state = None
