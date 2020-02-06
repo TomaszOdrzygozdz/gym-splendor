@@ -12,15 +12,15 @@ from training_data.data_generation.gen_data_lvl0 import load_data_for_model
 gin.parse_config_file('params_v1.gin')
 model = StateEvaluator()
 
-# data = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/combined.pickle')
+# data = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/combined.pickle')
 # test_size = 500
 # X = Vectorizer().many_states_to_input(data[0])
 # Y = np.array(data[1])
 # # X_val = Vectorizer().many_states_to_input(data[0][-test_size:])
 # # Y_val = np.array(data[1][-test_size:])
 
-model.train_network_on_many_sets('/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/ep_',
-                                 '/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/validation_flat.pickle',
+model.train_network_on_many_sets('/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/ep_',
+                                 '/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/validation_flat.pickle',
                                  epochs=18)
 
 

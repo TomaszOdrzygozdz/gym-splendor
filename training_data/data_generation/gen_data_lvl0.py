@@ -82,9 +82,9 @@ def load_data_for_model(file):
         data_to_return = pickle.load(f)
     return data_to_return
 
-#produce_data(10, 0.25, 1, 'all_vs_all.pickle' , '/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/lvl1')
+#produce_data(10, 0.25, 1, 'all_vs_all.pickle' , '/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/lvl1')
 
-# X = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/lvl1/proc_0_all_vs_all.pickle')
+# X = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/lvl1/proc_0_all_vs_all.pickle')
 # for y in X:
 #     print(StateAsDict(X[y]['states'][0]))
 #     print(X[y]['values'][0])
@@ -92,16 +92,16 @@ def load_data_for_model(file):
 #
 
 
-# produce_data(4, 0.8, 200, 'validation.pickle', '/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/')
+# produce_data(4, 0.8, 200, 'validation.pickle', '/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/')
 #
-# flatten_data_from_games('/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/validation.pickle',
-#                         '/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/validation_flat.pickle')
+# flatten_data_from_games('/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/validation.pickle',
+#                         '/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/validation_flat.pickle')
 
 
 #pick_data_for_training(range(15, 20))
 
 
-#X, Y = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/ep_0.pickle')
+#X, Y = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/ep_0.pickle')
 
 #print(len(Y))
 
