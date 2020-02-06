@@ -1,7 +1,6 @@
 import random
 from copy import deepcopy
 
-from tqdm import tqdm
 
 from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.greedysearch_agent import GreedySearchAgent
@@ -47,7 +46,8 @@ def pick_data_for_training(epochs_range):
     values = {f'ep_{ep}' : [] for ep in epochs_range}
 
 
-    for i in tqdm(range(5)):
+    for i in range(5):
+        print(f'Iteration i = {i}')
         with open(f'/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/proc_{i}_lvl0.pickle', 'rb') as f:
             one_file_data = pickle.load(f)
             for epoch in epochs_range:
