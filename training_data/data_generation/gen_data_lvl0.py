@@ -3,7 +3,9 @@ from copy import deepcopy
 
 from tqdm import tqdm
 
+from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.greedysearch_agent import GreedySearchAgent
+from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
 import numpy as np
 from arena.arena_multi_thread import ArenaMultiThread
@@ -19,13 +21,15 @@ my_rank = MPI.COMM_WORLD.Get_rank()
 main_thread = my_rank == 0
 
 def produce_data(when_to_start, dump_p, n_games, filename, folder):
-    agent1 = RandomAgent()
-    agent2 = GreedySearchAgent()
+    list_of_agents = [RandomAgent(), RandomAgent(distribution='first_buy'), GreedyAgentBoost(), MinMaxAgent(),
+                      GreedySearchAgent()]
+
 
     arek = ArenaMultiThread()
     arek.start_collecting_states()
     arek.collect_only_from_middle_game(when_to_start, dump_p)
-    arek.run_many_games('deterministic', [agent1, agent2], n_games=n_games)
+    #arek.run_many_games('deterministic', li, n_games=n_games)
+    arek.all_vs_all('deterministic', list_of_agents, n_games)
     arek.dump_collected_states(filename, folder)
 
 def flip_states(list_of_states, list_of_values):
@@ -77,6 +81,16 @@ def load_data_for_model(file):
     with open(file, 'rb') as f:
         data_to_return = pickle.load(f)
     return data_to_return
+
+#produce_data(10, 0.25, 1, 'all_vs_all.pickle' , '/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/lvl1')
+
+# X = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/lvl1/proc_0_all_vs_all.pickle')
+# for y in X:
+#     print(StateAsDict(X[y]['states'][0]))
+#     print(X[y]['values'][0])
+#     print('\n ****** \n')
+#
+
 
 # produce_data(4, 0.8, 200, 'validation.pickle', '/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/')
 #
