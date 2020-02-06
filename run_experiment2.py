@@ -1,5 +1,11 @@
 import pickle
 
-from training_data.data_generation.gen_data_lvl0 import produce_data
+from training_data.data_generation.gen_data_lvl0 import produce_data, load_data_for_model
 
-produce_data(when_to_start=10, dump_p=0.25, n_games=15, filename='lvl0.pickle', folder='data_lvl_0')
+
+
+# data = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/combined.pickle')
+#
+# list_of_states = len(data[0])
+# print(len(data[1]))
+

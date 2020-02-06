@@ -37,5 +37,6 @@ class RandomAgent(Agent):
                     return random.choice(self.env.action_space.list_of_actions)
 
         else:
-            print('I AM RANDOM I HAVE NO ACTIONS')
+            pass
+            #print('I AM RANDOM I HAVE NO ACTIONS')
             return None

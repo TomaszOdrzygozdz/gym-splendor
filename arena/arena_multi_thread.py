@@ -80,7 +80,8 @@ class ArenaMultiThread:
 
         for game_id in range(0, jobs_per_thread + add_remaining_job):
             if main_thread:
-                print(f'game_id = {game_id}')
+                pass
+                #print(f'game_id = {game_id}')
             pair_to_duel = list_of_jobs[game_id*n_proc + my_rank]
             if shuffle:
                 starting_agent_id = random.choice(range(2))

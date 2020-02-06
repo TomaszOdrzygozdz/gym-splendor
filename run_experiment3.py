@@ -1,12 +1,3 @@
+from training_data.data_generation.gen_data_lvl0 import produce_data
 
-class Dupa:
-
-    def __init__(self):
-        pass
-
-    def __call__(self, x):
-        print(x**2)
-
-
-
-Dupa()(3)
+produce_data(10, 50, 200, 'validation.pickle', '/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0')

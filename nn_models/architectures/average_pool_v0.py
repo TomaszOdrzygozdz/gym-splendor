@@ -1,3 +1,5 @@
+import pickle
+
 import gin
 import neptune
 import logging, os
@@ -10,6 +12,9 @@ from gym_splendor_code.envs.mechanics.game_settings import MAX_RESERVED_CARDS, \
 from nn_models.abstract_model import AbstractModel
 from nn_models.utils.useful_keras_layers import CardNobleMasking, TensorSqueeze
 from keras.callbacks import Callback
+
+from nn_models.utils.vectorizer import Vectorizer
+from training_data.data_generation.gen_data_lvl0 import load_data_for_model
 
 logging.disable(logging.WARNING)
 #os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -26,23 +31,28 @@ class NeptuneMonitor(Callback):
     def __init__(self):
         super().__init__()
         self.mse_metric = MeanSquaredError()
+        self.epoch = 0
+
+    def reset_epoch_counter(self):
+        self.epoch = 0
 
     def on_epoch_end(self, epoch, logs={}):
-        neptune.send_metric('epoch loss', epoch, logs['loss'])
+        neptune.send_metric('epoch loss', self.epoch, logs['loss'])
  #       print(self.validation_data)
         #d = self.model.predict(x = self.validation_data[0:62])
-        neptune.send_metric('epoch test loss', epoch, self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
+        neptune.send_metric('epoch test loss', self.epoch, self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
+        self.epoch += 1
 
-        self.mse_metric.update_state(self.validation_data[62][1:4000],
-                                    np.array([1 - 2*np.random.randint(2)
-                                              for _ in range(len(self.validation_data[62][1:4000]))]))
-        random_score = K.eval(self.mse_metric.result())
-        neptune.send_metric('random_prediction loss', epoch, random_score)
+        # self.mse_metric.update_state(self.validation_data[62][1:4000],
+        #                             np.array([1 - 2*np.random.randint(2)
+        #                                       for _ in range(len(self.validation_data[62]))]))
+        # random_score = K.eval(self.mse_metric.result())
+        # neptune.send_metric('random_prediction loss', epoch, random_score)
 
-    def on_batch_end(self, batch, logs=None):
-        neptune.send_metric('batch_loss', batch, logs['loss'])
-        neptune.send_metric('batch_test_loss', batch,
-                            self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
+    # def on_batch_end(self, batch, logs=None):
+    #     neptune.send_metric('batch_loss', batch, logs['loss'])
+    #     neptune.send_metric('batch_test_loss', batch,
+    #                         self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
 
 
 class GemsEncoder:
@@ -158,7 +168,7 @@ class PlayerEncoder:
         gems_encoded = gems_encoder(gems_input)
         discount_encoded = TensorSqueeze(price_encoder(discount_input))
         reserved_cards_encoded = reserved_cards_encoder(reserved_cards_input + reserved_cards_mask_input)
-        points_encoded = TensorSqueeze(Embedding(input_dim=25, output_dim=points_dim)(*points_input))
+        points_encoded = TensorSqueeze(Embedding(input_dim=30, output_dim=points_dim)(*points_input))
         nobles_number_encoded = TensorSqueeze(Embedding(input_dim=4, output_dim=nobles_dim)(*nobles_number_input))
 
         full_player = Concatenate(axis=-1)([gems_encoded, discount_encoded, reserved_cards_encoded, points_encoded,
@@ -191,6 +201,23 @@ class StateEvaluator(AbstractModel):
                 epochs: int = None
                 ):
        super().__init__()
+
+       self.params['gems_encoder_dim'] = gems_encoder_dim
+       self.params['gems_encoder_dim'] = gems_encoder_dim
+       self.params['price_encoder_dim'] = price_encoder_dim
+       self.params['profit_encoder_dim'] = profit_encoder_dim
+       self.params['cards_points_dim'] = cards_points_dim
+       self.params['cards_dense1_dim'] = cards_dense1_dim
+       self.params['cards_dense2_dim'] = cards_dense2_dim
+       self.params['board_nobles_dense1_dim'] = board_nobles_dense1_dim
+       self.params['board_nobles_dense2_dim'] = board_nobles_dense2_dim
+       self.params['full_board_dense1_dim']= full_board_dense1_dim
+       self.params['full_board_dense2_dim'] = full_board_dense2_dim
+       self.params['player_points_dim'] = player_points_dim
+       self.params['player_nobles_dim'] = player_nobles_dim
+       self.params['full_player_dense1_dim'] = full_player_dense1_dim
+       self.params['full_player_dense2_dim']= full_player_dense2_dim
+
 
        self.neptune_monitor = NeptuneMonitor()
        self.experiment_name = experiment_name
@@ -243,6 +270,14 @@ class StateEvaluator(AbstractModel):
    def train_network(self, x_train, y_train, validation_split=None, validation_data=None, batch_size = None):
        assert self.network is not None, 'You must create network before training'
 
+
+       if validation_split:
+           self.params['X_train_size'] = int((1 - validation_split)*x_train[0].shape[0])
+           self.params['X_valid_size'] = int(validation_split*x_train[0].shape[0])
+       if validation_data:
+           self.params['X_train_size'] = x_train[0].shape[0]
+           self.params['X_valid_size'] = validation_data[0][0].shape[0]
+
        self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training dense network',
                                     neptune_monitor=self.neptune_monitor)
 
@@ -255,4 +290,36 @@ class StateEvaluator(AbstractModel):
        else:
            pass
        neptune.stop()
+
+   def train_network_on_many_sets(self, file_path_prefix, validation_file=None, epochs = None, batch_size=None):
+       assert self.network is not None, 'You must create network before training'
+
+       # if validation_split:
+       #     self.params['X_train_size'] = int((1 - validation_split) * x_train[0].shape[0])
+       #     self.params['X_valid_size'] = int(validation_split * x_train[0].shape[0])
+       # if validation_data:
+       #     self.params['X_train_size'] = x_train[0].shape[0]
+       #     self.params['X_valid_size'] = validation_data[0][0].shape[0]
+       vectorizer = Vectorizer()
+
+       with open(validation_file, 'rb') as f:
+           X_val, Y_val = pickle.load(f)
+
+       X_val = vectorizer.many_states_to_input(X_val)
+       Y_val = np.array(Y_val)
+       self.neptune_monitor.reset_epoch_counter()
+       self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training avg_pool arch network',
+                                     neptune_monitor=self.neptune_monitor)
+
+       for epoch in range(epochs):
+           if epoch != 4:
+               print(f'\n Epoch {epoch}: \n')
+               X, Y = load_data_for_model(file_path_prefix + f'{epoch}.pickle')
+               X = vectorizer.many_states_to_input(X)
+               Y = np.array(Y)
+               self.network.fit(x=X, y=Y, epochs=1, batch_size=batch_size,
+                            validation_data=(X_val, Y_val),
+                            callbacks=[self.neptune_monitor])
+       neptune.stop()
+
 

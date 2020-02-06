@@ -3,7 +3,7 @@ from gym_splendor_code.envs.mechanics.enums import *
 
 USE_TKINTER = True
 USE_FAST_ACTION_GENERATOR = True
-USE_TQDM = False
+USE_TQDM = True
 USE_TENSORFLOW_GPU = False
 USE_LOCAL_TF = False
 
