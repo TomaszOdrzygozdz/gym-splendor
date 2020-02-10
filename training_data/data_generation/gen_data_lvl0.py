@@ -1,6 +1,7 @@
+import os
+
 import random
 from copy import deepcopy
-
 
 from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.greedysearch_agent import GreedySearchAgent
@@ -41,14 +42,15 @@ def flip_states(list_of_states, list_of_values):
         rev_values.append(-list_of_values[i])
     return rev_states, rev_values
 
-def pick_data_for_training(epochs_range):
+def pick_data_for_training(epochs_range, files_dir, dump_dir):
     states = {f'ep_{ep}' : [] for ep in epochs_range}
     values = {f'ep_{ep}' : [] for ep in epochs_range}
 
+    files_list = os.listdir(files_dir)
 
-    for i in range(5):
-        print(f'Iteration i = {i}')
-        with open(f'/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/proc_{i}_lvl0.pickle', 'rb') as f:
+    for file_name in files_list:
+        print(f'Current file = {file_name}')
+        with open(os.path.join(files_dir, file_name), 'rb') as f:
             one_file_data = pickle.load(f)
             for epoch in epochs_range:
                 for key in one_file_data:
@@ -63,7 +65,8 @@ def pick_data_for_training(epochs_range):
         states[f'ep_{epoch}'] = states[f'ep_{epoch}'] + states_rev
         values[f'ep_{epoch}'] = values[f'ep_{epoch}'] + values_rev
 
-        with open(f'/home/tomasz/ML_Research/splendor/gym-splendor/data_lvl_0/ep_{epoch}.pickle', 'wb') as f:
+
+        with open(os.path.join(dump_dir, f'epoch_{epoch}.pickle'), 'wb') as f:
             pickle.dump((states[f'ep_{epoch}'], values[f'ep_{epoch}']), f)
 
 def flatten_data_from_games(source_file, target_file):

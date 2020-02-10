@@ -1,9 +1,15 @@
+import os
 
-from training_data.data_generation.gen_data_lvl0 import produce_data, load_data_for_model
-produce_data(10, 0.25, 1, 'all_vs_all.pickle' , 'supervised_data/lvl1')
+from training_data.data_generation.gen_data_lvl0 import produce_data, load_data_for_model, pick_data_for_training
 
-# data = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/combined.pickle')
-#
-# list_of_states = len(data[0])
-# print(len(data[1]))
+#produce_data(10, 0.25, 5, 'all_vs_all.pickle', '/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/test_lvl0')
 
+pick_data_for_training(range(0,2), '/net/people/plgtodrzygozdz/gym-splendor/supervised_data/lvl3',
+                       '/net/people/plgtodrzygozdz/gym-splendor/supervised_data/lvl_3_training')
+
+#data = load_data_for_model('/home/tomasz/ML_Research/splendor/gym-splendor/cluster_stuff/temp/proc_205_all_vs_all.pickle')
+
+#list_of_states = len(data[0])
+#print(len(data))
+
+#x = os.listdir('/home/tomasz/ML_Research/splendor/gym-splendor/supervised_data/lvl0')
