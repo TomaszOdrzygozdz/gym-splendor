@@ -22,7 +22,7 @@ class AbstractModel:
         if neptune_monitor is not None:
             self.neptune_monitor = neptune_monitor
         neptune.create_experiment(name=experiment_name, description=description, params=self.params)
-        neptune.log_image('Architecture', 'model_architecture.png')
+        #neptune.log_image('Architecture', 'model_architecture.png')
 
     def model_summary(self):
         assert self.network is not None, 'You must create network before vizualization.'

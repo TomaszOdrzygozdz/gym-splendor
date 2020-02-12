@@ -44,4 +44,4 @@ class ValueSupervisedTrainer:
 
 bubik = ValueDenseModel()
 bubik.create_network(layers_list=[400, 400, 400])
-bubik.train_model(data_file_name='merged.pi', output_weights_file_name='wuw.h5', experiment_name='Large data train', epochs=50)
+bubik.train_model(data_file_name='merged.pi', output_weights_file_name='wuw.h5', experiment_name='Large data train_raw', epochs=50)

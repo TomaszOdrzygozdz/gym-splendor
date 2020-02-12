@@ -7,6 +7,12 @@ import numpy as np
 
 from keras.optimizers import Adam
 
+from agents.greedy_agent_boost import GreedyAgentBoost
+from agents.greedysearch_agent import GreedySearchAgent
+from agents.minmax_agent import MinMaxAgent
+from agents.random_agent import RandomAgent
+from agents.value_nn_agent import ValueNNAgent
+from arena.arena import Arena
 from gym_splendor_code.envs.mechanics.game_settings import MAX_RESERVED_CARDS, \
     NOBLES_ON_BOARD_INITIAL
 from nn_models.abstract_model import AbstractModel
@@ -33,8 +39,19 @@ class NeptuneMonitor(Callback):
         self.mse_metric = MeanSquaredError()
         self.epoch = 0
 
+
     def reset_epoch_counter(self):
         self.epoch = 0
+
+    def run_test(self, n_games):
+        easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games, shuffle_agents=True)
+        medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games, shuffle_agents=True)
+        hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games, shuffle_agents=True)
+        _, _, easy_win_rate = easy_results.return_stats()
+        _, _, medium_win_rate = medium_results.return_stats()
+        _, _, hard_win_rate = hard_results.return_stats()
+        return easy_results/n_games, medium_results/n_games, hard_results/n_games
+
 
     def on_epoch_end(self, epoch, logs={}):
         neptune.send_metric('epoch loss', self.epoch, logs['loss'])
@@ -43,16 +60,10 @@ class NeptuneMonitor(Callback):
         neptune.send_metric('epoch test loss', self.epoch, self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
         self.epoch += 1
 
-        # self.mse_metric.update_state(self.validation_data[62][1:4000],
-        #                             np.array([1 - 2*np.random.randint(2)
-        #                                       for _ in range(len(self.validation_data[62]))]))
-        # random_score = K.eval(self.mse_metric.result())
-        # neptune.send_metric('random_prediction loss', epoch, random_score)
-
-    # def on_batch_end(self, batch, logs=None):
-    #     neptune.send_metric('batch_loss', batch, logs['loss'])
-    #     neptune.send_metric('batch_test_loss', batch,
-    #                         self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
+    def log_win_rates(self, easy_results, medium_results, hard_results):
+        neptune.send_metric('easy win rate', self.epoch, easy_results)
+        neptune.send_metric('medium win rate', self.epoch, medium_results)
+        neptune.send_metric('hard win rate', self.epoch, hard_results)
 
 
 class GemsEncoder:
@@ -201,6 +212,7 @@ class StateEvaluator(AbstractModel):
                 epochs: int = None
                 ):
        super().__init__()
+       self.vectorizer = Vectorizer()
 
        self.params['gems_encoder_dim'] = gems_encoder_dim
        self.params['gems_encoder_dim'] = gems_encoder_dim
@@ -217,6 +229,12 @@ class StateEvaluator(AbstractModel):
        self.params['player_nobles_dim'] = player_nobles_dim
        self.params['full_player_dense1_dim'] = full_player_dense1_dim
        self.params['full_player_dense2_dim']= full_player_dense2_dim
+
+       self.arena = Arena()
+       self.network_agent = ValueNNAgent(self, None)
+       self.easy_opp = RandomAgent()
+       self.medium_opp = GreedyAgentBoost()
+       self.hard_opp = MinMaxAgent()
 
 
        self.neptune_monitor = NeptuneMonitor()
@@ -291,21 +309,14 @@ class StateEvaluator(AbstractModel):
            pass
        neptune.stop()
 
-   def train_network_on_many_sets(self, file_path_prefix, validation_file=None, epochs = None, batch_size=None):
+   def train_network_on_many_sets(self, file_path_prefix, validation_file=None, epochs = None, batch_size=None, test_games=1):
        assert self.network is not None, 'You must create network before training'
 
-       # if validation_split:
-       #     self.params['X_train_size'] = int((1 - validation_split) * x_train[0].shape[0])
-       #     self.params['X_valid_size'] = int(validation_split * x_train[0].shape[0])
-       # if validation_data:
-       #     self.params['X_train_size'] = x_train[0].shape[0]
-       #     self.params['X_valid_size'] = validation_data[0][0].shape[0]
-       vectorizer = Vectorizer()
 
        with open(validation_file, 'rb') as f:
            X_val, Y_val = pickle.load(f)
 
-       X_val = vectorizer.many_states_to_input(X_val)
+       X_val = self.vectorizer.many_states_to_input(X_val)
        Y_val = np.array(Y_val)
        self.neptune_monitor.reset_epoch_counter()
        self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training avg_pool arch network',
@@ -315,11 +326,37 @@ class StateEvaluator(AbstractModel):
            if epoch != 4:
                print(f'\n Epoch {epoch}: \n')
                X, Y = load_data_for_model(file_path_prefix + f'{epoch}.pickle')
-               X = vectorizer.many_states_to_input(X)
+               X = self.vectorizer.many_states_to_input(X)
                Y = np.array(Y)
                self.network.fit(x=X, y=Y, epochs=1, batch_size=batch_size,
                             validation_data=(X_val, Y_val),
                             callbacks=[self.neptune_monitor])
+               del X
+               del Y
+               print('Testing agains opponents')
+               self.run_test(test_games)
        neptune.stop()
+
+   def get_value(self, state):
+       x_input = self.vectorizer.state_to_input(state)
+       return self.network.predict(x_input)[0]
+
+   def dump_weights(self, file_name):
+       self.network.save_weights(file_name)
+
+   def load_weights(self, file_name):
+        self.network.load_weights(file_name)
+
+   def run_test(self, n_games):
+       print('Easy opponent.')
+       easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games, shuffle_agents=True)
+       print('Medium opponent.')
+       medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games, shuffle_agents=True)
+       print('Hard opponent.')
+       hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games, shuffle_agents=True)
+       _, _, easy_win_rate = easy_results.return_stats()
+       _, _, medium_win_rate = medium_results.return_stats()
+       _, _, hard_win_rate = hard_results.return_stats()
+       self.neptune_monitor.log_win_rates(easy_win_rate/n_games, medium_win_rate/n_games, hard_win_rate/n_games)
 
 

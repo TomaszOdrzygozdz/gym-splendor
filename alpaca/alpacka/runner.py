@@ -102,7 +102,7 @@ class Runner:
 
     def _log_training_metrics(self, metrics):
         for (name, value) in metrics.items():
-            metric_logging.log_scalar('train/' + name, self._epoch, value)
+            metric_logging.log_scalar('train_raw/' + name, self._epoch, value)
 
     def _save_gin(self):
         # TODO(koz4k): Send to neptune as well.

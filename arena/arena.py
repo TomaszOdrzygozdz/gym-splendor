@@ -154,7 +154,7 @@ class Arena:
             self.env.reset()
             one_game_statistics = GameStatisticsDuels(list_of_agents)
             one_game_statistics.register_from_dict(results_dict)
-            if winner_id is not None:
+            if winner_id is not None and self.collect_states_mode:
                 values = [1 if st.active_player_id == winner_id else -1 for st in one_game_obs_list]
                 self.collected_states_df[len(self.collected_states_df)] = {'states' : one_game_obs_list,
                                                                                 'values' : values}

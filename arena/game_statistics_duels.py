@@ -45,7 +45,7 @@ class GameStatisticsDuels:
                     self.n_games_dict[(list_agents_names[i], list_agents_names[(i + 1) % 2])] += 1
         self.number_of_games += 1
 
-    def return_stats(self, agent1=None, agent2=None):
+    def return_stats(self):
         pair = (self.list_of_agents_names1[0], self.list_of_agents_names1[1])
         return self.number_of_games, self.data[pair].reward, self.data[pair].wins
 
@@ -103,3 +103,4 @@ class GameStatisticsDuels:
 
     def crop_name(self, name):
         return name[-4:]
+
