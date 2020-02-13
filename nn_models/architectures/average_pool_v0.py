@@ -298,7 +298,7 @@ class StateEvaluator(AbstractModel):
            pass
        neptune.stop()
 
-   def train_network_on_many_sets(self, file_path_prefix, validation_file=None, epochs = None, batch_size=None, test_games=1):
+   def train_network_on_many_sets(self, file_path_prefix, validation_file=None, epochs = None, epochs_repeat = None, batch_size=None, test_games=1):
        assert self.network is not None, 'You must create network before training'
 
 
@@ -312,18 +312,18 @@ class StateEvaluator(AbstractModel):
                                      neptune_monitor=self.neptune_monitor)
 
        for epoch in range(epochs):
-           if epoch != 4:
-               print(f'\n Epoch {epoch}: \n')
-               X, Y = load_data_for_model(file_path_prefix + f'{epoch}.pickle')
-               X = self.vectorizer.many_states_to_input(X)
-               Y = np.array(Y)
-               self.network.fit(x=X, y=Y, epochs=1, batch_size=batch_size,
-                            validation_data=(X_val, Y_val),
-                            callbacks=[self.neptune_monitor])
-               del X
-               del Y
-               print('Testing agains opponents')
-               self.run_test(test_games)
+           print(f'\n Epoch {epoch}: \n')
+           file_epoch = epoch % epochs_repeat
+           X, Y = load_data_for_model(file_path_prefix + f'{file_epoch}.pickle')
+           X = self.vectorizer.many_states_to_input(X)
+           Y = np.array(Y)
+           self.network.fit(x=X, y=Y, epochs=1, batch_size=batch_size,
+                        validation_data=(X_val, Y_val),
+                        callbacks=[self.neptune_monitor])
+           del X
+           del Y
+           print('Testing agains opponents')
+           self.run_test(test_games)
        neptune.stop()
 
    def get_value(self, state):
