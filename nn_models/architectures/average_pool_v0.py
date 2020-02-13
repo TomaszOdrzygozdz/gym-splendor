@@ -25,7 +25,6 @@ from training_data.data_generation.gen_data_lvl0 import load_data_for_model
 logging.disable(logging.WARNING)
 #os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-from keras.metrics import MeanSquaredError
 from keras.models import Model
 from keras.layers import Input, Embedding, Concatenate, Dense
 from nn_models.utils.named_tuples import *
@@ -36,21 +35,11 @@ from sklearn.model_selection import train_test_split
 class NeptuneMonitor(Callback):
     def __init__(self):
         super().__init__()
-        self.mse_metric = MeanSquaredError()
         self.epoch = 0
 
 
     def reset_epoch_counter(self):
         self.epoch = 0
-
-    def run_test(self, n_games):
-        easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games, shuffle_agents=True)
-        medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games, shuffle_agents=True)
-        hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games, shuffle_agents=True)
-        _, _, easy_win_rate = easy_results.return_stats()
-        _, _, medium_win_rate = medium_results.return_stats()
-        _, _, hard_win_rate = hard_results.return_stats()
-        return easy_results/n_games, medium_results/n_games, hard_results/n_games
 
 
     def on_epoch_end(self, epoch, logs={}):

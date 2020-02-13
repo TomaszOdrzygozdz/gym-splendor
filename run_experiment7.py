@@ -1,4 +1,4 @@
-import numpy as np
-x = np.array([2])
-x = x.reshape(1, 1, 1)
-print(x.shape)
+import neptune
+NEPTUNE_API_TOKEN = 'eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vdWkubmVwdHVuZS5tbCIsImFwaV91cmwiOiJodHRwczovL3VpLm5lcHR1bmUuYWkiLCJhcGlfa2V5IjoiMGQ0YTViMTUtYTdkZC00NWYzLThkZmYtNjFiODRkZGYwOTBjIn0='
+NEPTUNE_PROJECT_NAME_BASIC = 'tomaszodrzygozdz/Splendor'
+NEPTUNE_PROJECT_NAME_NN_TRAINING: str = 'tomaszodrzygozdz/Splendor-nn'
