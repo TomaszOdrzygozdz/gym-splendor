@@ -3,8 +3,6 @@ import os
 import random
 from copy import deepcopy
 
-from tqdm import tqdm
-
 from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.greedysearch_agent import GreedySearchAgent
 from agents.minmax_agent import MinMaxAgent
@@ -46,7 +44,6 @@ def flip_states(list_of_states, list_of_values):
 def evaluate_states(files_dir, dump_dir):
     evaluator = StateEvaluatorHeuristic()
     list_of_files = os.listdir(files_dir)
-    list_to_iterate = tqdm(list_of_files) if USE_TQDM else list_of_files
     for file_name in list_of_files:
         X = []
         Y = []
