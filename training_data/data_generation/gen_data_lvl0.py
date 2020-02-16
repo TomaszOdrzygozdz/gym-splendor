@@ -3,13 +3,17 @@ import os
 import random
 from copy import deepcopy
 
+from tqdm import tqdm
+
 from agents.greedy_agent_boost import GreedyAgentBoost
 from agents.greedysearch_agent import GreedySearchAgent
 from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
 import numpy as np
+
+from agents.state_evaluator_heuristic import StateEvaluatorHeuristic
 from arena.arena_multi_thread import ArenaMultiThread
-from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI
+from gym_splendor_code.envs.mechanics.game_settings import USE_TQDM
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from nn_models.utils.vectorizer import Vectorizer
 import pickle
@@ -38,6 +42,28 @@ def flip_states(list_of_states, list_of_values):
         rev_states.append(rev_state)
         rev_values.append(-list_of_values[i])
     return rev_states, rev_values
+
+def evaluate_states(files_dir, dump_dir):
+    evaluator = StateEvaluatorHeuristic()
+    list_of_files = os.listdir(files_dir)
+    list_to_iterate = tqdm(list_of_files) if USE_TQDM else list_of_files
+    for file_name in list_of_files:
+        X = []
+        Y = []
+        with open(os.path.join(files_dir, file_name), 'rb') as f:
+            X, _ = pickle.load(f)
+            X = X[:len(X)//2]
+            Y = []
+            for x in X:
+                state_to_eval = StateAsDict(x).to_state()
+                Y.append(evaluator.evaluate(state_to_eval))
+
+        with open(os.path.join(dump_dir, file_name), 'wb') as f:
+            pickle.dump((X, Y), f)
+            print(len(X))
+        del X
+        del Y
+
 
 def pick_data_for_training(epochs_range, files_dir, dump_dir):
     states = []

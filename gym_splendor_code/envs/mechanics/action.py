@@ -39,7 +39,7 @@ class Action():
         pass
 
     @abstractmethod
-    def evaluate(self):
+    def evaluate(self, state : State):
         pass
 
 
