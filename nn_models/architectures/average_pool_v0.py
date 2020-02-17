@@ -49,10 +49,10 @@ class NeptuneMonitor(Callback):
         neptune.send_metric('epoch test loss', self.epoch, self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
         self.epoch += 1
 
-    def log_win_rates(self, easy_results, medium_results, hard_results):
-        neptune.send_metric('easy win rate', self.epoch, easy_results)
-        neptune.send_metric('medium win rate', self.epoch, medium_results)
-        neptune.send_metric('hard win rate', self.epoch, hard_results)
+    def log_win_rates(self, easy_results):
+        neptune.send_metric('win rate w. random', self.epoch, easy_results)
+        #neptune.send_metric('medium win rate', self.epoch, medium_results)
+        #neptune.send_metric('hard win rate', self.epoch, hard_results)
 
 
 class GemsEncoder:
@@ -268,7 +268,7 @@ class StateEvaluator(AbstractModel):
        full_state = Concatenate(axis=-1)([board_encoded, active_player_encoded, other_player_encoded])
        full_state = Dense(full_player_dense1_dim, activation='relu')(full_state)
        full_state = Dense(full_player_dense2_dim, activation='relu')(full_state)
-       final_result = Dense(1, activation='tanh', name='final_layer')(full_state)
+       final_result = Dense(1, name='final_layer')(full_state)
        self.network = Model(inputs = self.inputs, outputs = final_result, name = 'full_state_splendor_estimator')
        self.network.compile(Adam(), loss='mean_squared_error')
        self.params['Model name'] = 'Average pooling model'
@@ -339,13 +339,13 @@ class StateEvaluator(AbstractModel):
    def run_test(self, n_games):
        print('Easy opponent.')
        easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games, shuffle_agents=True)
-       print('Medium opponent.')
-       medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games, shuffle_agents=True)
-       print('Hard opponent.')
-       hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games, shuffle_agents=True)
+       #print('Medium opponent.')
+       #medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games, shuffle_agents=True)
+       #print('Hard opponent.')
+       #hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games, shuffle_agents=True)
        _, _, easy_win_rate = easy_results.return_stats()
-       _, _, medium_win_rate = medium_results.return_stats()
-       _, _, hard_win_rate = hard_results.return_stats()
-       self.neptune_monitor.log_win_rates(easy_win_rate/n_games, medium_win_rate/n_games, hard_win_rate/n_games)
+       #_, _, medium_win_rate = medium_results.return_stats()
+       #_, _, hard_win_rate = hard_results.return_stats()
+       self.neptune_monitor.log_win_rates(easy_win_rate/n_games)
 
 

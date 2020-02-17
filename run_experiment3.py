@@ -3,7 +3,7 @@ from nn_models.architectures.average_pool_v0 import StateEvaluator
 gin.parse_config_file('/net/people/plgtodrzygozdz/gym-splendor/nn_models/experiments/series_1/experiment_1/params_v1.gin')
 
 model = StateEvaluator()
-model.train_network_on_many_sets('/net/archive/groups/plggluna/plgtodrzygozdz/lvl1/train_epochs/epoch_',
+model.train_network_on_many_sets('/net/archive/groups/plggluna/plgtodrzygozdz/lvl1/train_epochs_eval',
                                  '/net/archive/groups/plggluna/plgtodrzygozdz/lvl1/valid_epoch/valid_0.pickle',
                                  epochs=500, epochs_repeat=11, test_games=10)
 
