@@ -1,10 +1,8 @@
-from neptune_settings import USE_NEPTUNE
-import tensorflow as tf
-from keras import backend as K
+from archive.neptune_settings import USE_NEPTUNE
 from keras.utils import plot_model
 
 if USE_NEPTUNE:
-    from neptune_settings import NEPTUNE_API_TOKEN, NEPTUNE_PROJECT_NAME_NN_TRAINING
+    from archive.neptune_settings import NEPTUNE_API_TOKEN, NEPTUNE_PROJECT_NAME_NN_TRAINING
     import  neptune
 
 

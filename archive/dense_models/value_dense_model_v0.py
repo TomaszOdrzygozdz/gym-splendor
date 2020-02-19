@@ -1,7 +1,6 @@
 import os
-from gym_splendor_code.envs.mechanics.game_settings import USE_TENSORFLOW_GPU, USE_LOCAL_TF
-from monte_carlo_tree_search.mcts_settings import REWARDS_FOR_HAVING_NO_LEGAL_ACTIONS
-from neptune_settings import USE_NEPTUNE
+from gym_splendor_code.envs.mechanics.game_settings import USE_TENSORFLOW_GPU
+from archive.neptune_settings import USE_NEPTUNE
 from nn_models.abstract_model import AbstractModel
 
 if not USE_TENSORFLOW_GPU:
@@ -12,17 +11,14 @@ import tensorflow as tf
 tf.logging.set_verbosity(tf.logging.ERROR)
 import keras
 from keras.callbacks import Callback
-import json
 from keras.models import Model
-from keras.layers import Input, Dense, Dropout
-
+from keras.layers import Input, Dense
 
 import pandas as pd
 
 from typing import List
 
 import numpy as np
-from sklearn.model_selection import train_test_split
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 
 if USE_NEPTUNE:

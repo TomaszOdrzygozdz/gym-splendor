@@ -1,10 +1,10 @@
 
 import random
 
-from neptune_settings import USE_NEPTUNE
+from archive.neptune_settings import USE_NEPTUNE
 
 if USE_NEPTUNE:
-    from neptune_settings import NEPTUNE_API_TOKEN, NEPTUNE_PROJECT_NAME
+    from archive.neptune_settings import NEPTUNE_API_TOKEN, NEPTUNE_PROJECT_NAME
     import  neptune
     neptune.init(project_qualified_name=NEPTUNE_PROJECT_NAME, api_token=NEPTUNE_API_TOKEN)
 

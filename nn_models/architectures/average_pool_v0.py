@@ -31,7 +31,7 @@ from nn_models.utils.named_tuples import *
 import keras.backend as K
 
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+from PIL import Image
 
 from sklearn.model_selection import train_test_split
 
@@ -58,9 +58,9 @@ class NeptuneMonitor(Callback):
             neptune.send_metric(f'eval of state {i}', self.epoch, results[i])
 
     def log_histograms(self, file1, file2):
-        img1 = mpimg.imread(file1)
+        img1 = Image.open(file1)
         neptune.send_image('train set histogram', img1)
-        img2 = mpimg.imread(file2)
+        img2 = Image.open(file2)
         neptune.send_image('val set histogram', img2)
 
 
@@ -361,13 +361,14 @@ class StateEncoder(AbstractModel):
            _, Y_val = pickle.load(f2)
        self.params['train set size'] = len(Y_ex)
        self.params['valid set size'] = len(Y_val)
+       file1 = os.path.join('temp', 'train_hist.png')
+       file2 = os.path.join('temp', 'valid_hist.png')
        plt.hist(Y_ex, bins=100)
-       plt.savefig(os.path.join(train_dir, 'train_hist.png'))
+       plt.savefig(file1)
        plt.clf()
        plt.hist(Y_val, bins=100)
-       plt.savefig(os.path.join(train_dir, 'valid_hist.png'))
-       return os.path.join(train_dir, 'train_hist.png'), os.path.join(train_dir, 'valid_hist.png')
-
+       plt.savefig(file2)
+       return file1, file2
 
    def run_test(self, n_games):
        print('Easy opponent.')
