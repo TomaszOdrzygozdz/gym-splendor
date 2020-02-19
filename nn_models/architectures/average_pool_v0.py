@@ -30,6 +30,9 @@ from keras.layers import Input, Embedding, Concatenate, Dense
 from nn_models.utils.named_tuples import *
 import keras.backend as K
 
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
 from sklearn.model_selection import train_test_split
 
 class NeptuneMonitor(Callback):
@@ -53,6 +56,12 @@ class NeptuneMonitor(Callback):
     def log_state_values(self, results):
         for i in range(len(results)):
             neptune.send_metric(f'eval of state {i}', self.epoch, results[i])
+
+    def log_histograms(self, file1, file2):
+        img1 = mpimg.imread(file1)
+        neptune.send_image('train set histogram', img1)
+        img2 = mpimg.imread(file2)
+        neptune.send_image('val set histogram', img2)
 
 
 class GemsEncoder:
@@ -181,7 +190,7 @@ class PlayerEncoder:
         return self.layer(player_input)
 
 @gin.configurable
-class StateEvaluator(AbstractModel):
+class StateEncoder(AbstractModel):
    def __init__(self,
                 gems_encoder_dim : int = None,
                 price_encoder_dim : int = None,
@@ -197,11 +206,12 @@ class StateEvaluator(AbstractModel):
                 player_nobles_dim: int = None,
                 full_player_dense1_dim: int = None,
                 full_player_dense2_dim: int = None,
-                experiment_name: str = None,
-                epochs: int = None
+                final_layer: int = None,
+                experiment_name: str = None
                 ):
        super().__init__()
        self.vectorizer = Vectorizer()
+       self.final_layer = ValueRegressor()
 
        self.params['gems_encoder_dim'] = gems_encoder_dim
        self.params['gems_encoder_dim'] = gems_encoder_dim
@@ -228,7 +238,6 @@ class StateEvaluator(AbstractModel):
 
        self.neptune_monitor = NeptuneMonitor()
        self.experiment_name = experiment_name
-       self.epochs = epochs
 
        self.gems_encoder = GemsEncoder(gems_encoder_dim)
        self.price_encoder = PriceEncoder(price_encoder_dim)
@@ -267,41 +276,46 @@ class StateEvaluator(AbstractModel):
        other_player_encoded = self.player_encoder(other_player_input)
        full_state = Concatenate(axis=-1)([board_encoded, active_player_encoded, other_player_encoded])
        full_state = Dense(full_player_dense1_dim, activation='relu')(full_state)
-       full_state = Dense(full_player_dense2_dim, activation='relu')(full_state)
-       final_result = Dense(1, name='final_layer')(full_state)
-
-       self.network = Model(inputs = self.inputs, outputs = final_result, name = 'full_state_splendor_estimator')
+       final_state = Dense(full_player_dense2_dim, activation='relu')(full_state)
+       result = self.final_layer(final_state)
+       self.layer = Model(inputs = self.inputs, outputs = final_state, name = 'full_state_splendor_estimator')
+       self.network = Model(inputs = self.inputs, outputs = result, name = 'full_state_splendor_estimator')
        self.network.compile(Adam(), loss='mean_squared_error')
        self.params['Model name'] = 'Average pooling model'
        self.params['optimizer_name'] = 'Adam'
 
-   def train_network(self, x_train, y_train, validation_split=None, validation_data=None, batch_size = None):
+   def get_value(self, state):
+       prediciton = self.network.predict(self.vectorizer.state_to_input(state))
+       return self.final_layer.get_value(prediciton)
+
+   def train_network(self, x_train, y_train, validation_split=None, validation_data=None, batch_size=None):
        assert self.network is not None, 'You must create network before training'
 
-
        if validation_split:
-           self.params['X_train_size'] = int((1 - validation_split)*x_train[0].shape[0])
-           self.params['X_valid_size'] = int(validation_split*x_train[0].shape[0])
+           self.params['X_train_size'] = int((1 - validation_split) * x_train[0].shape[0])
+           self.params['X_valid_size'] = int(validation_split * x_train[0].shape[0])
        if validation_data:
            self.params['X_train_size'] = x_train[0].shape[0]
            self.params['X_valid_size'] = validation_data[0][0].shape[0]
 
        self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training dense network',
-                                    neptune_monitor=self.neptune_monitor)
+                                     neptune_monitor=self.neptune_monitor)
 
        if validation_data is not None:
-           self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=batch_size, validation_data=validation_data,
+           self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=batch_size,
+                            validation_data=validation_data,
                             callbacks=[self.neptune_monitor])
        elif validation_split is not None:
-           self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=batch_size, validation_split=validation_split,
+           self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=batch_size,
+                            validation_split=validation_split,
                             callbacks=[self.neptune_monitor])
        else:
            pass
        neptune.stop()
 
-   def train_network_on_many_sets(self, train_dir=None, validation_file=None, epochs = None, batch_size=None, test_games=1):
+   def train_network_on_many_sets(self, train_dir=None, validation_file=None, epochs=None, batch_size=None,
+                                  test_games=1):
        assert self.network is not None, 'You must create network before training'
-
 
        with open(validation_file, 'rb') as f:
            X_val, Y_val = pickle.load(f)
@@ -309,18 +323,20 @@ class StateEvaluator(AbstractModel):
        X_val = self.vectorizer.many_states_to_input(X_val)
        Y_val = np.array(Y_val)
        self.neptune_monitor.reset_epoch_counter()
+       file1, file2 = self.gather_data_info(train_dir, validation_file)
        self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training avg_pool arch network',
                                      neptune_monitor=self.neptune_monitor)
+       self.neptune_monitor.log_histograms(file1, file2)
        files_for_training = os.listdir(train_dir)
        for epoch in range(epochs):
            print(f'\n Epoch {epoch}: \n')
            file_epoch = epoch % len(files_for_training)
-           X, Y = load_data_for_model(files_for_training[epoch])
+           X, Y = load_data_for_model(os.path.join(train_dir, files_for_training[file_epoch]))
            X = self.vectorizer.many_states_to_input(X)
            Y = np.array(Y)
            self.network.fit(x=X, y=Y, epochs=1, batch_size=batch_size,
-                        validation_data=(X_val, Y_val),
-                        callbacks=[self.neptune_monitor])
+                            validation_data=(X_val, Y_val),
+                            callbacks=[self.neptune_monitor])
            del X
            del Y
            print('Testing agains opponents')
@@ -330,28 +346,57 @@ class StateEvaluator(AbstractModel):
 
        neptune.stop()
 
-   def get_value(self, state):
-       x_input = self.vectorizer.state_to_input(state)
-       return self.network.predict(x_input)[0]
-
    def dump_weights(self, file_name):
        self.network.save_weights(file_name)
 
    def load_weights(self, file_name):
-        self.network.load_weights(file_name)
+       self.network.load_weights(file_name)
+
+   def gather_data_info(self, train_dir, validation_file):
+       list_of_files = os.listdir(train_dir)
+       example_file = list_of_files[0]
+       with open(os.path.join(train_dir, example_file), 'rb') as f1:
+           _, Y_ex = pickle.load(f1)
+       with open(validation_file, 'rb') as f2:
+           _, Y_val = pickle.load(f2)
+       self.params['train set size'] = len(Y_ex)
+       self.params['valid set size'] = len(Y_val)
+       plt.hist(Y_ex, bins=100)
+       plt.savefig(os.path.join(train_dir, 'train_hist.png'))
+       plt.clf()
+       plt.hist(Y_val, bins=100)
+       plt.savefig(os.path.join(train_dir, 'valid_hist.png'))
+       return os.path.join(train_dir, 'train_hist.png'), os.path.join(train_dir, 'valid_hist.png')
+
 
    def run_test(self, n_games):
        print('Easy opponent.')
-       easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games, shuffle_agents=True)
-       #print('Medium opponent.')
-       #medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games, shuffle_agents=True)
-       #print('Hard opponent.')
-       #hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games, shuffle_agents=True)
+       easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games,
+                                                shuffle_agents=True)
+       # print('Medium opponent.')
+       # medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games, shuffle_agents=True)
+       # print('Hard opponent.')
+       # hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games, shuffle_agents=True)
        _, _, easy_win_rate = easy_results.return_stats()
-       #_, _, medium_win_rate = medium_results.return_stats()
-       #_, _, hard_win_rate = hard_results.return_stats()
-       self.neptune_monitor.log_win_rates(easy_win_rate/n_games)
+       # _, _, medium_win_rate = medium_results.return_stats()
+       # _, _, hard_win_rate = hard_results.return_stats()
+       self.neptune_monitor.log_win_rates(easy_win_rate / n_games)
+
 
    def evaluate_fixed_states(self):
-       results =  [self.get_value(f_state) for f_state in list_of_fixes_states]
+       results = [self.get_value(f_state) for f_state in list_of_fixes_states]
        self.neptune_monitor.log_state_values(results)
+
+class ValueRegressor:
+    def __init__(self):
+        self.layer = Dense(1, activation='linear')
+
+    def __call__(self, state_input):
+        return self.layer(state_input)
+
+    def get_value(self, network_result):
+        return network_result[0][0]
+
+
+
+

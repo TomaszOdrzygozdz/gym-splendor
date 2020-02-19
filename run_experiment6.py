@@ -6,4 +6,4 @@
 from training_data.data_generation.gen_data_lvl0 import evaluate_states
 
 evaluate_states('/net/archive/groups/plggluna/plgtodrzygozdz/small_data_sanity/train_epochs_eval',
-                '/net/archive/groups/plggluna/plgtodrzygozdz/small_data_sanity/valid_epoch/valid_eval.pickle')
+                '/net/archive/groups/plggluna/plgtodrzygozdz/small_data_sanity/valid_eval/valid_eval.pickle')

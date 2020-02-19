@@ -1,0 +1,15 @@
+StateEncoder.gems_encoder_dim = 16
+StateEncoder.price_encoder_dim = 16
+StateEncoder.profit_encoder_dim = 16
+StateEncoder.cards_points_dim = 32
+StateEncoder.cards_dense1_dim = 32
+StateEncoder.cards_dense2_dim = 32
+StateEncoder.board_nobles_dense1_dim = 64
+StateEncoder.board_nobles_dense2_dim = 64
+StateEncoder.full_board_dense1_dim = 512
+StateEncoder.full_board_dense2_dim = 512
+StateEncoder.player_points_dim = 512
+StateEncoder.player_nobles_dim = 512
+StateEncoder.full_player_dense1_dim = 1024
+StateEncoder.full_player_dense2_dim = 1024
+StateEncoder.experiment_name = 'Regression ex 1 sanity'

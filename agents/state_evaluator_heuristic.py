@@ -1,6 +1,5 @@
 import numpy as np
 
-from archive.states_list import state_2, state_4, state_3, state_3_5, state_1_2, state_1
 from gym_splendor_code.envs.mechanics.action_space_generator import generate_all_legal_actions
 from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
 from gym_splendor_code.envs.mechanics.state import State

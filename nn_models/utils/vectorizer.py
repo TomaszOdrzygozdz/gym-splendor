@@ -1,6 +1,5 @@
 import numpy as np
 
-from archive.states_list import state_3
 from gym_splendor_code.envs.mechanics.board import Board
 from typing import List
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection

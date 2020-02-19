@@ -111,4 +111,3 @@ def load_data_for_model(file):
     with open(file, 'rb') as f:
         data_to_return = pickle.load(f)
     return data_to_return
-
