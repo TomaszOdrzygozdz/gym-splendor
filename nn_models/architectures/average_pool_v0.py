@@ -12,6 +12,7 @@ from agents.greedysearch_agent import GreedySearchAgent
 from agents.minmax_agent import MinMaxAgent
 from agents.random_agent import RandomAgent
 from agents.value_nn_agent import ValueNNAgent
+from archive.states_list import list_of_fixes_states
 from arena.arena import Arena
 from gym_splendor_code.envs.mechanics.game_settings import MAX_RESERVED_CARDS, \
     NOBLES_ON_BOARD_INITIAL
@@ -23,7 +24,6 @@ from nn_models.utils.vectorizer import Vectorizer
 from training_data.data_generation.gen_data_lvl0 import load_data_for_model
 
 logging.disable(logging.WARNING)
-#os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 from keras.models import Model
 from keras.layers import Input, Embedding, Concatenate, Dense
@@ -37,15 +37,11 @@ class NeptuneMonitor(Callback):
         super().__init__()
         self.epoch = 0
 
-
     def reset_epoch_counter(self):
         self.epoch = 0
 
-
     def on_epoch_end(self, epoch, logs={}):
         neptune.send_metric('epoch loss', self.epoch, logs['loss'])
- #       print(self.validation_data)
-        #d = self.model.predict(x = self.validation_data[0:62])
         neptune.send_metric('epoch test loss', self.epoch, self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
         self.epoch += 1
 
@@ -53,6 +49,10 @@ class NeptuneMonitor(Callback):
         neptune.send_metric('win rate w. random', self.epoch, easy_results)
         #neptune.send_metric('medium win rate', self.epoch, medium_results)
         #neptune.send_metric('hard win rate', self.epoch, hard_results)
+
+    def log_state_values(self, results):
+        for i in range(len(results)):
+            neptune.send_metric(f'eval of state {i}', self.epoch, results[i])
 
 
 class GemsEncoder:
@@ -269,6 +269,7 @@ class StateEvaluator(AbstractModel):
        full_state = Dense(full_player_dense1_dim, activation='relu')(full_state)
        full_state = Dense(full_player_dense2_dim, activation='relu')(full_state)
        final_result = Dense(1, name='final_layer')(full_state)
+
        self.network = Model(inputs = self.inputs, outputs = final_result, name = 'full_state_splendor_estimator')
        self.network.compile(Adam(), loss='mean_squared_error')
        self.params['Model name'] = 'Average pooling model'
@@ -298,7 +299,7 @@ class StateEvaluator(AbstractModel):
            pass
        neptune.stop()
 
-   def train_network_on_many_sets(self, file_path_prefix, validation_file=None, epochs = None, epochs_repeat = None, batch_size=None, test_games=1):
+   def train_network_on_many_sets(self, train_dir=None, validation_file=None, epochs = None, batch_size=None, test_games=1):
        assert self.network is not None, 'You must create network before training'
 
 
@@ -310,11 +311,11 @@ class StateEvaluator(AbstractModel):
        self.neptune_monitor.reset_epoch_counter()
        self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training avg_pool arch network',
                                      neptune_monitor=self.neptune_monitor)
-
+       files_for_training = os.listdir(train_dir)
        for epoch in range(epochs):
            print(f'\n Epoch {epoch}: \n')
-           file_epoch = epoch % epochs_repeat
-           X, Y = load_data_for_model(file_path_prefix + f'{file_epoch}.pickle')
+           file_epoch = epoch % len(files_for_training)
+           X, Y = load_data_for_model(files_for_training[epoch])
            X = self.vectorizer.many_states_to_input(X)
            Y = np.array(Y)
            self.network.fit(x=X, y=Y, epochs=1, batch_size=batch_size,
@@ -324,6 +325,9 @@ class StateEvaluator(AbstractModel):
            del Y
            print('Testing agains opponents')
            self.run_test(test_games)
+           print('Evaluating fixed states')
+           self.evaluate_fixed_states()
+
        neptune.stop()
 
    def get_value(self, state):
@@ -348,4 +352,6 @@ class StateEvaluator(AbstractModel):
        #_, _, hard_win_rate = hard_results.return_stats()
        self.neptune_monitor.log_win_rates(easy_win_rate/n_games)
 
-
+   def evaluate_fixed_states(self):
+       results =  [self.get_value(f_state) for f_state in list_of_fixes_states]
+       self.neptune_monitor.log_state_values(results)
