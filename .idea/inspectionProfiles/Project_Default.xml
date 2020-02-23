@@ -24,6 +24,7 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="tuple._fields" />
+          <option value="nn_models.value_function_heura.value_function.state_1" />
         </list>
       </option>
     </inspection_tool>

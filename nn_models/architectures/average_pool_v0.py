@@ -39,6 +39,7 @@ class NeptuneMonitor(Callback):
     def __init__(self):
         super().__init__()
         self.epoch = 0
+        self.win_rates_history = []
 
     def reset_epoch_counter(self):
         self.epoch = 0
@@ -49,7 +50,11 @@ class NeptuneMonitor(Callback):
         self.epoch += 1
 
     def log_win_rates(self, easy_results):
-        neptune.send_metric('win rate w. random', self.epoch, easy_results)
+        self.win_rates_history.append(easy_results)
+        if len(self.win_rates_history) < 5:
+            neptune.send_metric('win rate w. random', self.epoch, np.mean(self.win_rates_history))
+        else:
+            neptune.send_metric('win rate w. random', self.epoch, np.mean(self.win_rates_history[-4:]))
         #neptune.send_metric('medium win rate', self.epoch, medium_results)
         #neptune.send_metric('hard win rate', self.epoch, hard_results)
 
@@ -206,13 +211,17 @@ class StateEncoder(AbstractModel):
                 player_nobles_dim: int = None,
                 full_player_dense1_dim: int = None,
                 full_player_dense2_dim: int = None,
-                final_layer: int = None,
+                final_layer= None,
+                data_transformer = None,
                 experiment_name: str = None
                 ):
        super().__init__()
        self.vectorizer = Vectorizer()
-       self.final_layer = ValueRegressor()
+       self.final_layer = final_layer
+       self.data_transformer = data_transformer
 
+       self.params['data transormation'] = self.data_transformer.name
+       self.params['final layer name'] = self.final_layer.name
        self.params['gems_encoder_dim'] = gems_encoder_dim
        self.params['gems_encoder_dim'] = gems_encoder_dim
        self.params['price_encoder_dim'] = price_encoder_dim
@@ -228,6 +237,7 @@ class StateEncoder(AbstractModel):
        self.params['player_nobles_dim'] = player_nobles_dim
        self.params['full_player_dense1_dim'] = full_player_dense1_dim
        self.params['full_player_dense2_dim']= full_player_dense2_dim
+
 
        self.arena = Arena()
        self.network_agent = ValueNNAgent(self, None)
@@ -288,30 +298,6 @@ class StateEncoder(AbstractModel):
        prediciton = self.network.predict(self.vectorizer.state_to_input(state))
        return self.final_layer.get_value(prediciton)
 
-   def train_network(self, x_train, y_train, validation_split=None, validation_data=None, batch_size=None):
-       assert self.network is not None, 'You must create network before training'
-
-       if validation_split:
-           self.params['X_train_size'] = int((1 - validation_split) * x_train[0].shape[0])
-           self.params['X_valid_size'] = int(validation_split * x_train[0].shape[0])
-       if validation_data:
-           self.params['X_train_size'] = x_train[0].shape[0]
-           self.params['X_valid_size'] = validation_data[0][0].shape[0]
-
-       self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training dense network',
-                                     neptune_monitor=self.neptune_monitor)
-
-       if validation_data is not None:
-           self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=batch_size,
-                            validation_data=validation_data,
-                            callbacks=[self.neptune_monitor])
-       elif validation_split is not None:
-           self.network.fit(x=x_train, y=y_train, epochs=self.epochs, batch_size=batch_size,
-                            validation_split=validation_split,
-                            callbacks=[self.neptune_monitor])
-       else:
-           pass
-       neptune.stop()
 
    def train_network_on_many_sets(self, train_dir=None, validation_file=None, epochs=None, batch_size=None,
                                   test_games=1):
@@ -321,7 +307,7 @@ class StateEncoder(AbstractModel):
            X_val, Y_val = pickle.load(f)
 
        X_val = self.vectorizer.many_states_to_input(X_val)
-       Y_val = np.array(Y_val)
+       Y_val = self.data_transformer.transform_array(Y_val)
        self.neptune_monitor.reset_epoch_counter()
        file1, file2 = self.gather_data_info(train_dir, validation_file)
        self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training avg_pool arch network',
@@ -333,7 +319,7 @@ class StateEncoder(AbstractModel):
            file_epoch = epoch % len(files_for_training)
            X, Y = load_data_for_model(os.path.join(train_dir, files_for_training[file_epoch]))
            X = self.vectorizer.many_states_to_input(X)
-           Y = np.array(Y)
+           Y = self.data_transformer.transform_array(Y)
            self.network.fit(x=X, y=Y, epochs=1, batch_size=batch_size,
                             validation_data=(X_val, Y_val),
                             callbacks=[self.neptune_monitor])
@@ -363,6 +349,8 @@ class StateEncoder(AbstractModel):
        self.params['valid set size'] = len(Y_val)
        file1 = os.path.join('temp', 'train_hist.png')
        file2 = os.path.join('temp', 'valid_hist.png')
+       Y_ex = self.data_transformer.transform_array(Y_ex)
+       Y_val = self.data_transformer.transform_array(Y_val)
        plt.hist(Y_ex, bins=100)
        plt.savefig(file1)
        plt.clf()
@@ -374,30 +362,38 @@ class StateEncoder(AbstractModel):
        print('Easy opponent.')
        easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games,
                                                 shuffle_agents=True)
-       # print('Medium opponent.')
-       # medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games, shuffle_agents=True)
-       # print('Hard opponent.')
-       # hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games, shuffle_agents=True)
        _, _, easy_win_rate = easy_results.return_stats()
-       # _, _, medium_win_rate = medium_results.return_stats()
-       # _, _, hard_win_rate = hard_results.return_stats()
        self.neptune_monitor.log_win_rates(easy_win_rate / n_games)
-
 
    def evaluate_fixed_states(self):
        results = [self.get_value(f_state) for f_state in list_of_fixes_states]
        self.neptune_monitor.log_state_values(results)
 
+class DataTransformerExp:
+    def __init__(self, exp):
+        self.exponent = exp
+        self.name = f'f(x) = x^{self.exponent}'
+
+    def transform(self, value):
+        if value < 0:
+            return value
+        return value**self.exponent
+
+    def __call__(self, value):
+        return self.transform(value)
+
+    def transform_array(self, values):
+        return np.array([self.transform(v) for v in values])
+
 class ValueRegressor:
     def __init__(self):
         self.layer = Dense(1, activation='linear')
+        self.name = 'Value regression'
 
     def __call__(self, state_input):
         return self.layer(state_input)
 
     def get_value(self, network_result):
         return network_result[0][0]
-
-
 
 

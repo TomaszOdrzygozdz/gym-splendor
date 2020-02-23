@@ -54,9 +54,10 @@ class State():
         """Returns the hand of active player"""
         return self.list_of_players_hands[self.active_player_id]
 
+    def other_players_hand(self):
+        return self.previous_players_hand()
 
     def previous_players_hand(self):
-
         """Return the hans of the previous player"""
         return self.list_of_players_hands[(self.active_player_id - 1) % len(self.list_of_players_hands)]
 
