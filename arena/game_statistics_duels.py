@@ -46,7 +46,10 @@ class GameStatisticsDuels:
         self.number_of_games += 1
 
     def return_stats(self):
-        pair = (self.list_of_agents_names1[0], self.list_of_agents_names1[1])
+        if len(self.list_of_agents_names1) < 2:
+            pair =  (self.list_of_agents_names1[0], self.list_of_agents_names2[0])
+        else:
+            pair = (self.list_of_agents_names1[0], self.list_of_agents_names1[1])
         return self.number_of_games, self.data[pair].reward, self.data[pair].wins
 
 
