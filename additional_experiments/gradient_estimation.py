@@ -17,6 +17,7 @@ class ValueFunctionOptimizer:
     def eval_metrics(self, n_games):
         results = self.arena.run_many_games('deterministic', [self.vf_agent, self.opp], n_games)
         if main_process:
+            print(results)
             _, _, win_rate = results.return_stats()
             return win_rate/n_games
         return None
