@@ -1,7 +1,7 @@
 import numpy as np
 
-from gym_splendor_code.envs.graphics.splendor_gui import SplendorGUI, GemColor, POINTS_TO_WIN
-from gym_splendor_code.envs.mechanics.board import Board
+from gym_splendor_code.envs.mechanics.enums import GemColor
+from gym_splendor_code.envs.mechanics.game_settings import POINTS_TO_WIN
 from gym_splendor_code.envs.mechanics.gems_collection import GemsCollection
 from gym_splendor_code.envs.mechanics.players_hand import PlayersHand
 from gym_splendor_code.envs.mechanics.state import State
@@ -11,6 +11,7 @@ class ValueFunction:
 
     def __init__(self):
         self.weights = [1000, 800, 500, 650, 0, -2000, 0, 0, 0, 0, 0, 0, 150, 180, 10, 10, 0, 0, 0, 0]
+        self.scaling_factor = 1/30000
 
         # val = 0.96 [1000, 800, 500, 650, 0, -2000, 0, 0, 0, 0, 0, 0, 150, 180, 10, 20, 0, 0, 0, 0]
         #val = 0.95  [1000, 800, 500, 650, 0, -2000, 0, 0, 0, 0, 0, 0, 150, 200, 10, 20, 0, 0, 0, 0]
@@ -67,14 +68,14 @@ class ValueFunction:
         opp_cards_stats = self.cards_stats(state, False)
         return my_hand + opp_hand + my_cards_stats + opp_cards_stats
 
-    [1000, 700, 500, 650, 0, -1000, 0, 0, 0, 0, 0, 0, 150, 350, 20, 30, 0, 0, 0, 0]
+    #[1000, 700, 500, 650, 0, -1000, 0, 0, 0, 0, 0, 0, 150, 350, 20, 30, 0, 0, 0, 0]
 
 
     def evaluate(self, state: State):
         #print(self.weights)
         #print(np.array(self.state_to_features(state)))
         value =  np.dot(np.array(self.weights), np.array(self.state_to_features(state)))
-        return value
+        return value*self.scaling_factor
 
 # gui = SplendorGUI()
 # vf = ValueFunction()

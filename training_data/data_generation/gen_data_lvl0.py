@@ -18,6 +18,8 @@ import pickle
 
 from mpi4py import MPI
 
+from nn_models.value_function_heura.value_function import ValueFunction
+
 comm = MPI.COMM_WORLD
 my_rank = MPI.COMM_WORLD.Get_rank()
 main_thread = my_rank == 0
@@ -42,18 +44,17 @@ def flip_states(list_of_states, list_of_values):
     return rev_states, rev_values
 
 def evaluate_states(files_dir, dump_dir):
-    evaluator = StateEvaluatorHeuristic()
+    evaluator = ValueFunction()
+
     list_of_files = os.listdir(files_dir)
     for file_name in list_of_files:
-        X = []
-        Y = []
         with open(os.path.join(files_dir, file_name), 'rb') as f:
             X, _ = pickle.load(f)
-            X = X[:len(X)//2]
             Y = []
-            for x in X:
-                state_to_eval = StateAsDict(x).to_state()
-                Y.append(evaluator.evaluate(state_to_eval))
+        for x in X:
+            state_to_eval = StateAsDict(x).to_state()
+            Y.append(evaluator.evaluate(state_to_eval))
+            del state_to_eval
 
         with open(os.path.join(dump_dir, file_name), 'wb') as f:
             pickle.dump((X, Y), f)
@@ -62,14 +63,17 @@ def evaluate_states(files_dir, dump_dir):
         del Y
 
 
-def pick_data_for_training(epochs_range, files_dir, dump_dir):
+def pick_data_for_training(epochs_range, files_dir, dump_dir, bufor_size=10):
     states = []
     values = []
 
     files_list = os.listdir(files_dir)
     for epoch in epochs_range:
         print(f'Epoch = {epoch}')
+        bufor = 0
+        part = 0
         for file_name in files_list:
+            bufor += 1
             print(f'Current file = {file_name}')
             with open(os.path.join(files_dir, file_name), 'rb') as f:
                 one_file_data = pickle.load(f)
@@ -79,21 +83,23 @@ def pick_data_for_training(epochs_range, files_dir, dump_dir):
                         states.append(one_file_data[key]['states'][random_idx])
                         values.append(one_file_data[key]['values'][random_idx])
                 del one_file_data
-
-        print('\n Flipping \n')
-        states_rev, values_rev = flip_states(states, values)
-        print('States flipped')
-        states = states + states_rev
-        values = values + values_rev
-        del states_rev
-        del values_rev
-        print('Ready to save')
-        with open(os.path.join(dump_dir, f'epoch_{epoch}.pickle'), 'wb') as f:
-            pickle.dump((states, values), f)
-            del states
-            del values
-            states = []
-            values = []
+        if bufor > bufor_size:
+            bufor = 0
+            part += 1
+            print('\n Flipping \n')
+            # states_rev, values_rev = flip_states(states, values)
+            # print('States flipped')
+            # states = states + states_rev
+            # values = values + values_rev
+            # del states_rev
+            # del values_rev
+            print('Ready to save')
+            with open(os.path.join(dump_dir, f'epoch_{epoch}_part_{part}.pickle'), 'wb') as f:
+                pickle.dump((states, values), f)
+                del states
+                del values
+                states = []
+                values = []
 
 
 def flatten_data_from_games(source_file, target_file):

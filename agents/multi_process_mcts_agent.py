@@ -14,6 +14,7 @@ class MultiMCTSAgent(Agent):
                  only_best,
                  rollout_policy: RolloutPolicy = None,
                  evaluation_policy: EvaluationPolicy = None,
+                 exploration_coefficient: float = 0.4,
                  rollout_repetition = 10,
                  create_visualizer: bool=True,
                  show_unvisited_nodes = False):
@@ -28,6 +29,7 @@ class MultiMCTSAgent(Agent):
         self.name = 'Multi Process MCTS'
         self.visualize = create_visualizer
         self.rollout_repetition = rollout_repetition
+        self.exploration_ceofficient = exploration_coefficient
         if self.visualize:
             self.visualizer = TreeVisualizer(show_unvisited_nodes=show_unvisited_nodes)
 
@@ -41,7 +43,8 @@ class MultiMCTSAgent(Agent):
         assert self.mpi_communicator is not None, 'You have to set mpi communiactor befor initializing MCTS.'
         self.mcts_algorithm = MultiMCTS(self.mpi_communicator, rollout_repetition=self.rollout_repetition,
                                         rollout_policy=self.rollout_policy,
-                                        evaluation_policy=self.evaluation_policy)
+                                        evaluation_policy=self.evaluation_policy,
+                                        exploration_ceofficient=self.exploration_ceofficient)
         self.mcts_initialized = True
         self.main_process = self.mpi_communicator.Get_rank() == 0
 

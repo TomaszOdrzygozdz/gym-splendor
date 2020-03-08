@@ -27,6 +27,10 @@ from gym_splendor_code.envs.mechanics.game_settings import MAX_NUMBER_OF_MOVES
 
 import time
 
+from mpi4py import MPI
+total_communicator = MPI.COMM_WORLD
+total_main_process = MPI.COMM_WORLD.Get_rank()
+
 class Arena:
 
     def __init__(self,
@@ -96,7 +100,10 @@ class Arena:
         action = None
 
         if mpi_communicator is None:
-            local_main_process = True
+            #local_main_process = True
+            mpi_communicator = total_communicator
+            local_main_process = total_main_process
+
         if mpi_communicator is not None:
             local_main_process = mpi_communicator.Get_rank() == 0
             for agent in list_of_agents:

@@ -1,1 +1,1 @@
-sbatch nn_models/experiments/series_1/experiment_1/run.sbatch
+sbatch experiments/data_production/run.sbatch

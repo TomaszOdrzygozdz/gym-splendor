@@ -26,13 +26,13 @@ class MultiMCTS:
                  rollout_policy: RolloutPolicy = RandomRollout(distribution='uniform_on_types'),
                  evaluation_policy: EvaluationPolicy = None,
                  rollout_repetition: int = 0,
-                 environment_id: str = 0) -> None:
+                 exploration_ceofficient: int = 0.4) -> None:
 
         self.mpi_communicator = mpi_communicator
         self.my_rank = self.mpi_communicator.Get_rank()
         self.my_comm_size = mpi_communicator.Get_size()
         self.main_process = self.my_rank == 0
-        self.mcts = SingleMCTS(iteration_limit=iteration_limit, rollout_policy=rollout_policy,
+        self.mcts = SingleMCTS(iteration_limit=iteration_limit, exploration_parameter=exploration_ceofficient, rollout_policy=rollout_policy,
                                evaluation_policy=evaluation_policy, rollout_repetition=rollout_repetition)
         self.iterations_done_so_far = 0
 

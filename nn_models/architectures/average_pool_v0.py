@@ -385,6 +385,20 @@ class DataTransformerExp:
     def transform_array(self, values):
         return np.array([self.transform(v) for v in values])
 
+class IdentityTransformer:
+    def __init__(self):
+        self.name = 'f(x) = x'
+
+    def transform(self, value):
+        return value
+
+    def __call__(self, value):
+        return self.transform(value)
+
+    def transform_array(self, values):
+        return values
+
+
 class ValueRegressor:
     def __init__(self):
         self.layer = Dense(1, activation='linear')
