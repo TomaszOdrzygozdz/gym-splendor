@@ -298,6 +298,11 @@ class StateEncoder(AbstractModel):
        prediciton = self.network.predict(self.vectorizer.state_to_input(state))
        return self.final_layer.get_value(prediciton)
 
+   def train_on_mcts_data(self, data_frame):
+       X = data_frame['state']
+       Y = data_frame['mcst_value']
+       self.network.fit(X, Y, epochs=1)
+
 
    def train_network_on_many_sets(self, train_dir=None, validation_file=None, epochs=None, batch_size=None,
                                   test_games=1):
@@ -409,5 +414,3 @@ class ValueRegressor:
 
     def get_value(self, network_result):
         return network_result[0][0]
-
-

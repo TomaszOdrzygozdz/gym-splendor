@@ -16,6 +16,6 @@ class HeuristicValuePolicy(EvaluationPolicy):
 
     def evaluate_state(self, state : State, list_of_actions: List[Action] = None) -> float:
         inversed_state = StateAsDict(state).to_state()
-        inversed_state = state_copy.change_active_player()
+        inversed_state.change_active_player()
         return self.value_function.evaluate(state) - self.value_function.evaluate(inversed_state)
 

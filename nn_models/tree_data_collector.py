@@ -18,10 +18,9 @@ class TreeDataCollector:
 
     def generate_dqn_data(self):
         self.clean_memory()
-        self.generate_all_tree_data(raw=False, vectorized=True)
-        return self.stats_dataframe_vectorized
+        self.generate_all_tree_data()
 
-    def generate_all_tree_data(self, raw:bool =True, vectorized: bool = True):
+    def generate_all_tree_data(self):
         self.clean_memory()
         all_code = ''
         # BFS
@@ -37,22 +36,17 @@ class TreeDataCollector:
                     if child.value_acc.count() > 0:
                         kiu.append(child)
                         child_state_as_dict = StateAsDict(child.return_state())
-                        if raw:
-                            self.stats_dataframe = self.stats_dataframe.append({'state': child_state_as_dict,
-                                                                                'mcts_value': child.value_acc.get()},
-                                                                               ignore_index=True)
-
-                        if vectorized:
-                            self.stats_dataframe_vectorized = self.stats_dataframe_vectorized .append({'state_vector': vectorize_state(child_state_as_dict),
+                        self.stats_dataframe = self.stats_dataframe.append({'state': child_state_as_dict,
                                                                             'mcts_value': child.value_acc.get()},
                                                                            ignore_index=True)
+        return self.stats_dataframe
 
     def dump_data(self, file_name):
         self.stats_dataframe.to_csv(file_name + '_raw.csv', header=True)
-        self.stats_dataframe_vectorized.to_csv(file_name + '_vectorized.csv', header=True)
         self.clean_memory()
 
+    def return_data(self):
+        return self.stats_dataframe
 
     def clean_memory(self):
         self.stats_dataframe = pd.DataFrame(columns=('state', 'mcts_value'))
-        self.stats_dataframe_vectorized = pd.DataFrame(columns=('state_vector', 'mcts_value'))
