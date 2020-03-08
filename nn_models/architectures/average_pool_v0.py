@@ -240,7 +240,7 @@ class StateEncoder(AbstractModel):
 
 
        self.arena = Arena()
-       self.network_agent = ValueNNAgent(self, None)
+       self.network_agent = ValueNNAgent(self)
        self.easy_opp = RandomAgent()
        self.medium_opp = GreedyAgentBoost()
        self.hard_opp = MinMaxAgent()
@@ -300,8 +300,11 @@ class StateEncoder(AbstractModel):
 
    def train_on_mcts_data(self, data_frame):
        X = data_frame['state']
-       Y = data_frame['mcst_value']
-       self.network.fit(X, Y, epochs=1)
+       Y = data_frame['mcts_value']
+       X = self.vectorizer.many_states_to_input(X)
+       Y = self.data_transformer.transform_array(Y)
+       fit_history = self.network.fit(X, Y, epochs=1)
+       return fit_history
 
 
    def train_network_on_many_sets(self, train_dir=None, validation_file=None, epochs=None, batch_size=None,
@@ -362,6 +365,12 @@ class StateEncoder(AbstractModel):
        plt.hist(Y_val, bins=100)
        plt.savefig(file2)
        return file1, file2
+
+   def check_performance(self, n_games):
+       easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games,
+                                                shuffle_agents=True)
+       _, _, easy_win_rate = easy_results.return_stats()
+       return easy_win_rate
 
    def run_test(self, n_games):
        print('Easy opponent.')

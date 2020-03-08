@@ -36,13 +36,13 @@ class TreeDataCollector:
                     if child.value_acc.count() > 0:
                         kiu.append(child)
                         child_state_as_dict = StateAsDict(child.return_state())
-                        self.stats_dataframe = self.stats_dataframe.append({'state': child_state_as_dict,
+                        self.stats_dataframe = self.stats_dataframe.append({'state': child_state_as_dict.to_state(),
                                                                             'mcts_value': child.value_acc.get()},
                                                                            ignore_index=True)
         return self.stats_dataframe
 
     def dump_data(self, file_name):
-        self.stats_dataframe.to_csv(file_name + '_raw.csv', header=True)
+        self.stats_dataframe.to_csv(file_name + '_.pickle', header=True)
         self.clean_memory()
 
     def return_data(self):

@@ -1,20 +1,9 @@
-from agents.multi_process_mcts_agent import MultiMCTSAgent
-from agents.random_agent import RandomAgent
-from arena.arena import Arena
-from monte_carlo_tree_search.evaluation_policies.heuristic_value_policy import HeuristicValuePolicy
-from nn_models.tree_data_collector import TreeDataCollector
+import gin
+from nn_models.architectures.average_pool_v0 import StateEncoder, ValueRegressor, IdentityTransformer
 
-data_collector = TreeDataCollector()
+gin.parse_config_file('/home/tomasz/ML_Research/splendor/gym-splendor/experiments/MCTS_series_1/params.gin')
+from monte_carlo_tree_search.trainers.MCTS_value_training import MCTS_value_trainer
 
-mcts_agent = MultiMCTSAgent(10, 1, None, HeuristicValuePolicy(), 0.4, 0, True, False)
-opp_agent = RandomAgent(distribution='first_buy')
-
-arena = Arena()
-results = arena.run_one_duel('deterministic', [mcts_agent, opp_agent])
-
-data_collector.setup_root(mcts_agent.mcts_algorithm.original_root())
-tree_data = data_collector.generate_all_tree_data()
-data_collector.dump_data('danko.csv')
-
-print(results)
-print(tree_data)
+trainer = MCTS_value_trainer()
+trainer.create_neptune_experiment()
+trainer.run_training_games(epochs=10, n_test_games=5, mcts_passes=10, exploration_ceofficient=0.4)

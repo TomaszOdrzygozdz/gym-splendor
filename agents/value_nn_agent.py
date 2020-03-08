@@ -5,27 +5,18 @@ import numpy as np
 from agents.abstract_agent import Agent
 
 from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
-from nn_models.architectures.average_pool_v0 import ValueRegressor, IdentityTransformer, StateEncoder
-
 
 class ValueNNAgent(Agent):
 
-    def __init__(self, weights_file=None):
+    def __init__(self, model):
         super().__init__()
-        self.name = 'Value NN Agent'
-        final_layer = ValueRegressor()
-        data_transformer = IdentityTransformer()
-        self.model = StateEncoder(final_layer=final_layer, data_transformer=data_transformer)
-        if weights_file is not None:
-            self.model.load_weights(weights_file)
+        self.model = model
 
     def choose_act(self, mode, info=False):
 
-        self.epsilon = self.epsilon*0.995
         current_state_as_dict = StateAsDict(self.env.current_state_of_the_game)
         list_of_actions = self.env.action_space.list_of_actions
         if list_of_actions:
-            p = np.random.uniform(0,1)
             best_action = None
             best_action_value = -100
             for action in list_of_actions:
@@ -35,9 +26,6 @@ class ValueNNAgent(Agent):
                 if current_value > best_action_value:
                     best_action_value = current_value
                     best_action = action
-
-            if p < self.epsilon:
-                best_action = random.choice(list_of_actions)
 
             if not info:
                 return best_action

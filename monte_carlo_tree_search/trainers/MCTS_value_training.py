@@ -11,6 +11,7 @@ from nn_models.tree_data_collector import TreeDataCollector
 
 from mpi4py import MPI
 mpi_communicator = MPI.COMM_WORLD
+comm_size = mpi_communicator.size
 main_process = mpi_communicator.Get_rank() == 0
 
 class MCTS_value_trainer:
@@ -27,8 +28,23 @@ class MCTS_value_trainer:
         neptune.init(project_qualified_name=NEPTUNE_PROJECT_NAME_NN_TRAINING, api_token=NEPTUNE_API_TOKEN)
         neptune.create_experiment(name=experiment_name, description='training MCTS value', params=self.params)
 
-    def run_training_games(self, epochs, n_games_per_epoch, n_test_games, mcts_passes, exploration_ceofficient):
-        self.mcts_agent = MultiMCTSAgent(mcts_passes, 1, rollout_policy=None, evaluation_policy=)
+    def run_training_games(self, epochs, n_test_games, mcts_passes, exploration_ceofficient):
+        self.mcts_agent = MultiMCTSAgent(mcts_passes, 1, rollout_policy=None, evaluation_policy=self.value_policy,
+                                         exploration_coefficient=exploration_ceofficient, rollout_repetition=0,
+                                         create_visualizer=True, show_unvisited_nodes=False)
         for epoch_idx in range(epochs):
-            results = self.arena.run_many_duels('deterministic', [])
+            results = self.arena.run_many_duels('deterministic', [self.mcts_agent, self.opponent], 1,
+                                                comm_size, shuffle=True)
+            if main_process:
+                _, _, mcts_win_rate = results.return_stats()
+                neptune.log_metric('mcts_win_rate', x=epoch_idx, y=mcts_win_rate)
+                self.data_collector.setup_root(self.mcts_agent.mcts_algorithm.original_root())
+                data_for_training = self.data_collector.generate_all_tree_data()
+                self.data_collector.clean_memory()
+                fit_history = self.model.train_on_mcts_data(data_for_training)
+                neptune.send_metric('loss', x=epoch_idx, y=fit_history.history['loss'][0])
+                greedy_win_rate = self.model.check_performance(n_test_games)
+                neptune.send_metric('greedy win rate', x=epoch_idx, y=greedy_win_rate)
+
+        neptune.stop()
 

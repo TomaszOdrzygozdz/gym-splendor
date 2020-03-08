@@ -1,7 +1,6 @@
 from typing import List
 from gym_splendor_code.envs.mechanics.action import Action
 from gym_splendor_code.envs.mechanics.state import State
-from gym_splendor_code.envs.mechanics.state_as_dict import StateAsDict
 from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
 from nn_models.architectures.average_pool_v0 import ValueRegressor, IdentityTransformer, StateEncoder
 
