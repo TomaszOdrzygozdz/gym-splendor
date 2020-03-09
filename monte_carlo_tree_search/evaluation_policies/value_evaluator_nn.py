@@ -22,4 +22,4 @@ class ValueEvaluator(EvaluationPolicy):
             self.model = model
 
     def evaluate_state(self, state : State, list_of_actions: List[Action] = None) -> float:
-        return self.model.get_value(state)
+        return -self.model.get_value(state)

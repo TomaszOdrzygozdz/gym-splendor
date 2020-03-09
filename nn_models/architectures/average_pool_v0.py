@@ -370,7 +370,7 @@ class StateEncoder(AbstractModel):
        easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games,
                                                 shuffle_agents=True)
        _, _, easy_win_rate = easy_results.return_stats()
-       return easy_win_rate
+       return easy_win_rate / n_games
 
    def run_test(self, n_games):
        print('Easy opponent.')
