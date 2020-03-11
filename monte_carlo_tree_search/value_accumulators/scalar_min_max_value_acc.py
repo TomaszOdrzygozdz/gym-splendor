@@ -9,8 +9,8 @@ class ScalarMeanMaxValueAccumulator(ValueAccumulator):
         self._count = 0
         self._max = value
         self.mean_max_coeff = mean_max_coeff
-        self.auxiliary_loss = 0.0
         self.evaluation = None
+        self.perfect_value = None
         super().__init__(value, state)
 
     def add(self, value):
@@ -18,26 +18,18 @@ class ScalarMeanMaxValueAccumulator(ValueAccumulator):
         self._sum += value
         self._count += 1
 
-    def add_evaluation(self, evaluation):
-        if self.evaluation is None:
-            self.evaluation = evaluation
-        else:
-            self.add(evaluation)
-
-    def add_auxiliary(self, value):
-        self.auxiliary_loss += value
-
-    def set_constant_value_for_terminal_node(self, value):
-        def set_constant_value_for_terminal_node(self, perfect_value):
-            self._perfect_value = perfect_value
-            self._count += 1
+    def set_constant_value_for_terminal_node(self, perfect_value):
+        self.perfect_value = perfect_value
+        self._count = 1
 
     def get(self):
+        if self.perfect_value is not None:
+            return self.perfect_value
         if self._count > 0:
             return (self._sum / self._count)*self.mean_max_coeff \
                + self._max*(1-self.mean_max_coeff)
         else:
-            return self.evaluation
+            return 0
 
     def index(self, parent_value=None, action=None):
         return self.get() + self.auxiliary_loss  # auxiliary_loss alters tree traversal in monte_carlo_tree_search
@@ -49,7 +41,4 @@ class ScalarMeanMaxValueAccumulator(ValueAccumulator):
         return self.get()
 
     def count(self):
-        if self.evaluation is not None:
-            return max(self._count,1)
-        else:
-            return self._count
+        return self._count

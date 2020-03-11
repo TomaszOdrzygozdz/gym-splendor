@@ -6,7 +6,7 @@
 ## Liczba zadan per wezel (domyslnie jest to liczba alokowanych rdzeni na wezle)
 #SBATCH --ntasks-per-node=1
 ## Ilosc pamieci przypadajacej na jeden rdzen obliczeniowy (domyslnie 5GB na rdzen)
-#SBATCH --mem-per-cpu=5GB
+#SBATCH --mem-per-cpu=80GB
 ## Maksymalny czas trwania zlecenia (format HH:MM:SS)
 #SBATCH --time=20:00:00
 ## Nazwa grantu do rozliczenia zuzycia zasobow

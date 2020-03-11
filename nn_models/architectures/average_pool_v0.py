@@ -49,12 +49,12 @@ class NeptuneMonitor(Callback):
         neptune.send_metric('epoch test loss', self.epoch, self.model.evaluate(self.validation_data[:62], self.validation_data[62]))
         self.epoch += 1
 
-    def log_win_rates(self, easy_results):
-        self.win_rates_history.append(easy_results)
+    def log_win_rates(self, type,  results):
+        self.win_rates_history[type].append(results)
         if len(self.win_rates_history) < 5:
-            neptune.send_metric('win rate w. random', self.epoch, np.mean(self.win_rates_history))
+            neptune.send_metric(f'win rate {type}', self.epoch, np.mean(self.win_rates_history))
         else:
-            neptune.send_metric('win rate w. random', self.epoch, np.mean(self.win_rates_history[-4:]))
+            neptune.send_metric(f'win rate {type}', self.epoch, np.mean(self.win_rates_history[-4:]))
         #neptune.send_metric('medium win rate', self.epoch, medium_results)
         #neptune.send_metric('hard win rate', self.epoch, hard_results)
 
@@ -366,11 +366,24 @@ class StateEncoder(AbstractModel):
        plt.savefig(file2)
        return file1, file2
 
-   def check_performance(self, n_games):
-       easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games,
-                                                shuffle_agents=True)
-       _, _, easy_win_rate = easy_results.return_stats()
-       return easy_win_rate / n_games
+   def check_performance(self, n_games, opponents):
+       performance_results = {}
+       if 'easy' in opponents:
+           easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games,
+                                                    shuffle_agents=True)
+           _, _, easy_win_rate = easy_results.return_stats()
+           performance_results['easy'] = easy_win_rate / n_games
+       if 'medium' in opponents:
+           medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games,
+                                                    shuffle_agents=True)
+           _, _, medium_win_rate = easy_results.return_stats()
+           performance_results['medium'] = medium_win_rate / n_games
+       if 'hard' in opponents:
+           hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games,
+                                                    shuffle_agents=True)
+           _, _, hard_win_rate = easy_results.return_stats()
+           performance_results['hard'] = hard_win_rate / n_games
+       return performance_results
 
    def run_test(self, n_games):
        print('Easy opponent.')
@@ -390,11 +403,14 @@ class DataTransformerExp:
 
     def transform(self, value):
         if value < 0:
-            return value
+            return -abs(value)**self.exponent
         return value**self.exponent
 
     def __call__(self, value):
         return self.transform(value)
+
+    def move_towards_identity(self):
+        self.exponent = 0.2 + 0.8*self.exponent
 
     def transform_array(self, values):
         return np.array([self.transform(v) for v in values])

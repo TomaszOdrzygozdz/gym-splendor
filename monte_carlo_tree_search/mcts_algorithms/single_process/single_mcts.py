@@ -16,20 +16,17 @@ class SingleMCTS(MCTS):
     def __init__(self,
                  iteration_limit=None,
                  exploration_parameter = 0.4,
-                 rollout_policy=None,
-                 evaluation_policy=None,
-                 rollout_repetition = 10):
+                 evaluation_policy=None):
 
         
         super().__init__(iteration_limit=iteration_limit,
-                         rollout_policy= rollout_policy,
+                         rollout_policy= None,
                          evaluation_policy=evaluation_policy,
                          rollout_repetition = 1,
                          environment_id='splendor-v0')
 
 
         self.exploration_parameter = exploration_parameter
-        self.rollout_policy = rollout_policy
         self.score_evaluator = UCB1Score(self.exploration_parameter)
         self.root = None
 
@@ -46,29 +43,16 @@ class SingleMCTS(MCTS):
     def return_original_root(self):
         return self.original_root
 
-    def _rollout(self, observation: DeterministicObservation):
-        value = 0
-        is_done = False
-        assert observation is not None, 'Observation is None'
-        self.env.load_observation(observation)
-        winner_id = None
-        while not is_done:
-            action = self.rollout_policy.choose_action(self.env.current_state_of_the_game)
-            if action is not None:
-                _, reward, is_done, info = self.env.step('deterministic',action, return_observation=False)
-                winner_id = info['winner_id']
-                value = reward
-            else:
-                winner_id = self.env.previous_player_id()
-                value = 0.1
-                break
-
-        return winner_id, value
-
-    def _evaluate(self, observation: DeterministicObservation):
-        self.env.load_observation(observation)
+    def _evaluate_leaf(self, leaf: DeterministicTreeNode):
+        self.env.load_observation(leaf.observation)
         evaluated_player_id = self.env.current_state_of_the_game.active_player_id
         return evaluated_player_id, self.evaluation_policy.evaluate_state(self.env.current_state_of_the_game)
+
+    # def _evaluate(self, observation: DeterministicObservation):
+    #     self.env.load_observation(observation)
+    #     evaluated_player_id = self.env.current_state_of_the_game.active_player_id
+    #     return evaluated_player_id, self.evaluation_policy.evaluate_state(self.env.current_state_of_the_game)
+
 
     def move_root(self, action):
         if self.root.expanded() == False:
@@ -84,6 +68,7 @@ class SingleMCTS(MCTS):
         return search_path[-1], search_path
 
     def _expand_leaf(self, leaf: DeterministicTreeNode):
+        terminal_children = []
         if not leaf.expanded():
             leaf.generate_actions()
             leaf.check_if_terminal()
@@ -94,23 +79,13 @@ class SingleMCTS(MCTS):
                 new_child = DeterministicTreeNode(child_state_observation, leaf, action, reward, is_done, winner_id)
                 leaf.action_to_children_dict[action.__repr__()] = new_child
                 leaf.children.append(new_child)
+                if new_child.terminal:
+                    terminal_children.append(new_child)
+                # if not new_child.teminal:
+                #     child_player_id, child_value = self._evaluate(child_state_observation)
+                #     new_child.value_acc.add(self._evaluate(child_value))
+        return terminal_children
 
-    # def _expand_leaf_with_eval(self, leaf: DeterministicTreeNode):
-    #     if not leaf.expanded():
-    #         leaf.generate_actions()
-    #         leaf.check_if_terminal()
-    #         evaluated_player = leaf.state.active_player_id
-    #         if leaf.actions:
-    #             predicted_q_values = self.evaluation_policy.evaluate_all_actions(leaf.state, leaf.actions)
-    #         for action_id, action in enumerate(leaf.actions):
-    #             self.env.load_observation(leaf.observation)
-    #             child_state_observation, reward, is_done, info = self.env.step('deterministic', action)
-    #             winner_id = info['winner_id']
-    #             new_child = DeterministicTreeNode(child_state_observation, leaf, action, reward, is_done, winner_id)
-    #             leaf.action_to_children_dict[action.__repr__()] = new_child
-    #             leaf.children.append(new_child)
-    #             new_child.value_acc.add(predicted_q_values[action_id])
-    #         return evaluated_player, predicted_q_values
 
     def _select_child(self, node):
         children_ratings = [self.score_evaluator.compute_score(child, node) for child in node.children]
@@ -131,42 +106,13 @@ class SingleMCTS(MCTS):
             return None, None
 
 
-    def _backpropagate(self, search_path: List[DeterministicTreeNode], winner_id, value):
+    def _backpropagate(self, search_path: List[DeterministicTreeNode], value, eval_id):
         for node in search_path:
-            if winner_id is not None:
-                if node.active_player_id() == winner_id:
-                    node.value_acc.add(-value)
-                else:
-                    node.value_acc.add(value)
+            if node.active_player_id() == eval_id:
+                node.value_acc.add(-value)
             else:
-                node.value_acc.add(0)
+                node.value_acc.add(value)
 
-    def _backpropagate_evaluation_min_max(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
-        assert evaluated_player_id is not None, 'Provide id of evaluated player'
-        stop_backprop = False
-        pupu = 'BE, '
-        i = 0
-
-        reversed_search_path = self.reverse_search_path(search_path)
-
-        for node in reversed_search_path:
-            if stop_backprop:
-                pupu += ' stop '
-                if node.value_acc._eval is None:
-                    print('ERROR ' + pupu + ' node gen = {}, i = {}'.format(node.generation, i))
-                node.value_acc.add_count()
-
-            if not stop_backprop:
-                pupu = pupu + ' ns + {}, i = {} gen = {}'.format(value, i, node.generation)
-                if node.active_player_id() == evaluated_player_id:
-                    stop_backprop = node.value_acc.add_eval(value)
-
-                if node.active_player_id() != evaluated_player_id:
-                    stop_backprop =  node.value_acc.add_eval(-value)
-
-
-            i += 1
-        #print(pupu)
 
     def _backpropagate_evaluation(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
         assert evaluated_player_id is not None, 'Provide id of evaluated player'
@@ -182,9 +128,27 @@ class SingleMCTS(MCTS):
 
 
     def reverse_search_path(self, search_path: List[DeterministicTreeNode]):
-
         reversed_search_path = []
         for node in search_path:
             reversed_search_path = [node] + reversed_search_path
-
         return reversed_search_path
+
+    def run_mcts_pass(self):
+        current_leaf, tree_path = self._tree_traversal()
+        terminal_children = self._expand_leaf(current_leaf)
+        terminal_player_id = (self.env.current_state_of_the_game.active_player_id+1)%2
+        for terminal_child in terminal_children:
+            self._backpropagate(tree_path, terminal_child.value_acc.get(), terminal_player_id)
+        if current_leaf.value_acc._count == 0:
+            id, val = self._evaluate_leaf(current_leaf)
+            current_leaf.value_acc.add(val)
+            self._backpropagate(tree_path, val, id)
+        else:
+            new_leaf = self._select_child(current_leaf)
+            id, val = self._evaluate_leaf(new_leaf)
+            tree_path.append(new_leaf)
+            self._backpropagate(tree_path, val, id)
+
+    def run_simulation(self, n_passes):
+        for _ in range(n_passes):
+            self.run_mcts_pass()

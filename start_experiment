@@ -1,1 +1,1 @@
-sbatch experiments/data_production/run.sbatch
+sbatch experiments/MCTS_series_1/run_3.sbatch

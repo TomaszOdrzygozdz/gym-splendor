@@ -6,5 +6,5 @@ from monte_carlo_tree_search.trainers.MCTS_value_training import MCTS_value_trai
 
 def run_experiment():
     trainer = MCTS_value_trainer()
-    trainer.create_neptune_experiment()
-    trainer.run_training_games(epochs=100, n_test_games=50, mcts_passes=250, exploration_ceofficient=0.61)
+    trainer.run_training_games(epochs=100, n_test_games=50, mcts_passes=200, exploration_ceofficient=0.61,
+                               experiment_name='MCTS with NN', opponents=['easy', 'medium'], replay_buffer_crop_ceofficient=0.8)

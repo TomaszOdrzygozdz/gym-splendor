@@ -32,8 +32,8 @@ class MultiMCTS:
         self.my_rank = self.mpi_communicator.Get_rank()
         self.my_comm_size = mpi_communicator.Get_size()
         self.main_process = self.my_rank == 0
-        self.mcts = SingleMCTS(iteration_limit=iteration_limit, exploration_parameter=exploration_ceofficient, rollout_policy=rollout_policy,
-                               evaluation_policy=evaluation_policy, rollout_repetition=rollout_repetition)
+        self.mcts = SingleMCTS(iteration_limit=iteration_limit, exploration_parameter=exploration_ceofficient,
+                               evaluation_policy=evaluation_policy, )
         self.iterations_done_so_far = 0
 
     #method needed only for main thread:

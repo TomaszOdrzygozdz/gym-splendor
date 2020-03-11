@@ -47,6 +47,12 @@ class State():
     def change_active_player(self):
         self.active_player_id = (self.active_player_id + 1)%len(self.list_of_players_hands)
 
+    def swap_players(self):
+        new_list = [None, None]
+        new_list[0] = self.list_of_players_hands[1]
+        new_list[1] = self.list_of_players_hands[0]
+        self.list_of_players_hands = new_list
+
     def previous_player_id(self):
         return (self.active_player_id - 1)%len(self.list_of_players_hands)
 

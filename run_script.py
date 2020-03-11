@@ -1,6 +1,5 @@
 from experiments.MCTS_series_1.MCTS_with_heura import run_experiment
-from experiments.data_production.data_production_1M import produce_large_data
-from experiments.series_1.experiment_2.run_experiment import run_experiment_1_2
+
 
 run_experiment()
 

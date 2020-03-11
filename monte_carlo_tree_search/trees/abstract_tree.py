@@ -33,7 +33,4 @@ class TreeNode:
         raise NotImplementedError
 
     def is_root(self):
-        if self.parent is None:
-            return True
-        else:
-            return False
+        return True if self.parent is None else False

@@ -46,7 +46,7 @@ class TreeVisualizer:
         # BFS
         kiu = [root]
         self.add_node_to_dict(root)
-        self.states_as_dicts += '<br>' + ' --- P = [{}, {}]'.format(root.state.active_players_hand().number_of_my_points(), root.state.previous_players_hand().number_of_my_points()) +\
+        self.states_as_dicts += '<br>' + ' --- P = [{}, {}] ---'.format(root.state.active_players_hand().number_of_my_points(), root.state.previous_players_hand().number_of_my_points()) +\
                                 str(self.nodes_to_id[root]) + str(root.observation.observation_dict) + '<br><br><br>'
 
 
@@ -61,7 +61,7 @@ class TreeVisualizer:
                     if child.value_acc.count() > 0 or self.show_unvisited_nodes:
                         kiu.append(child)
                         self.add_node_to_dict(child)
-                        self.states_as_dicts += str(self.nodes_to_id[child]) + ' --- ' + str(child.observation.observation_dict) + '<br><br><br>'
+                        self.states_as_dicts += str(self.nodes_to_id[child]) + ' --- P = [{}, {}]'.format(child.recreate_state().active_players_hand().number_of_my_points(), child.recreate_state().previous_players_hand().number_of_my_points()) + str(child.observation.observation_dict) + '<br><br><br>'
                         self.edges_str += self.edge_to_string(node_to_eval, child)
 
 

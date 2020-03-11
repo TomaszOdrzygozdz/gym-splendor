@@ -24,10 +24,8 @@ class DeterministicTreeNode(TreeNode):
         if self.winner_id is not None:
             self.solved = True
         if self.is_done:
-            self.perfect_value = reward
             self.value_acc.set_constant_value_for_terminal_node(reward)
             self.terminal = True
-
 
     def active_player_id(self):
         self.recreate_state()
@@ -37,6 +35,8 @@ class DeterministicTreeNode(TreeNode):
         if not self.state_recreated:
             self.state = self.observation.recreate_state()
             self.state_recreated = True
+        return self.state
+
 
     def check_if_terminal(self):
         #Node can be terminal in two ways
@@ -44,11 +44,10 @@ class DeterministicTreeNode(TreeNode):
             if self.is_done:
                 self.teminal = True
             else:
-                self.terminal = terminal = True if len(self.actions) == 0 else False
+                self.terminal = True if len(self.actions) == 0 else False
                 if self.winner_id is None and self.terminal:
                     self.winner_id = self.state.previous_player_id()
-        else:
-            pass
+
 
     def generate_actions(self):
         self.recreate_state()
@@ -61,7 +60,7 @@ class DeterministicTreeNode(TreeNode):
         return self.state
 
     def expanded(self):
-        self.recreate_state()
+        #self.recreate_state()
         if self.terminal:
             return True
         else:
@@ -70,10 +69,5 @@ class DeterministicTreeNode(TreeNode):
     def parent(self):
         return self.parent
 
-    def is_root(self):
-        if self.parent is None:
-            return True
-        else:
-            return False
 
 
