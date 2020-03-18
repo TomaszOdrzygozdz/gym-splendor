@@ -270,29 +270,33 @@ def generate_all_legal_buys_fast_need_testing(state: State) -> List[ActionBuyCar
     return list_of_actions_buy
 
 
+if ALLOW_RESERVATIONS:
 
+    def generate_all_legal_reservations_fast(state: State) -> List[ActionReserveCard]:
+        list_of_actions_reserve = []
+        # first check if active player has not exceeded the limit of reservations
+        condition_1 = len(state.active_players_hand().cards_reserved) < MAX_RESERVED_CARDS
+        if condition_1:
+            for card in state.board.cards_on_board:
+                condition_2 = state.active_players_hand().gems_possessed.sum() < MAX_GEMS_ON_HAND
+                condition_3 = state.board.gems_on_board.value(GemColor.GOLD) > 0
+                if condition_2 and condition_3:
+                    # reserve card and take one golden gem for it:
+                    list_of_actions_reserve.append(ActionReserveCard(card, True))
+                if not condition_3:
+                    # the are no golden gems on board, so reserve without taking golden gem:
+                    list_of_actions_reserve.append(ActionReserveCard(card, False))
+                if condition_3 and not condition_2:
+                    # there are golden gems on board, but the player has reached the limit of gems on hand so can take one,
+                    # but must return one other:
+                    # 1. First case: do not take golden gem:
+                    list_of_actions_reserve.append(ActionReserveCard(card, False))
+                    # 2. Second case: take golden gem and return one other gem:
+                    for gem_color in state.active_players_hand().gems_possessed.non_empty_stacks_except_gold():
+                        list_of_actions_reserve.append(ActionReserveCard(card, True, gem_color))
 
-def generate_all_legal_reservations_fast(state: State) -> List[ActionReserveCard]:
-    list_of_actions_reserve = []
-    # first check if active player has not exceeded the limit of reservations
-    condition_1 = len(state.active_players_hand().cards_reserved) < MAX_RESERVED_CARDS
-    if condition_1:
-        for card in state.board.cards_on_board:
-            condition_2 = state.active_players_hand().gems_possessed.sum() < MAX_GEMS_ON_HAND
-            condition_3 = state.board.gems_on_board.value(GemColor.GOLD) > 0
-            if condition_2 and condition_3:
-                # reserve card and take one golden gem for it:
-                list_of_actions_reserve.append(ActionReserveCard(card, True))
-            if not condition_3:
-                # the are no golden gems on board, so reserve without taking golden gem:
-                list_of_actions_reserve.append(ActionReserveCard(card, False))
-            if condition_3 and not condition_2:
-                # there are golden gems on board, but the player has reached the limit of gems on hand so can take one,
-                # but must return one other:
-                # 1. First case: do not take golden gem:
-                list_of_actions_reserve.append(ActionReserveCard(card, False))
-                # 2. Second case: take golden gem and return one other gem:
-                for gem_color in state.active_players_hand().gems_possessed.non_empty_stacks_except_gold():
-                    list_of_actions_reserve.append(ActionReserveCard(card, True, gem_color))
+        return list_of_actions_reserve
 
-    return list_of_actions_reserve
+if not ALLOW_RESERVATIONS:
+    def generate_all_legal_reservations_fast(state: State) -> List[ActionReserveCard]:
+        return []

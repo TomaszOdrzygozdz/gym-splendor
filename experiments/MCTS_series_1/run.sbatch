@@ -4,11 +4,11 @@
 ## Liczba alokowanych wezlow
 #SBATCH -N 1
 ## Liczba zadan per wezel (domyslnie jest to liczba alokowanych rdzeni na wezle)
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=24
 ## Ilosc pamieci przypadajacej na jeden rdzen obliczeniowy (domyslnie 5GB na rdzen)
-#SBATCH --mem-per-cpu=80GB
+#SBATCH --mem-per-cpu=5GB
 ## Maksymalny czas trwania zlecenia (format HH:MM:SS)
-#SBATCH --time=20:00:00
+#SBATCH --time=24:00:00
 ## Nazwa grantu do rozliczenia zuzycia zasobow
 #SBATCH -A planningrl
 ## Specyfikacja partycji

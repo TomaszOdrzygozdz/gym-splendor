@@ -41,6 +41,12 @@ class SingleMCTSAgent(Agent):
 
         self.mcts_initialized = True
 
+    def load_weights(self, weights_file):
+        self.mcts_algorithm.evaluation_policy.load_weights(weights_file)
+
+    def dump_weights(self, weights_file):
+        self.mcts_algorithm.evaluation_policy.dump_weights(weights_file)
+
 
     def deterministic_choose_action(self, observation : DeterministicObservation, previous_actions):
 

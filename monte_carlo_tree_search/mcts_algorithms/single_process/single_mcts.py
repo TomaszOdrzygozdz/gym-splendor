@@ -29,10 +29,12 @@ class SingleMCTS(MCTS):
         self.exploration_parameter = exploration_parameter
         self.score_evaluator = UCB1Score(self.exploration_parameter)
         self.root = None
+        self.path_from_original_root = None
 
     def create_root(self, observation: DeterministicObservation):
         self.original_root = DeterministicTreeNode(observation, parent=None, parent_action=None, reward=0, is_done=False,winner_id=None)
         self.root = self.original_root
+        self.path_from_original_root = [self.original_root]
 
     def change_root(self, node):
         self.root = node
@@ -58,6 +60,7 @@ class SingleMCTS(MCTS):
         if self.root.expanded() == False:
             self._expand_leaf(self.root)
         self.root = self.root.action_to_children_dict[action.__repr__()]
+        self.path_from_original_root.append(self.root)
 
     def _tree_traversal(self):
         search_path = [self.root]
@@ -81,6 +84,8 @@ class SingleMCTS(MCTS):
                 leaf.children.append(new_child)
                 if new_child.terminal:
                     terminal_children.append(new_child)
+                #else:
+                    #new_child.value_acc.add(self.evaluation_policy.evaluate_state(new_child.observation.recreate_state()))
                 # if not new_child.teminal:
                 #     child_player_id, child_value = self._evaluate(child_state_observation)
                 #     new_child.value_acc.add(self._evaluate(child_value))
@@ -106,7 +111,9 @@ class SingleMCTS(MCTS):
             return None, None
 
 
-    def _backpropagate(self, search_path: List[DeterministicTreeNode], value, eval_id):
+    def _backpropagate(self, search_path: List[DeterministicTreeNode], value, eval_id, to_original_root: bool = True):
+        if to_original_root:
+            search_path = self.path_from_original_root[:-1] + search_path
         for node in search_path:
             if node.active_player_id() == eval_id:
                 node.value_acc.add(-value)
@@ -144,10 +151,12 @@ class SingleMCTS(MCTS):
             current_leaf.value_acc.add(val)
             self._backpropagate(tree_path, val, id)
         else:
-            new_leaf = self._select_child(current_leaf)
-            id, val = self._evaluate_leaf(new_leaf)
-            tree_path.append(new_leaf)
-            self._backpropagate(tree_path, val, id)
+            current_leaf.check_if_terminal()
+            if not current_leaf.terminal:
+                new_leaf = self._select_child(current_leaf)
+                id, val = self._evaluate_leaf(new_leaf)
+                tree_path.append(new_leaf)
+                self._backpropagate(tree_path, val, id)
 
     def run_simulation(self, n_passes):
         for _ in range(n_passes):

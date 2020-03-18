@@ -8,5 +8,6 @@ def run_experiment_1_2():
     final_layer = ValueRegressor()
     data_transformer = IdentityTransformer()
     model = StateEncoder(final_layer=final_layer, data_transformer=data_transformer)
-    model.train_network_on_many_sets(TRAIN_DIR, VALID_FILE, epochs=1000,  test_games=100)
+    model.train_network_on_many_sets(TRAIN_DIR, VALID_FILE, epochs=5,  test_games=10)
+    model.dump_weights('/net/archive/groups/plggluna/plgtodrzygozdz/lvl1/weights/w1.h5')
 

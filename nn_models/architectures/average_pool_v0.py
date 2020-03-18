@@ -241,7 +241,7 @@ class StateEncoder(AbstractModel):
 
        self.arena = Arena()
        self.network_agent = ValueNNAgent(self)
-       self.easy_opp = RandomAgent()
+       self.easy_opp = RandomAgent(distribution='first_buy')
        self.medium_opp = GreedyAgentBoost()
        self.hard_opp = MinMaxAgent()
 
@@ -333,10 +333,10 @@ class StateEncoder(AbstractModel):
                             callbacks=[self.neptune_monitor])
            del X
            del Y
-           print('Testing agains opponents')
-           self.run_test(test_games)
-           print('Evaluating fixed states')
-           self.evaluate_fixed_states()
+           #print('Testing agains opponents')
+           #self.run_test(test_games)
+           #print('Evaluating fixed states')
+           #self.evaluate_fixed_states()
 
        neptune.stop()
 
@@ -376,21 +376,18 @@ class StateEncoder(AbstractModel):
        if 'medium' in opponents:
            medium_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.medium_opp], n_games,
                                                     shuffle_agents=True)
-           _, _, medium_win_rate = easy_results.return_stats()
+           _, _, medium_win_rate = medium_results.return_stats()
            performance_results['medium'] = medium_win_rate / n_games
        if 'hard' in opponents:
            hard_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.hard_opp], n_games,
                                                     shuffle_agents=True)
-           _, _, hard_win_rate = easy_results.return_stats()
+           _, _, hard_win_rate = hard_results.return_stats()
            performance_results['hard'] = hard_win_rate / n_games
        return performance_results
 
    def run_test(self, n_games):
-       print('Easy opponent.')
-       easy_results = self.arena.run_many_duels('deterministic', [self.network_agent, self.easy_opp], n_games,
-                                                shuffle_agents=True)
-       _, _, easy_win_rate = easy_results.return_stats()
-       self.neptune_monitor.log_win_rates(easy_win_rate / n_games)
+       results = self.check_performance(n_games, ['easy'])
+       self.neptune_monitor.log_win_rates(['easy'], results)
 
    def evaluate_fixed_states(self):
        results = [self.get_value(f_state) for f_state in list_of_fixes_states]
@@ -439,3 +436,4 @@ class ValueRegressor:
 
     def get_value(self, network_result):
         return network_result[0][0]
+

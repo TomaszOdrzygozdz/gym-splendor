@@ -25,3 +25,5 @@ MAX_NOBLES_IN_HAND = 3
 MAX_NUMBER_OF_MOVES = 120
 
 INITIAL_GEMS_ON_BOARD_DICT = {gem_color : 4 if  gem_color != GemColor.GOLD else 5 for gem_color in GemColor}
+
+ALLOW_RESERVATIONS = False

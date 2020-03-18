@@ -9,7 +9,6 @@ from nn_models.architectures.average_pool_v0 import ValueRegressor, IdentityTran
 class ValueEvaluator(EvaluationPolicy):
 
     def __init__(self, model = None, weights_file = None):
-
         super().__init__(name='Value average pool evaluator')
         if model is None:
             final_layer = ValueRegressor()
@@ -22,13 +21,17 @@ class ValueEvaluator(EvaluationPolicy):
         if model is not None:
             self.model = model
 
+    def load_weights(self, weights_file):
+        self.model.load_weights(file_name=weights_file)
+
+    def dump_weights(self, weights_file):
+        self.model.dump_weights(file_name=weights_file)
+
     def evaluate_state(self, state : State, list_of_actions: List[Action] = None) -> float:
         #check if the state is terminal
         if state.active_players_hand().number_of_my_points() >= POINTS_TO_WIN:
-            print('chuj')
             return  -1
         elif state.other_players_hand().number_of_my_points() >= POINTS_TO_WIN:
-            print('chuichiwo')
             return  1
 
         else:
