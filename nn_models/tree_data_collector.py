@@ -40,7 +40,7 @@ class TreeDataCollector:
                                                                            ignore_index=True)
         return self.stats_dataframe
 
-    def generate_all_tree_data_as_list(self, count_threshold: int  = 2):
+    def generate_all_tree_data_as_list(self, confidence_threshold: float  = 0.1, count_threshold: int = 6):
         self.clean_memory()
         # BFS
         kiu = [self.root]
@@ -53,7 +53,8 @@ class TreeDataCollector:
             node_to_eval = kiu.pop(0)
             if node_to_eval.value_acc.count() > 0:
                 for child in node_to_eval.children:
-                    if child.value_acc.count() >= count_threshold or child.value_acc.perfect_value is not None:
+                    #if child.value_acc.count() >= count_threshold or child.value_acc.perfect_value is not None:
+                    if child.value_acc.get_confidence() >= confidence_threshold or child.value_acc.count() >= count_threshold:
                         kiu.append(child)
                         child_state_as_dict = StateAsDict(child.return_state())
                         current_state = child_state_as_dict.to_state()

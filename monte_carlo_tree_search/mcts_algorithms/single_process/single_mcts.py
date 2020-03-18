@@ -88,7 +88,11 @@ class SingleMCTS(MCTS):
                     #new_child.value_acc.add(self.evaluation_policy.evaluate_state(new_child.observation.recreate_state()))
                 # if not new_child.teminal:
                 #     child_player_id, child_value = self._evaluate(child_state_observation)
-                #     new_child.value_acc.add(self._evaluate(child_value))
+                #     new_child.value_acc.add(self._evaluate(child_value)
+            if len(leaf.actions) == 0:
+                terminal_children.append(leaf)
+                leaf.value_acc.set_constant_value_for_terminal_node(1)
+
         return terminal_children
 
 
@@ -111,23 +115,24 @@ class SingleMCTS(MCTS):
             return None, None
 
 
-    def _backpropagate(self, search_path: List[DeterministicTreeNode], value, eval_id, to_original_root: bool = True):
+    def _backpropagate(self, search_path: List[DeterministicTreeNode], value, eval_id, to_original_root: bool = True,
+                       high_confident_value: bool = False):
         if to_original_root:
             search_path = self.path_from_original_root[:-1] + search_path
         for node in search_path:
             if node.active_player_id() == eval_id:
-                node.value_acc.add(-value)
+                node.value_acc.add(-value, high_confident_value)
             else:
-                node.value_acc.add(value)
+                node.value_acc.add(value, high_confident_value)
 
 
-    def _backpropagate_evaluation(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
-        assert evaluated_player_id is not None, 'Provide id of evaluated player'
-        for node in search_path:
-            if node.active_player_id() == evaluated_player_id:
-                node.value_acc.add(value)
-            else:
-                node.value_acc.add(-value)
+    # def _backpropagate_evaluation(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
+    #     assert evaluated_player_id is not None, 'Provide id of evaluated player'
+    #     for node in search_path:
+    #         if node.active_player_id() == evaluated_player_id:
+    #             node.value_acc.add(value)
+    #         else:
+    #             node.value_acc.add(-value)
 
     def choose_action(self):
         _, best_action = self._select_best_child()
@@ -145,7 +150,7 @@ class SingleMCTS(MCTS):
         terminal_children = self._expand_leaf(current_leaf)
         terminal_player_id = (self.env.current_state_of_the_game.active_player_id+1)%2
         for terminal_child in terminal_children:
-            self._backpropagate(tree_path, terminal_child.value_acc.get(), terminal_player_id)
+            self._backpropagate(tree_path, terminal_child.value_acc.get(), terminal_player_id, high_confident_value=True)
         if current_leaf.value_acc._count == 0:
             id, val = self._evaluate_leaf(current_leaf)
             current_leaf.value_acc.add(val)

@@ -32,7 +32,6 @@ class MCTS_value_trainer:
         self.data_collector = TreeDataCollector()
         self.params = {}
         self.arena = MultiArena()
-        self.opponent = RandomAgent(distribution='first_buy')
         self.replay_buffer = {'state' : [], 'mcts_value' : []}
 
 
@@ -109,8 +108,8 @@ class MCTS_value_trainer:
     #                 neptune.send_metric(f'greedy win rate vs {opponent_name}', x=epoch_idx, y=win_rates[opponent_name])
     #     neptune.stop()
 
-    def run_training_games_multi_process(self, epochs, n_test_games, mcts_passes, exploration_ceofficient, experiment_name: str = 'MCTS value training',
-                            value_threshold = 0.8, weights_path = None, count_threshold:int = 2):
+    def run_training_games_multi_process(self, opponent, epochs, n_test_games, mcts_passes, exploration_ceofficient, experiment_name: str = 'MCTS value training',
+                            value_threshold = 0.8, weights_path = None, confidence_threshold: float = 0.1, count_threshold: int = 6):
 
 
         if main_process:
@@ -127,10 +126,10 @@ class MCTS_value_trainer:
         self.create_neptune_experiment('Multi Process training')
 
         for epoch_idx in range(epochs):
-            results = self.arena.run_many_duels('deterministic', [self.mcts_agent, self.opponent], n_games=comm_size,
+            results = self.arena.run_many_duels('deterministic', [self.mcts_agent, opponent], n_games=comm_size,
                                                 n_proc_per_agent=1, shuffle=False)
             self.data_collector.setup_root(self.mcts_agent.mcts_algorithm.original_root)
-            local_data_for_training = self.data_collector.generate_all_tree_data_as_list(count_threshold)
+            local_data_for_training = self.data_collector.generate_all_tree_data_as_list(confidence_threshold, count_threshold)
             combined_data = mpi_communicator.gather(local_data_for_training, root=0)
 
             if main_process:
@@ -164,7 +163,7 @@ class MCTS_value_trainer:
                 self.mcts_agent.load_weights(weights_file=weights_path + f'epoch_{epoch_idx}.h5')
 
             greedy_agent = ValueNNAgent(model = self.mcts_agent.evaluation_policy.model)
-            results_with_greedy = self.arena.run_many_duels('deterministic', [greedy_agent, self.opponent], n_games=n_test_games,
+            results_with_greedy = self.arena.run_many_duels('deterministic', [greedy_agent, opponent], n_games=n_test_games,
                                                 n_proc_per_agent=1, shuffle=False)
 
             if main_process:

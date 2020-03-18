@@ -34,9 +34,11 @@ class TreeVisualizer:
     def node_to_string(self, node: TreeNode):
         value_to_show_raw = node.value_acc.get()
         value_to_show = round(value_to_show_raw, 2) if value_to_show_raw is not None else value_to_show_raw
-        return 'nodes.push(' + '{' + ' id: {}, label: \"Id: {} \\n V: {} \\n C: {} \"'.format(self.nodes_to_id[node], self.nodes_to_id[node],
+        conf_to_show = round(node.value_acc.get_confidence(), 2)
+        return 'nodes.push(' + '{' + ' id: {}, label: \"Id: {} \\n V: {} \\n C: {} \\n CF: {} \"'.format(self.nodes_to_id[node], self.nodes_to_id[node],
                                                                                             value_to_show,
-                                                                                            node.value_acc.count()) + '}); \n'
+                                                                                            node.value_acc.count(),
+                                                                                                         conf_to_show) + '}); \n'
 
     def node_to_level(self, node: TreeNode):
         return 'nodes[{}]["level"] = {}; \n'.format(self.nodes_to_id[node], self.level_interval*node.generation)

@@ -11,16 +11,26 @@ class ScalarMeanMaxValueAccumulator(ValueAccumulator):
         self.mean_max_coeff = mean_max_coeff
         self.evaluation = None
         self.perfect_value = None
+        self.confidence_counter = 0
         super().__init__(value, state)
 
-    def add(self, value):
+    def add(self, value, high_confident_value: bool = False):
         self._max = max(self._max, value)
         self._sum += value
         self._count += 1
+        if high_confident_value:
+            self.confidence_counter += 1
 
     def set_constant_value_for_terminal_node(self, perfect_value):
         self.perfect_value = perfect_value
         self._count = 1
+
+    def get_confidence(self):
+        if self.perfect_value is not None:
+            return 1
+        if self.count() > 0:
+            return self.confidence_counter / self.count()
+        return 0
 
     def get(self):
         if self.perfect_value is not None:
