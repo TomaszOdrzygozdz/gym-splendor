@@ -1,0 +1,13 @@
+#!/bin/bash
+> '/home/tomasz/ML_Research/splendor/gym-splendor/run_script.py'
+DATA=$1
+first='/'
+second='.py'
+third=''
+DATA2=${DATA//$first/.}
+DATA3=${DATA2//$second/$third}
+echo 'from' ${DATA3//$first/.} import run_experiment >> '/home/tomasz/ML_Research/splendor/gym-splendor/run_script.py'
+echo 'run_experiment()' >> '/home/tomasz/ML_Research/splendor/gym-splendor/run_script.py'
+MY_DIR=$2
+> '/home/tomasz/ML_Research/splendor/gym-splendor/start_experiment'
+echo $MY_DIR'/run.sbatch' >> '/home/tomasz/ML_Research/splendor/gym-splendor/start_experiment'

@@ -1,0 +1,1 @@
+rsync -avz plgtodrzygozdz@pro.cyfronet.pl:/net/people/plgtodrzygozdz/gym-splendor/outputs /home/tomasz/ML_Research/splendor/gym-splendor/
