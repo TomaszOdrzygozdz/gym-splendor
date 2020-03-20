@@ -1,6 +1,6 @@
 #!/bin/bash -l
 ## Nazwa zlecenia
-#SBATCH -J SplendorAgentsArena
+#SBATCH -J Splendor
 ## Liczba alokowanych wezlow
 #SBATCH -N 1
 ## Liczba zadan per wezel (domyslnie jest to liczba alokowanych rdzeni na wezle)
@@ -8,11 +8,11 @@
 ## Ilosc pamieci przypadajacej na jeden rdzen obliczeniowy (domyslnie 5GB na rdzen)
 #SBATCH --mem-per-cpu=5GB
 ## Maksymalny czas trwania zlecenia (format HH:MM:SS)
-#SBATCH --time=24:00:00
+#SBATCH --time=10:00:00
 ## Nazwa grantu do rozliczenia zuzycia zasobow
 #SBATCH -A planningrl
 ## Specyfikacja partycji
-#SBATCH -p plgrid
+#SBATCH -p plgrid-now
 ## Plik ze standardowym wyjsciem
 #SBATCH --output="outputs/output_mcts_training.out"
 ## Plik ze standardowym wyjsciem bledow

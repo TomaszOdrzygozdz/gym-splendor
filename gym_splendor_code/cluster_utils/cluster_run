@@ -14,5 +14,5 @@ echo 'cd gym-splendor' >> '/home/tomasz/ML_Research/splendor/gym-splendor/start_
 echo 'sbatch '$MY_DIR'/run.sbatch' >> '/home/tomasz/ML_Research/splendor/gym-splendor/start_experiment'
 
 rsync -avz --exclude 'renders' /home/tomasz/ML_Research/splendor/gym-splendor plgtodrzygozdz@pro.cyfronet.pl:/net/people/plgtodrzygozdz/
-ssh plgtodrzygozdz@pro.cyfronet.pl source gym-splendor/start_experiment
-ssh plgtodrzygozdz@pro.cyfronet.pl squeue -u plgtodrzygozdz
+ssh plgtodrzygozdz@pro.cyfronet.pl -o LogLevel=error source gym-splendor/start_experiment
+ssh plgtodrzygozdz@pro.cyfronet.pl -o LogLevel=error squeue -u plgtodrzygozdz

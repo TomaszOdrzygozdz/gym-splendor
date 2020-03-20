@@ -70,10 +70,11 @@ class SingleMCTSAgent(Agent):
         root_is_terminal = self.mcts_algorithm.return_root().terminal
         if not root_is_terminal:
             self.mcts_algorithm.run_simulation(self.iteration_limit)
+            best_action = self.mcts_algorithm.choose_action()
             if self.visualize and self.main_process:
                 RENDER_FILE_ACTION = os.path.join(RENDER_DIR, 'color_{}_action_{}.html'.format(self.color, self.actions_taken_so_far))
                 self.visualizer.generate_html(self.mcts_algorithm.return_root(), RENDER_FILE_ACTION)
-            best_action = self.mcts_algorithm.choose_action()
+
             if best_action is not None:
                 self.mcts_algorithm.move_root(best_action)
                 self.actions_taken_so_far += 1

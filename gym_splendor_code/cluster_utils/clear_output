@@ -1,0 +1,2 @@
+rm /home/tomasz/ML_Research/splendor/gym-splendor/outputs/*
+ssh plgtodrzygozdz@pro.cyfronet.pl rm /net/people/plgtodrzygozdz/gym-splendor/outputs/*

@@ -50,7 +50,7 @@ class GameStatisticsDuels:
             pair =  (self.list_of_agents_names1[0], self.list_of_agents_names2[0])
         else:
             pair = (self.list_of_agents_names1[0], self.list_of_agents_names1[1])
-        return self.number_of_games, self.data[pair].reward, self.data[pair].wins
+        return self.number_of_games, self.data[pair].reward, self.data[pair].wins, self.data[pair].victory_points
 
 
     def register(self, other):

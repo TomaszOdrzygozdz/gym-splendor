@@ -1,6 +1,7 @@
 import gin
 
 from agents.greedy_agent_boost import GreedyAgentBoost
+from agents.random_agent import RandomAgent
 from gym_splendor_code.envs.utils.cluster_detection import CLUSTER
 from nn_models.architectures.average_pool_v0 import StateEncoder, ValueRegressor, IdentityTransformer
 
@@ -12,13 +13,15 @@ def run_experiment():
     trainer = MCTS_value_trainer()
 
     if not CLUSTER:
-        trainer.run_training_games_multi_process(GreedyAgentBoost(), epochs=1, mcts_passes=50, n_test_games=10, exploration_ceofficient=0.61,
+        trainer.run_training_games_multi_process(GreedyAgentBoost(), epochs=10, mcts_passes=20, n_test_games=4, exploration_ceofficient=0.61,
                                    experiment_name='MCTS with NN', value_threshold=0.8,
                                                  weights_path='/home/tomasz/ML_Research/splendor/gym-splendor/archive/weights_tt1/',
-                                                 confidence_threshold=0.1, count_threshold=50)
+                                                 confidence_threshold=1,  confidence_limit=2, count_threshold=15,
+                                                 replay_buffer_n_games=10)
 
     if CLUSTER:
-        trainer.run_training_games_multi_process(GreedyAgentBoost(), epochs=200, mcts_passes=150, n_test_games=96,  exploration_ceofficient=0.61,
+        trainer.run_training_games_multi_process(RandomAgent(distribution='first_buy'), epochs=250, mcts_passes=150, n_test_games=96,  exploration_ceofficient=0.61,
                                    experiment_name='MCTS with NN', value_threshold=0.8,
                                                  weights_path='/net/archive/groups/plggluna/plgtodrzygozdz/weights_temp/',
-                                                 confidence_threshold=0.1, count_threshold=50)
+                                                 confidence_threshold=1, confidence_limit=2, count_threshold=10,
+                                                 replay_buffer_n_games=10)

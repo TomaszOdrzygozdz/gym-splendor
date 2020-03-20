@@ -50,12 +50,6 @@ class SingleMCTS(MCTS):
         evaluated_player_id = self.env.current_state_of_the_game.active_player_id
         return evaluated_player_id, self.evaluation_policy.evaluate_state(self.env.current_state_of_the_game)
 
-    # def _evaluate(self, observation: DeterministicObservation):
-    #     self.env.load_observation(observation)
-    #     evaluated_player_id = self.env.current_state_of_the_game.active_player_id
-    #     return evaluated_player_id, self.evaluation_policy.evaluate_state(self.env.current_state_of_the_game)
-
-
     def move_root(self, action):
         if self.root.expanded() == False:
             self._expand_leaf(self.root)
@@ -134,7 +128,16 @@ class SingleMCTS(MCTS):
     #         else:
     #             node.value_acc.add(-value)
 
+    def finish_root(self):
+        children_of_root = self.root.children
+        for child in children_of_root:
+            if child.value_acc.count() == 0:
+                _, val = self._evaluate_leaf(child)
+                child.value_acc.add(val)
+
+
     def choose_action(self):
+        self.finish_root()
         _, best_action = self._select_best_child()
         return best_action
 
@@ -151,7 +154,7 @@ class SingleMCTS(MCTS):
         terminal_player_id = (self.env.current_state_of_the_game.active_player_id+1)%2
         for terminal_child in terminal_children:
             self._backpropagate(tree_path, terminal_child.value_acc.get(), terminal_player_id, high_confident_value=True)
-        if current_leaf.value_acc._count == 0:
+        if current_leaf.value_acc.count() == 0:
             id, val = self._evaluate_leaf(current_leaf)
             current_leaf.value_acc.add(val)
             self._backpropagate(tree_path, val, id)
