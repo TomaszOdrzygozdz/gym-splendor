@@ -13,15 +13,15 @@ def run_experiment():
     trainer = MCTS_value_trainer()
 
     if not CLUSTER:
-        trainer.run_training_games_multi_process(GreedyAgentBoost(), epochs=10, mcts_passes=20, n_test_games=4, exploration_ceofficient=0.61,
+        trainer.run_training_games_multi_process(RandomAgent(distribution='first_buy'), epochs=1, mcts_passes=50, n_test_games=4, exploration_ceofficient=0.41,
                                    experiment_name='MCTS with NN', value_threshold=0.8,
                                                  weights_path='/home/tomasz/ML_Research/splendor/gym-splendor/archive/weights_tt1/',
                                                  confidence_threshold=1,  confidence_limit=2, count_threshold=15,
-                                                 replay_buffer_n_games=10)
+                                                 replay_buffer_n_games=50)
 
     if CLUSTER:
-        trainer.run_training_games_multi_process(RandomAgent(distribution='first_buy'), epochs=250, mcts_passes=150, n_test_games=96,  exploration_ceofficient=0.61,
+        trainer.run_training_games_multi_process(GreedyAgentBoost(), epochs=250, mcts_passes=50, n_test_games=48,  exploration_ceofficient=0.41,
                                    experiment_name='MCTS with NN', value_threshold=0.8,
                                                  weights_path='/net/archive/groups/plggluna/plgtodrzygozdz/weights_temp/',
-                                                 confidence_threshold=1, confidence_limit=2, count_threshold=10,
-                                                 replay_buffer_n_games=10)
+                                                 confidence_threshold=1, confidence_limit=2, count_threshold=90,
+                                                 replay_buffer_n_games=50)

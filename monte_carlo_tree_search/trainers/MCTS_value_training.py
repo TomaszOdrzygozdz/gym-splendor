@@ -99,9 +99,19 @@ class MCTS_value_trainer:
 
         if main_process:
             self.create_neptune_experiment('Multi Process training')
-            neptune.send_metric(f'greedy win rate vs opp', x=0, y=0)
 
         for epoch_idx in range(epochs):
+
+            greedy_agent = ValueNNAgent(model = self.mcts_agent.evaluation_policy.model)
+            results_with_greedy = self.arena.run_many_duels('deterministic', [greedy_agent, opponent], n_games=n_test_games,
+                                                n_proc_per_agent=1, shuffle=False)
+            if main_process:
+                print(results_with_greedy)
+                _, _, greedy_win_rate, greedy_win_points = results_with_greedy.return_stats()
+                neptune.send_metric(f'greedy win rate vs opp', x=epoch_idx+1, y=greedy_win_rate/n_test_games)
+                neptune.send_metric(f'greedy victory points vs opp', x=epoch_idx +1, y=greedy_win_points/n_test_games)
+
+
             results = self.arena.run_many_duels('deterministic', [self.mcts_agent, opponent], n_games=comm_size,
                                                 n_proc_per_agent=1, shuffle=False)
             self.data_collector.setup_root(self.mcts_agent.mcts_algorithm.original_root)
@@ -118,7 +128,7 @@ class MCTS_value_trainer:
                 _, _, mcts_win_rate, mcts_victory_points = results.return_stats()
 
                 neptune.log_metric('mcts_win_rate', x=epoch_idx, y=mcts_win_rate/comm_size)
-                neptune.log_metric('mcts_victory_points', x=epoch_idx, y=mcts_victory_points)
+                neptune.log_metric('mcts_victory_points', x=epoch_idx, y=mcts_victory_points/comm_size)
                 plt.hist(data_for_training['mcts_value'], bins=100)
                 plt.savefig('epoch_histogram.png')
                 plt.clf()
@@ -128,6 +138,7 @@ class MCTS_value_trainer:
                                                              min(data_for_training['mcts_value']),
                                                              np.mean(data_for_training['mcts_value'])))
                 self.data_collector.clean_memory()
+                self.reset_weights()
                 fit_history = self.model.train_on_mcts_data(data_for_training)
                 neptune.send_metric('training set size', x=epoch_idx, y=len(data_for_training['mcts_value']))
                 neptune.send_metric('loss', x=epoch_idx, y=fit_history.history['loss'][0])
@@ -138,14 +149,6 @@ class MCTS_value_trainer:
 
             if not main_process:
                 self.mcts_agent.load_weights(weights_file=weights_path + f'epoch_{epoch_idx}.h5')
-
-            greedy_agent = ValueNNAgent(model = self.mcts_agent.evaluation_policy.model)
-            results_with_greedy = self.arena.run_many_duels('deterministic', [greedy_agent, opponent], n_games=n_test_games,
-                                                n_proc_per_agent=1, shuffle=False)
-
-            if main_process:
-                _, _, greedy_win_rate = results_with_greedy.return_stats()
-                neptune.send_metric(f'greedy win rate vs opp', x=epoch_idx+1, y=greedy_win_rate/n_test_games)
 
         if main_process:
             neptune.stop()

@@ -111,7 +111,6 @@ class SelfPlayTrainer:
             arena = MultiArena()
             results = arena.run_many_duels('deterministic', [agent_to_test, RandomAgent(distribution='first_buy')], 1, 24)
             if main_process:
-                print(results)
                 self.eval_policy.model.save_weights('Weights_i = {}.h5'.format(i))
                 text_file = open("Results_{}.txt".format(i), "w")
                 text_file.write(results.__repr__())

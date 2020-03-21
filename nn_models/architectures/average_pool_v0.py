@@ -303,7 +303,7 @@ class StateEncoder(AbstractModel):
        Y = data_frame['mcts_value']
        X = self.vectorizer.many_states_to_input(X)
        Y = self.data_transformer.transform_array(Y)
-       fit_history = self.network.fit(X, Y, epochs=1)
+       fit_history = self.network.fit(X, Y, epochs=2)
        return fit_history
 
 

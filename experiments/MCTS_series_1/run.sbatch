@@ -8,7 +8,7 @@
 ## Ilosc pamieci przypadajacej na jeden rdzen obliczeniowy (domyslnie 5GB na rdzen)
 #SBATCH --mem-per-cpu=5GB
 ## Maksymalny czas trwania zlecenia (format HH:MM:SS)
-#SBATCH --time=10:00:00
+#SBATCH --time=11:00:00
 ## Nazwa grantu do rozliczenia zuzycia zasobow
 #SBATCH -A planningrl
 ## Specyfikacja partycji
