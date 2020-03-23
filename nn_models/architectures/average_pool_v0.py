@@ -298,12 +298,12 @@ class StateEncoder(AbstractModel):
        prediciton = self.network.predict(self.vectorizer.state_to_input(state))
        return self.final_layer.get_value(prediciton)
 
-   def train_on_mcts_data(self, data_frame):
+   def train_on_mcts_data(self, data_frame, train_epochs:int):
        X = data_frame['state']
        Y = data_frame['mcts_value']
        X = self.vectorizer.many_states_to_input(X)
        Y = self.data_transformer.transform_array(Y)
-       fit_history = self.network.fit(X, Y, epochs=2)
+       fit_history = self.network.fit(X, Y, epochs=train_epochs)
        return fit_history
 
 

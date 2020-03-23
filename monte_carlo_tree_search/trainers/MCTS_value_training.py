@@ -54,6 +54,7 @@ class MCTS_value_trainer:
         self.data_collector = TreeDataCollector()
         self.params = {}
         self.arena = MultiArena()
+        self.params_files = []
         self.replay_buffer = {'state' : [], 'mcts_value' : []}
         if main_process:
             self.model.dump_weights('initial_weights.h5')
@@ -72,18 +73,34 @@ class MCTS_value_trainer:
 
     def flatten_data(self, gathered_data):
         comm_states = {'state': [], 'mcts_value' : []}
-        comm_mcts_values = []
         for local_data in gathered_data:
             comm_states['state'] += local_data['state']
             comm_states['mcts_value'] += local_data['mcts_value']
         return comm_states
 
+    def include_params_file(self, file):
+        self.params_files.append(file)
 
-    def run_training_games_multi_process(self, opponent, epochs, n_test_games, mcts_passes, exploration_ceofficient, experiment_name: str = 'MCTS value training',
-                            value_threshold = 0.8, weights_path = None, confidence_threshold: float = 0.1,
-                                         confidence_limit:int = 2, count_threshold: int = 6,
-                                         replay_buffer_n_games:int = 10):
+    def parse_params_file(self, file):
+        with open(file) as inputfile:
+            for line in inputfile:
+                print(line)
 
+    def run_training_games_multi_process(self,
+                                         opponent,
+                                         epochs,
+                                         n_test_games,
+                                         mcts_passes,
+                                         exploration_ceofficient,
+                                         experiment_name: str = 'MCTS value training',
+                                         weights_path = None,
+                                         confidence_threshold: float = 0.1,
+                                         confidence_limit:int = 2,
+                                         count_threshold: int = 6,
+                                         replay_buffer_n_games:int = 10,
+                                         neural_network_train_epochs:int  = 2,
+                                         create_visualizer:bool=True,
+                                         use_neptune: bool = True):
 
         if main_process:
             self.params['mcts passes'] = mcts_passes
@@ -91,27 +108,29 @@ class MCTS_value_trainer:
             self.params['n test games'] = n_test_games
             self.params['n proc'] = comm_size
             self.params['replay buffer games'] = replay_buffer_n_games
-            self.params['value threshold'] = value_threshold
             self.params['opponent name'] = opponent.name
+            self.params['train_epochs'] = neural_network_train_epochs
 
         self.mcts_agent = SingleMCTSAgent(mcts_passes, self.value_policy, exploration_ceofficient,
-                                          create_visualizer=True, show_unvisited_nodes=False)
+                                          create_visualizer=create_visualizer, show_unvisited_nodes=False)
 
-        if main_process:
-            self.create_neptune_experiment('Multi Process training')
+        if main_process and use_neptune:
+            self.create_neptune_experiment(experiment_name=experiment_name)
 
         for epoch_idx in range(epochs):
 
-            greedy_agent = ValueNNAgent(model = self.mcts_agent.evaluation_policy.model)
-            results_with_greedy = self.arena.run_many_duels('deterministic', [greedy_agent, opponent], n_games=n_test_games,
-                                                n_proc_per_agent=1, shuffle=False)
-            if main_process:
-                print(results_with_greedy)
-                _, _, greedy_win_rate, greedy_win_points = results_with_greedy.return_stats()
-                neptune.send_metric(f'greedy win rate vs opp', x=epoch_idx+1, y=greedy_win_rate/n_test_games)
-                neptune.send_metric(f'greedy victory points vs opp', x=epoch_idx +1, y=greedy_win_points/n_test_games)
+            if n_test_games > 0:
+                greedy_agent = ValueNNAgent(model = self.mcts_agent.evaluation_policy.model)
+                results_with_greedy = self.arena.run_many_duels('deterministic', [greedy_agent, opponent], n_games=n_test_games,
+                                                    n_proc_per_agent=1, shuffle=False)
+                if main_process:
+                    print(results_with_greedy)
+                    _, _, greedy_win_rate, greedy_win_points = results_with_greedy.return_stats()
+                    if use_neptune:
+                        neptune.send_metric(f'greedy win rate vs opp', x=epoch_idx+1, y=greedy_win_rate/n_test_games)
+                        neptune.send_metric(f'greedy victory points vs opp', x=epoch_idx +1, y=greedy_win_points/n_test_games)
 
-
+            print('============ \n Running MCTS games \n ============')
             results = self.arena.run_many_duels('deterministic', [self.mcts_agent, opponent], n_games=comm_size,
                                                 n_proc_per_agent=1, shuffle=False)
             self.data_collector.setup_root(self.mcts_agent.mcts_algorithm.original_root)
@@ -126,22 +145,21 @@ class MCTS_value_trainer:
                 data_for_training = self.replay_buffer.data_from_last_games(replay_buffer_n_games)
                 print(data_for_training)
                 _, _, mcts_win_rate, mcts_victory_points = results.return_stats()
-
-                neptune.log_metric('mcts_win_rate', x=epoch_idx, y=mcts_win_rate/comm_size)
-                neptune.log_metric('mcts_victory_points', x=epoch_idx, y=mcts_victory_points/comm_size)
+                if use_neptune:
+                    neptune.log_metric('mcts_win_rate', x=epoch_idx, y=mcts_win_rate/comm_size)
+                    neptune.log_metric('mcts_victory_points', x=epoch_idx, y=mcts_victory_points/comm_size)
                 plt.hist(data_for_training['mcts_value'], bins=100)
                 plt.savefig('epoch_histogram.png')
                 plt.clf()
                 img_histogram = Image.open('epoch_histogram.png')
-                neptune.send_image(f'train set histogram epoch = {epoch_idx}', img_histogram)
-                print('max = {}, min = {}  mean = {}'.format(max(data_for_training['mcts_value']),
-                                                             min(data_for_training['mcts_value']),
-                                                             np.mean(data_for_training['mcts_value'])))
+                if use_neptune:
+                    neptune.send_image(f'train set histogram epoch = {epoch_idx}', img_histogram)
                 self.data_collector.clean_memory()
                 self.reset_weights()
-                fit_history = self.model.train_on_mcts_data(data_for_training)
-                neptune.send_metric('training set size', x=epoch_idx, y=len(data_for_training['mcts_value']))
-                neptune.send_metric('loss', x=epoch_idx, y=fit_history.history['loss'][0])
+                fit_history = self.model.train_on_mcts_data(data_for_training, train_epochs=neural_network_train_epochs)
+                if use_neptune:
+                    neptune.send_metric('training set size', x=epoch_idx, y=len(data_for_training['mcts_value']))
+                    neptune.send_metric('loss', x=epoch_idx, y=fit_history.history['loss'][0])
                 self.mcts_agent.dump_weights(weights_file=weights_path + f'epoch_{epoch_idx}.h5')
 
             saved = main_process
@@ -150,5 +168,5 @@ class MCTS_value_trainer:
             if not main_process:
                 self.mcts_agent.load_weights(weights_file=weights_path + f'epoch_{epoch_idx}.h5')
 
-        if main_process:
+        if main_process and use_neptune:
             neptune.stop()

@@ -11,7 +11,14 @@ echo 'run_experiment()' >> '/home/tomasz/ML_Research/splendor/gym-splendor/run_s
 MY_DIR=$2
 > '/home/tomasz/ML_Research/splendor/gym-splendor/start_experiment'
 echo 'cd gym-splendor' >> '/home/tomasz/ML_Research/splendor/gym-splendor/start_experiment'
-echo 'sbatch '$MY_DIR'/run.sbatch' >> '/home/tomasz/ML_Research/splendor/gym-splendor/start_experiment'
+
+typeset -i num=$(cat '/home/tomasz/ML_Research/splendor/gym-splendor/gym_splendor_code/cluster_utils/batch_files/batch_num')
+new_num=$((num+1))
+ > '/home/tomasz/ML_Research/splendor/gym-splendor/gym_splendor_code/cluster_utils/batch_files/batch_num'
+echo $new_num >> '/home/tomasz/ML_Research/splendor/gym-splendor/gym_splendor_code/cluster_utils/batch_files/batch_num'
+
+cp -- $MY_DIR'/run.sbatch'  '/home/tomasz/ML_Research/splendor/gym-splendor/gym_splendor_code/cluster_utils/batch_files/run_'$num'.sbatch'
+echo 'sbatch gym_splendor_code/cluster_utils/batch_files/run_'$num'.sbatch' >> '/home/tomasz/ML_Research/splendor/gym-splendor/start_experiment'
 
 rsync -avz --exclude 'renders' --exclude 'archive' /home/tomasz/ML_Research/splendor/gym-splendor plgtodrzygozdz@pro.cyfronet.pl:/net/people/plgtodrzygozdz/
 ssh plgtodrzygozdz@pro.cyfronet.pl -o LogLevel=error source gym-splendor/start_experiment

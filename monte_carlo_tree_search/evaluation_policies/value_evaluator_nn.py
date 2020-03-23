@@ -35,5 +35,4 @@ class ValueEvaluator(EvaluationPolicy):
             return  1
 
         else:
-            #return self.model.get_value(state)
-            return 500
+            return self.model.get_value(state)

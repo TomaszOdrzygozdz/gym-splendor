@@ -115,18 +115,10 @@ class SingleMCTS(MCTS):
             search_path = self.path_from_original_root[:-1] + search_path
         for node in search_path:
             if node.active_player_id() == eval_id:
-                node.value_acc.add(-value, high_confident_value)
-            else:
                 node.value_acc.add(value, high_confident_value)
+            else:
+                node.value_acc.add(-value, high_confident_value)
 
-
-    # def _backpropagate_evaluation(self, search_path: List[DeterministicTreeNode], evaluated_player_id, value):
-    #     assert evaluated_player_id is not None, 'Provide id of evaluated player'
-    #     for node in search_path:
-    #         if node.active_player_id() == evaluated_player_id:
-    #             node.value_acc.add(value)
-    #         else:
-    #             node.value_acc.add(-value)
 
     def finish_root(self):
         children_of_root = self.root.children
@@ -151,12 +143,12 @@ class SingleMCTS(MCTS):
     def run_mcts_pass(self):
         current_leaf, tree_path = self._tree_traversal()
         terminal_children = self._expand_leaf(current_leaf)
-        terminal_player_id = (self.env.current_state_of_the_game.active_player_id+1)%2
+        terminal_player_id = self.env.current_state_of_the_game.active_player_id
         for terminal_child in terminal_children:
             self._backpropagate(tree_path, terminal_child.value_acc.get(), terminal_player_id, high_confident_value=True)
+        #print(f'curr leaf count = {current_leaf.value_acc.count()}')
         if current_leaf.value_acc.count() == 0:
             id, val = self._evaluate_leaf(current_leaf)
-            current_leaf.value_acc.add(val)
             self._backpropagate(tree_path, val, id)
         else:
             current_leaf.check_if_terminal()
