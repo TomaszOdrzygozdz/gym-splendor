@@ -1,3 +1,6 @@
+import time
+import neptune
+
 from agents.abstract_agent import Agent
 from gym_splendor_code.envs.mechanics.abstract_observation import DeterministicObservation
 from monte_carlo_tree_search.evaluation_policies.abstract_evaluation_policy import EvaluationPolicy
@@ -15,7 +18,8 @@ class SingleMCTSAgent(Agent):
                  evaluation_policy: EvaluationPolicy = None,
                  exploration_parameter: float = 0.4,
                  create_visualizer: bool=True,
-                 show_unvisited_nodes = False):
+                 show_unvisited_nodes = False,
+                 log_to_neptune: bool = False):
 
         super().__init__()
         self.evaluation_policy = evaluation_policy
@@ -33,6 +37,10 @@ class SingleMCTSAgent(Agent):
         self.actions_taken_so_far = 0
         self.color = 0
         self.self_play_mode = False
+        self.log_to_neptune = log_to_neptune
+        if self.log_to_neptune:
+            self.action_number = 0
+
 
     def initialize_mcts(self):
         self.mcts_algorithm = SingleMCTS(iteration_limit=self.iteration_limit,
@@ -50,6 +58,8 @@ class SingleMCTSAgent(Agent):
 
     def deterministic_choose_action(self, observation : DeterministicObservation, previous_actions):
 
+        if self.log_to_neptune:
+            start_time = time.time()
         assert observation.name == 'deterministic', 'You must provide deterministic observation'
         ignore_previous_action = False
         if not self.mcts_initialized:
@@ -80,8 +90,14 @@ class SingleMCTSAgent(Agent):
                 self.actions_taken_so_far += 1
                 self.draw_final_tree()
 
+            if self.log_to_neptune:
+                self.action_number += 1
+                neptune.log_metric('Time for action',x = self. action_number, y=time.time() - start_time)
             return best_action
         else:
+            if self.log_to_neptune:
+                self.action_number += 1
+                neptune.log_metric('Time for action',x = self. action_number, y=time.time() - start_time)
             return None
 
     # def judge_observation(self, observation : DeterministicObservation):

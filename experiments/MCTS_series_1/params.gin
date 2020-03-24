@@ -12,4 +12,4 @@ StateEncoder.player_points_dim = 128
 StateEncoder.player_nobles_dim = 128
 StateEncoder.full_player_dense1_dim = 256
 StateEncoder.full_player_dense2_dim = 256
-StateEncoder.experiment_name = 'DD'
+StateEncoder.network_name = 'Small: 256'

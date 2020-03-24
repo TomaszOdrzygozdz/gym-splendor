@@ -4,15 +4,15 @@
 ## Liczba alokowanych wezlow
 #SBATCH -N 1
 ## Liczba zadan per wezel (domyslnie jest to liczba alokowanych rdzeni na wezle)
-#SBATCH --ntasks-per-node=2
+#SBATCH --ntasks-per-node=24
 ## Ilosc pamieci przypadajacej na jeden rdzen obliczeniowy (domyslnie 5GB na rdzen)
 #SBATCH --mem-per-cpu=5GB
 ## Maksymalny czas trwania zlecenia (format HH:MM:SS)
-#SBATCH --time=00:05:00
+#SBATCH --time=12:00:00
 ## Nazwa grantu do rozliczenia zuzycia zasobow
 #SBATCH -A planningrl
 ## Specyfikacja partycji
-#SBATCH -p plgrid
+#SBATCH -p plgrid-now
 ## Plik ze standardowym wyjsciem
 #SBATCH --output="outputs/output_mcts_training.out"
 ## Plik ze standardowym wyjsciem bledow

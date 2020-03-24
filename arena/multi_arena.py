@@ -27,11 +27,12 @@ class MultiArena:
         """Arena has its private environment to run the game."""
         self.env = gym_open_ai.make(environment_id)
 
-    def run_multi_process_self_play(self, mode, agent: Agent, render_game = False):
+    # def run_multi_process_self_play(self, mode, agent: Agent, render_game = False):
+    #
+    #     self.local_arena.run_self_play(mode, agent, render_game=render_game, mpi_communicator=comm)
 
-        self.local_arena.run_self_play(mode, agent, render_game=render_game, mpi_communicator=comm)
-
-    def run_many_duels(self, mode, list_of_agents: List[Agent], n_games: int, n_proc_per_agent:int, shuffle: bool = True):
+    def run_many_duels(self, mode, list_of_agents: List[Agent], n_games: int, n_proc_per_agent:int,
+                       shuffle: bool = True):
 
         assert n_games > 0, 'Number of games must be positive.'
         assert len(list_of_agents) == 2, 'This method can run on exactly two agents.'

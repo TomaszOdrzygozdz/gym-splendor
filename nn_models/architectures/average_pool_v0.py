@@ -213,7 +213,7 @@ class StateEncoder(AbstractModel):
                 full_player_dense2_dim: int = None,
                 final_layer= None,
                 data_transformer = None,
-                experiment_name: str = None
+                network_name: str = None
                 ):
        super().__init__()
        self.vectorizer = Vectorizer()
@@ -247,7 +247,7 @@ class StateEncoder(AbstractModel):
 
 
        self.neptune_monitor = NeptuneMonitor()
-       self.experiment_name = experiment_name
+       self.network_name = network_name
 
        self.gems_encoder = GemsEncoder(gems_encoder_dim)
        self.price_encoder = PriceEncoder(price_encoder_dim)
@@ -318,7 +318,7 @@ class StateEncoder(AbstractModel):
        Y_val = self.data_transformer.transform_array(Y_val)
        self.neptune_monitor.reset_epoch_counter()
        file1, file2 = self.gather_data_info(train_dir, validation_file)
-       self.start_neptune_experiment(experiment_name=self.experiment_name, description='Training avg_pool arch network',
+       self.start_neptune_experiment(experiment_name=self.network_name, description='Training avg_pool arch network',
                                      neptune_monitor=self.neptune_monitor)
        self.neptune_monitor.log_histograms(file1, file2)
        files_for_training = os.listdir(train_dir)
@@ -333,10 +333,6 @@ class StateEncoder(AbstractModel):
                             callbacks=[self.neptune_monitor])
            del X
            del Y
-           #print('Testing agains opponents')
-           #self.run_test(test_games)
-           #print('Evaluating fixed states')
-           #self.evaluate_fixed_states()
 
        neptune.stop()
 
