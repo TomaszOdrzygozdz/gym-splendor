@@ -51,6 +51,7 @@ class MCTS_value_trainer:
         if weights is not None:
             self.model.load_weights(weights)
         self.value_policy = ValueEvaluator(model = self.model, weights_file=None)
+        self.opponent_value_policy = ValueEvaluator(model=self.model, weights_file=None)
         self.data_collector = TreeDataCollector()
         self.params = {}
         self.arena = MultiArena()
@@ -64,10 +65,11 @@ class MCTS_value_trainer:
     def reset_weights(self):
         self.model.load_weights(self.initial_weights_file)
 
-    def create_neptune_experiment(self, experiment_name):
+    def create_neptune_experiment(self, experiment_name, source_files):
         if main_process:
             neptune.init(project_qualified_name=NEPTUNE_PROJECT_NAME_NN_TRAINING, api_token=NEPTUNE_API_TOKEN)
-            neptune.create_experiment(name=experiment_name, description='training MCTS value', params=self.params)
+            neptune.create_experiment(name=experiment_name, description='training MCTS value', params=self.params,
+                                      upload_source_files=source_files)
         else:
             pass
 
@@ -90,7 +92,8 @@ class MCTS_value_trainer:
                         self.params[to_log[0]] = to_log[1]
 
     def run_training_games_multi_process(self,
-                                         opponent,
+                                         opponent_to_train,
+                                         baselines,
                                          epochs,
                                          n_test_games,
                                          mcts_passes,
@@ -99,52 +102,67 @@ class MCTS_value_trainer:
                                          weights_path = None,
                                          confidence_threshold: float = 0.1,
                                          confidence_limit:int = 2,
-                                         count_threshold: int = 6,
+                                         count_ratio: float = 6,
                                          replay_buffer_n_games:int = 10,
                                          neural_network_train_epochs:int  = 2,
+                                         reset_network: bool = True,
                                          create_visualizer:bool=True,
                                          use_neptune: bool = True,
-                                         tags = 'experiment'):
+                                         tags = ['experiment'],
+                                         source_files = None):
 
+        count_threshold = int(count_ratio * mcts_passes)
         if main_process:
             self.params['mcts passes'] = mcts_passes
             self.params['exploration coefficient'] = exploration_ceofficient
             self.params['n test games'] = n_test_games
             self.params['n proc'] = comm_size
             self.params['replay buffer games'] = replay_buffer_n_games
-            self.params['opponent name'] = opponent.name
+            self.params['opponent name'] = opponent_to_train.name if opponent_to_train != 'self' else 'self-play'
             self.params['train_epochs'] = neural_network_train_epochs
+            self.params['count threshold'] = count_threshold
             self.parse_params_files()
 
         self.mcts_agent = SingleMCTSAgent(mcts_passes, self.value_policy, exploration_ceofficient,
                                           create_visualizer=create_visualizer, show_unvisited_nodes=False,
                                           log_to_neptune=(main_process and use_neptune))
 
+        if opponent_to_train == 'self':
+            self.opponent = SingleMCTSAgent(mcts_passes, self.opponent_value_policy, exploration_ceofficient,
+                                          create_visualizer=False, show_unvisited_nodes=False,
+                                          log_to_neptune=False)
+            self.opponent.name = 'MCTS - opponent'
+        else:
+            self.opponent = opponent_to_train
+
         if main_process and use_neptune:
-            self.create_neptune_experiment(experiment_name=experiment_name)
+            self.create_neptune_experiment(experiment_name=experiment_name, source_files=source_files)
+            if opponent_to_train == 'self':
+                tags.append('self-play')
             neptune.append_tag(tags)
 
         for epoch_idx in range(epochs):
 
             if n_test_games > 0:
-                greedy_agent = ValueNNAgent(model = self.mcts_agent.evaluation_policy.model)
-                results_with_greedy = self.arena.run_many_duels('deterministic', [greedy_agent, opponent], n_games=n_test_games,
-                                                    n_proc_per_agent=1, shuffle=False)
-                if main_process:
-                    print(results_with_greedy)
-                    _, _, greedy_win_rate, greedy_win_points = results_with_greedy.return_stats()
-                    if use_neptune:
-                        neptune.send_metric(f'Greedy win rate vs opp', x=epoch_idx+1, y=greedy_win_rate/n_test_games)
-                        neptune.send_metric(f'Greedy victory points vs opp', x=epoch_idx +1, y=greedy_win_points/n_test_games)
+
+                for baseline in baselines:
+                    results_with_baseline = self.arena.run_many_duels('deterministic', [self.mcts_agent, baseline], n_games=n_test_games,
+                                                     n_proc_per_agent=1, shuffle=False)
+
+                    if main_process:
+                        print(results_with_baseline)
+                        _, _, baseline_win_rate, baseline_victory_points = results_with_baseline.return_stats()
+                        neptune.send_metric(f'Win rate vs {baseline.name}', x=epoch_idx+1, y=baseline_win_rate/n_test_games)
+                        neptune.send_metric(f'Win points vs {baseline.name}', x=epoch_idx + 1,
+                                            y=baseline_victory_points / n_test_games)
 
             if main_process:
                 print('============ \n Running MCTS games \n============')
-            results = self.arena.run_many_duels('deterministic', [self.mcts_agent, opponent], n_games=comm_size,
+            results = self.arena.run_many_duels('deterministic', [self.mcts_agent, self.opponent], n_games=comm_size,
                                                 n_proc_per_agent=1, shuffle=False)
             if main_process:
                 print(results)
             self.data_collector.setup_root(self.mcts_agent.mcts_algorithm.original_root)
-            #self.data_collector.setup_last_vertex(self.mcts_agent.mcts_algorithm.root)
             local_data_for_training = self.data_collector.generate_all_tree_data_as_list(confidence_threshold,
                                                                                          count_threshold, confidence_limit)
             combined_data = mpi_communicator.gather(local_data_for_training, root=0)
@@ -154,8 +172,8 @@ class MCTS_value_trainer:
                 data_for_training = self.replay_buffer.data_from_last_games(replay_buffer_n_games)
                 _, _, mcts_win_rate, mcts_victory_points = results.return_stats()
                 if use_neptune:
-                    neptune.log_metric('MCTS win rate', x=epoch_idx, y=mcts_win_rate/comm_size)
-                    neptune.log_metric('MCTS victory points', x=epoch_idx, y=mcts_victory_points/comm_size)
+                    neptune.log_metric('MCTS train win rate', x=epoch_idx, y=mcts_win_rate/comm_size)
+                    neptune.log_metric('MCTS train victory points', x=epoch_idx, y=mcts_victory_points/comm_size)
                 plt.hist(data_for_training['mcts_value'], bins=100)
                 plt.savefig('epoch_histogram.png')
                 plt.clf()
@@ -163,7 +181,8 @@ class MCTS_value_trainer:
                 if use_neptune:
                     neptune.send_image(f'Train set histogram epoch = {epoch_idx}', img_histogram)
                 self.data_collector.clean_memory()
-                self.reset_weights()
+                if reset_network:
+                    self.reset_weights()
                 fit_history = self.model.train_on_mcts_data(data_for_training, train_epochs=neural_network_train_epochs)
                 if use_neptune:
                     neptune.send_metric('training set size', x=epoch_idx, y=len(data_for_training['mcts_value']))
@@ -175,6 +194,7 @@ class MCTS_value_trainer:
 
             if not main_process:
                 self.mcts_agent.load_weights(weights_file=weights_path + f'epoch_{epoch_idx}.h5')
+                self.opponent.load_weights(weights_file=weights_path + f'epoch_{epoch_idx}.h5')
 
         if main_process and use_neptune:
             neptune.stop()
